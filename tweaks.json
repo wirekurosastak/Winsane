@@ -3,15 +3,15 @@
         "category": "System",
         "items": [
             {
-                "name": "",
-                "purpose": "",
-                "on": "",
-                "off": "",
+                "name": "function name 1",
+                "purpose": "function description 1",
+                "on": "this command will run in powershell once the switch is turned on",
+                "off": "this command will run in powershell once the switch is turned off",
                 "enabled": false
             },
             {
-                "name": "",
-                "purpose": "",
+                "name": "function name 2",
+                "purpose": "function description 2",
                 "on": "",
                 "off": "",
                 "enabled": false
@@ -22,15 +22,15 @@
         "category": "Security",
         "items": [
             {
-                "name": "",
-                "purpose": "",
+                "name": "function name 3",
+                "purpose": "function description 3",
                 "on": "",
                 "off": "",
                 "enabled": false
             },
             {
-                "name": "",
-                "purpose": "",
+                "name": "function name 4",
+                "purpose": "function description 4",
                 "on": "",
                 "off": "",
                 "enabled": false
