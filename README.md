@@ -1,2 +1,2 @@
 # Winsane
-Windows 11 optimizer, later on turning it into an ultimate windows tool.
+Windows 11 optimizer, soon turning it into an ultimate windows tool.
