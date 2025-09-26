@@ -1,0 +1,138 @@
+main_tabs:
+- setting: Tweaks
+  categories:
+  - category: System
+    items:
+    - name: Ultimate Performance
+      purpose: Enables the Ultimate Performance power plan for maximum speed.
+      true: $guid = powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+        | ForEach-Object { if ($_ -match 'GUID:\s*([a-f0-9-]+)') { $matches[1] }};
+        if ($guid) { powercfg -setactive $guid }
+      false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
+      enabled: false
+    - name: example tweak
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Security
+    items:
+    - name: Disable UAC
+      purpose: Turns off the security feature that prompts for permission when programs
+        make changes.
+      true: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
+        -Name 'EnableLUA' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
+        -Name 'EnableLUA' -Value 1 -Type DWORD -Force
+      enabled: false
+    - name: example tweak
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Disk Drives
+    items:
+    - name: Disable Superfetch
+      purpose: Disables the service that preloads frequently used applications into
+        RAM.
+      true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain
+        -Force
+      false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name
+        SysMain
+      enabled: false
+    - name: example tweak
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Privacy
+    items:
+    - name: example tweak 1
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+    - name: example tweak 2
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Explorer & UI
+    items:
+    - name: Align Taskbar to Left
+      purpose: Moves the taskbar icons to the left side of the screen.
+      true: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
+        -Name 'TaskbarAl' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
+        -Name 'TaskbarAl' -Value 1 -Type DWORD -Force
+      enabled: false
+    - name: Enable Classic Right-Click Menu
+      purpose: Restores the full-featured right-click context menu.
+      true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+        -Force | Out-Null; New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+        -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+        -Name "(default)" -Value "" -Force
+      false: Remove-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+        -Recurse -Force
+      enabled: false
+  - category: Network
+    items:
+    - name: example tweak 1
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+    - name: example tweak 2
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Gaming
+    items:
+    - name: Enable Gaming Mode
+      purpose: Prioritizes system resources for gaming applications.
+      true: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\GameBar' -Name 'AutoGameModeEnabled'
+        -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore'
+        -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\GameBar' -Name 'AutoGameModeEnabled'
+        -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore'
+        -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
+      enabled: false
+    - name: Example Gaming Tweak
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Touch
+    items:
+    - name: example tweak 1
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+    - name: example tweak 2
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+  - category: Windows Update
+    items:
+    - name: Example Update Tweak 1
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+    - name: Example Update Tweak 2
+      purpose: example description (purpose)
+      true: ''
+      false: ''
+      enabled: false
+- setting: Others
+  categories:
+  - category: zzz
+    items:
+    - name: zzz
+      purpose: zzz
+      command: 
+      enabled: false
+    
