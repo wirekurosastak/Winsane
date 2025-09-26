@@ -1,5 +1,5 @@
 main_tabs:
-- setting: Tweaks
+- feature: Tweaks
   categories:
   - category: System
     items:
@@ -18,8 +18,7 @@ main_tabs:
   - category: Security
     items:
     - name: Disable UAC
-      purpose: Turns off the security feature that prompts for permission when programs
-        make changes.
+      purpose: Turns off the security feature that prompts for permission when programs make changes.
       true: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
         -Name 'EnableLUA' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
@@ -33,8 +32,7 @@ main_tabs:
   - category: Disk Drives
     items:
     - name: Disable Superfetch
-      purpose: Disables the service that preloads frequently used applications into
-        RAM.
+      purpose: Disables the service that preloads frequently used applications into RAM.
       true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain
         -Force
       false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name
@@ -98,7 +96,7 @@ main_tabs:
         -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore'
         -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
       enabled: false
-    - name: Example Gaming Tweak
+    - name: example tweak
       purpose: example description (purpose)
       true: ''
       false: ''
@@ -117,22 +115,31 @@ main_tabs:
       enabled: false
   - category: Windows Update
     items:
-    - name: Example Update Tweak 1
+    - name: example tweak 1
       purpose: example description (purpose)
       true: ''
       false: ''
       enabled: false
-    - name: Example Update Tweak 2
+    - name: example tweak 2
       purpose: example description (purpose)
       true: ''
       false: ''
       enabled: false
-- setting: Others
+- feature: Cleaner
   categories:
-  - category: zzz
+  - category: Junk Files
     items:
-    - name: zzz
-      purpose: zzz
-      command: 
+    - name: Enable Auto Clean
+      purpose: Automatically cleans user and system temp files, Windows prefetch, and Recycle Bin at user logon using a scheduled PowerShell task.
+      true: $Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument
+        '-NoProfile -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:USERPROFILE\AppData\Local\Temp\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Temp\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Prefetch\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue; (New-Object -ComObject Shell.Application).Namespace(0xA).Items()
+        | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue
+        } }"'; $Trigger = New-ScheduledTaskTrigger -AtLogon; $Principal = New-ScheduledTaskPrincipal
+        -UserId "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest;
+        Register-ScheduledTask -TaskName "Winsane Auto Clean" -Action $Action -Trigger
+        $Trigger -Principal $Principal
+      false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
       enabled: false
-    
