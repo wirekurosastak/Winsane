@@ -36,5 +36,138 @@
                 "enabled": false
             }
         ]
+    },
+    {
+        "category": "Disk Drives",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Privacy",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Explorer & UI",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Network",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Gaming",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Touch",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Windows Update",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
     }
 ]
