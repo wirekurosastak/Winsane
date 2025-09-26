@@ -1,0 +1,40 @@
+[
+    {
+        "category": "System",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    },
+    {
+        "category": "Security",
+        "items": [
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            },
+            {
+                "name": "",
+                "purpose": "",
+                "on": "",
+                "off": "",
+                "enabled": false
+            }
+        ]
+    }
+]
