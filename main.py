@@ -36,7 +36,7 @@ class TweakItemControl(ctk.CTkFrame):
             wraplength=450,
             justify="left",
             fg_color="transparent",
-            text_color="gray70"
+            text_color=("gray30", "gray70")  # <-- rendszerfüggő
         )
         self.purpose_label.grid(row=1, column=0, padx=15, pady=(0, 5), sticky="w")
 
@@ -84,11 +84,14 @@ class SubTabView(ctk.CTkTabview):
         for cat_entry in categories_data:
             category_map[cat_entry['category']].extend(cat_entry.get('items', []))
 
+        self.configure(text_color=("black", "white"))
+
         for category_name, items in category_map.items():
             self.add(category_name)
             scroll_frame = ctk.CTkScrollableFrame(
                 master=self.tab(category_name),
-                label_text=f"{category_name} Settings"
+                label_text=f"{category_name} Settings",
+                label_text_color=("black", "white")
             )
             scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -97,7 +100,7 @@ class SubTabView(ctk.CTkTabview):
                     scroll_frame,
                     item=item,
                     all_data=self.root_data,
-                    fg_color="gray15"
+                    fg_color=("white", "gray15")  # <-- világos/sötét
                 ).pack(fill="x", pady=5, padx=5)
 
 class MainTabView(ctk.CTkTabview):
@@ -128,7 +131,7 @@ class Winsane(ctk.CTk):
             self.destroy()
             return
 
-        ctk.set_appearance_mode("Dark")
+        ctk.set_appearance_mode("system")
         ctk.set_default_color_theme("blue")
         self.title("Winsane")
         self.geometry("1000x800")
