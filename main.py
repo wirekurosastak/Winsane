@@ -36,7 +36,7 @@ class TweakItemControl(ctk.CTkFrame):
             wraplength=450,
             justify="left",
             fg_color="transparent",
-            text_color=("gray30", "gray70")  # <-- rendszerfüggő
+            text_color=("gray30", "gray70")  # <-- Based on system theme
         )
         self.purpose_label.grid(row=1, column=0, padx=15, pady=(0, 5), sticky="w")
 
@@ -100,7 +100,7 @@ class SubTabView(ctk.CTkTabview):
                     scroll_frame,
                     item=item,
                     all_data=self.root_data,
-                    fg_color=("white", "gray15")  # <-- világos/sötét
+                    fg_color=("white", "gray15")  # <-- Bright/Dark
                 ).pack(fill="x", pady=5, padx=5)
 
 class MainTabView(ctk.CTkTabview):
