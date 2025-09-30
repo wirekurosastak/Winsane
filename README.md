@@ -5,7 +5,6 @@
 Winsane is a Python-based utility to optimize, tweak, and clean Windows 11 systems.  
 Over time, it aims to grow into a fuller “ultimate toolset” for managing various aspects of Windows 11.
 
----
 
 ## Features
 
@@ -15,21 +14,19 @@ Over time, it aims to grow into a fuller “ultimate toolset” for managing var
 
 *(More features are planned as development continues.)*
 
----
 
 ## Getting Winsane
 
-### Download from Releases (coming soon)
+- ### Download from Releases (coming soon)
 
-### Build It Yourself
+- ### Build It Yourself
 
-**Install Requirements**
-```bash
-pip install -r requirements.txt
-```
+  **Install Requirements**
+  ```bash
+  pip install -r requirements.txt
+  ```
 
-**Build Executable**
-```bash
-pyinstaller --onefile main.py
-```
----
+  **Build Executable**
+  ```bash
+  pyinstaller --onefile main.py
+  ```
