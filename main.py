@@ -8,12 +8,20 @@ TWEAKS_FILE = "data.yaml"
 global_tweak_data = None
 
 def save_tweaks(data):
-    with open(TWEAKS_FILE, "w", encoding="utf-8") as f:
-        yaml.safe_dump(data, f, allow_unicode=True, indent=2, sort_keys=False)
+    try:
+        with open(TWEAKS_FILE, "w", encoding="utf-8") as f:
+            yaml.safe_dump(data, f, allow_unicode=True, indent=2, sort_keys=False)
+    except Exception as e:
+        messagebox.showerror("Save Error", f"An error occurred while saving the configuration file:\n{e}")
 
 # --- Load YAML ---
-with open(TWEAKS_FILE, "r", encoding="utf-8") as f:
-    global_tweak_data = yaml.safe_load(f)
+try:
+    with open(TWEAKS_FILE, "r", encoding="utf-8") as f:
+        global_tweak_data = yaml.safe_load(f)
+except FileNotFoundError:
+    messagebox.showerror("Error", f"Configuration file not found!")
+except yaml.YAMLError as e:
+    messagebox.showerror("Error", f"Configuration reading error: {e}")
 
 # --- GUI Components ---
 class TweakItemControl(ctk.CTkFrame):
@@ -56,7 +64,10 @@ class TweakItemControl(ctk.CTkFrame):
         if not command:
             messagebox.showinfo("Information", f"No '{action_name}' command defined for this tweak.")
             return
-        subprocess.run(["powershell", "-Command", command], check=True)
+        try:
+            subprocess.run(["powershell", "-Command", command], check=True)
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror("Error", f"Command execution failed:\n{e}")
 
     def toggle_tweak(self):
         is_on = self.tweak_var.get()
