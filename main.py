@@ -12,16 +12,16 @@ def save_tweaks(data):
         with open(TWEAKS_FILE, "w", encoding="utf-8") as f:
             yaml.safe_dump(data, f, allow_unicode=True, indent=2, sort_keys=False)
     except Exception as e:
-        messagebox.showerror("Save Error", f"An error occurred while saving the {TWEAKS_FILE} file:\n{e}")
+        messagebox.showerror("Save Error", f"An error occurred while saving the configuration file:\n{e}")
 
 # --- Load YAML ---
 try:
     with open(TWEAKS_FILE, "r", encoding="utf-8") as f:
         global_tweak_data = yaml.safe_load(f)
 except FileNotFoundError:
-    messagebox.showerror("Error", f"{TWEAKS_FILE} file not found!")
+    messagebox.showerror("Error", f"Configuration file not found!")
 except yaml.YAMLError as e:
-    messagebox.showerror("Error", f"YAML reading error: {e}")
+    messagebox.showerror("Error", f"Configuration reading error: {e}")
 
 # --- GUI Components ---
 class TweakItemControl(ctk.CTkFrame):
