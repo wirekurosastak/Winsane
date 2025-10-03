@@ -1,3 +1,4 @@
+theme: system
 tweaks:
 - feature: Tweaks
   categories:
@@ -10,38 +11,56 @@ tweaks:
         if ($guid) { powercfg -setactive $guid }
       false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
       enabled: false
-    - name: example tweak
-      purpose: example description (purpose)
-      true: ''
-      false: ''
+    - name: Max Core Boot
+      purpose: Configures Windows to use the maximum number of CPU cores during boot.
+      true: '$logicalCores = [Environment]::ProcessorCount
+
+        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/set {current} numproc
+        $logicalCores" -Verb RunAs
+
+        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 3" -Verb RunAs
+
+        '
+      false: 'Start-Process -FilePath "bcdedit.exe" -ArgumentList "/deletevalue {current}
+        numproc" -Verb RunAs
+
+        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/deletevalue {current}
+        timeout" -Verb RunAs
+
+        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 30" -Verb RunAs
+
+        '
+      enabled: true
+    - name: Windows/Office Activation (legally problematic)
+      purpose: Activate Windows and Office using massgrave.dev.
+      true: irm https://get.activated.win | iex
+      false: slmgr.vbs /upk
+      enabled": false
       enabled: false
-  - category: Security
-    items:
-    - name: Disable UAC
-      purpose: Turns off the security feature that prompts for permission when programs make changes.
-      true: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-        -Name 'EnableLUA' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-        -Name 'EnableLUA' -Value 1 -Type DWORD -Force
-      enabled: false
-    - name: example tweak
-      purpose: example description (purpose)
-      true: ''
-      false: ''
-      enabled: false
-  - category: Disk Drives
-    items:
     - name: Disable Superfetch
-      purpose: Disables the service that preloads frequently used applications into RAM.
+      purpose: Disables the service that preloads frequently used applications into
+        RAM.
       true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain
         -Force
       false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name
         SysMain
       enabled: false
-    - name: example tweak
-      purpose: example description (purpose)
-      true: ''
-      false: ''
+    - name: Disable Search Indexing
+      purpose: Disables the service that indexes files to speed up search.
+      true: Set-Service -Name WSearch -StartupType Disabled; Stop-Service -Name WSearch
+        -Force
+      false: Set-Service -Name WSearch -StartupType Automatic; Start-Service -Name
+        WSearch
+      enabled: false
+  - category: Security
+    items:
+    - name: Disable UAC
+      purpose: Turns off the security feature that prompts for permission when programs
+        make changes.
+      true: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
+        -Name 'EnableLUA' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
+        -Name 'EnableLUA' -Value 1 -Type DWORD -Force
       enabled: false
   - category: Privacy
     items:
@@ -130,7 +149,8 @@ tweaks:
   - category: Junk Files
     items:
     - name: Enable Auto Clean
-      purpose: Automatically cleans user and system temp files, Windows prefetch, and Recycle Bin at user logon using a scheduled PowerShell task.
+      purpose: Automatically cleans user and system temp files, Windows prefetch,
+        and Recycle Bin at user logon using a scheduled PowerShell task.
       true: $Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument
         '-NoProfile -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:USERPROFILE\AppData\Local\Temp\*\"
         -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Temp\*\"
@@ -142,4 +162,4 @@ tweaks:
         Register-ScheduledTask -TaskName "Winsane Auto Clean" -Action $Action -Trigger
         $Trigger -Principal $Principal
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
-      enabled: false
+      enabled: true
