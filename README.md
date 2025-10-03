@@ -30,3 +30,5 @@ Over time, it aims to grow into a fuller “ultimate toolset” for managing var
   ```bash
   pyinstaller --onefile main.py
   ```
+  
+## Tested on Windows 11 Pro 10.0.26100 build 26100
