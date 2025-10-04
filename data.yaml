@@ -1,8 +1,4 @@
 theme: system
-power_options:
-  shutdown: "Start-Process shutdown -ArgumentList '-s','-f','-t'"
-  restart: "Start-Process shutdown -ArgumentList '-r','-f','-t'"
-  bios: "Start-Process shutdown -ArgumentList '-r','-fw','-t'"
 tweaks:
 - feature: Tweaks
   categories:
