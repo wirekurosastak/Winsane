@@ -30,7 +30,7 @@ tweaks:
         Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 30" -Verb RunAs
 
         '
-      enabled: true
+      enabled: false
     - name: Windows/Office Activation (legally problematic)
       purpose: Activate Windows and Office using massgrave.dev.
       true: irm https://get.activated.win | iex
@@ -162,4 +162,4 @@ tweaks:
         Register-ScheduledTask -TaskName "Winsane Auto Clean" -Action $Action -Trigger
         $Trigger -Principal $Principal
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
-      enabled: true
+      enabled: false
