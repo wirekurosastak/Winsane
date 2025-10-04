@@ -35,7 +35,6 @@ tweaks:
       purpose: Activate Windows and Office using massgrave.dev.
       true: irm https://get.activated.win | iex
       false: slmgr.vbs /upk
-      enabled": false
       enabled: false
     - name: Disable Superfetch
       purpose: Disables the service that preloads frequently used applications into
