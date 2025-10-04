@@ -83,14 +83,6 @@ GITHUB_RAW_URL = "https://raw.githubusercontent.com/wirekurosastak/Winsane/main/
 local_data = load_local_config(TWEAKS_FILE)
 # 3) Try fetching from GitHub, but if it fails, just continue
 try:
-<<<<<<< Updated upstream
-    with open(TWEAKS_FILE, "r", encoding="utf-8") as f:
-        global_tweak_data = yaml.safe_load(f)
-except FileNotFoundError:
-    messagebox.showerror("Error", f"Configuration file not found!")
-except yaml.YAMLError as e:
-    messagebox.showerror("Error", f"Configuration reading error: {e}")
-=======
     remote_data = fetch_remote_config(GITHUB_RAW_URL)
 except Exception:
     remote_data = None
@@ -118,7 +110,6 @@ if global_tweak_data is not None:
             "Save Error",
             f"Could not cache config locally:\n{e}"
         )
->>>>>>> Stashed changes
 
 # --- GUI Components ---
 class TweakItemControl(ctk.CTkFrame):
@@ -253,8 +244,4 @@ class Winsane(ctk.CTk):
 # --- Start Application ---
 if global_tweak_data is not None:
     app = Winsane(global_tweak_data)
-<<<<<<< Updated upstream
-    app.mainloop()
-=======
     app.mainloop()  
->>>>>>> Stashed changes
