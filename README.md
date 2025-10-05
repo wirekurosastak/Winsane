@@ -28,7 +28,7 @@ Over time, it aims to grow into a fuller “ultimate toolset” for managing var
 
   **Build Executable**
   ```bash
-  pyinstaller --onefile main.py
+  pyinstaller --noconsole --onefile main.py
   ```
   
 ## Tested on Windows 11 Pro 10.0.26100 build 26100
