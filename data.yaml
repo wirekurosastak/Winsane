@@ -1,4 +1,6 @@
-theme: system
+theme:
+  mode: dark
+  accent_color: '#0581ff'
 tweaks:
 - feature: Tweaks
   categories:
