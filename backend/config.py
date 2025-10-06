@@ -24,7 +24,7 @@ def run_powershell_as_admin(command):
     try:
         subprocess.run([
             "powershell","-Command",
-            f"Start-Process powershell -ArgumentList \"{command}\" -Verb RunAs -WindowStyle Hidden"
+            f"{command}"
         ], check=True)
     except subprocess.CalledProcessError as e:
         messagebox.showerror("Error", f"Command failed:\n{e}")
