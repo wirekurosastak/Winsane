@@ -1,4 +1,6 @@
-theme: system
+theme:
+  mode: dark
+  accent_color: '#0581ff'
 tweaks:
 - feature: Tweaks
   categories:
@@ -30,12 +32,11 @@ tweaks:
         Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 30" -Verb RunAs
 
         '
-      enabled: true
+      enabled: false
     - name: Windows/Office Activation (legally problematic)
       purpose: Activate Windows and Office using massgrave.dev.
       true: irm https://get.activated.win | iex
       false: slmgr.vbs /upk
-      enabled": false
       enabled: false
     - name: Disable Superfetch
       purpose: Disables the service that preloads frequently used applications into
@@ -162,4 +163,4 @@ tweaks:
         Register-ScheduledTask -TaskName "Winsane Auto Clean" -Action $Action -Trigger
         $Trigger -Principal $Principal
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
-      enabled: true
+      enabled: false

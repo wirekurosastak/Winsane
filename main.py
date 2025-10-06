@@ -2,9 +2,12 @@ import customtkinter as ctk
 from tkinter import messagebox
 import yaml
 import subprocess
+import os
+import requests
 
 # --- Configuration & Persistence ---
-TWEAKS_FILE = "data.yaml"
+WINSANE_FOLDER    = r"C:\Winsane"
+TWEAKS_FILE       = os.path.join(WINSANE_FOLDER, "data.yaml")
 global_tweak_data = None
 
 def save_tweaks(data):
@@ -14,14 +17,99 @@ def save_tweaks(data):
     except Exception as e:
         messagebox.showerror("Save Error", f"An error occurred while saving the configuration file:\n{e}")
 
-# --- Load YAML ---
+# --- Ensure Winsane folder exists ---  
+def ensure_winsane_folder():
+    folder_path = r"C:\Winsane"
+    if not os.path.exists(folder_path):
+        print(f"[DEBUG] Folder does not exist, creating: {folder_path}")
+        try:
+            os.makedirs(folder_path)
+        except Exception as e:
+            print(f"[ERROR] Failed to create folder: {e}")
+            messagebox.showerror("Folder Error", f"Could not create folder at {folder_path}:\n{e}")
+
+        # Remove old data.yaml from the script directory.
+    script_dir  = os.path.dirname(os.path.abspath(__file__))
+    legacy_file = os.path.join(script_dir, "data.yaml")
+    if os.path.exists(legacy_file):
+        try:
+            os.remove(legacy_file)
+        except Exception:
+            pass
+
+ensure_winsane_folder()
+
+# --- Load & Merge Configuration ---
+def fetch_remote_config(url, timeout=5):
+    try:
+        resp = requests.get(url, timeout=timeout)
+        resp.raise_for_status()
+        return yaml.safe_load(resp.text)
+    except Exception as e:
+        messagebox.showinfo("Network Error", f"GitHub fetch failed.\nCheck your internet connection.\nWinsane will start with the local configuration if available.")
+        return None
+
+def load_local_config(path):
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            messagebox.showerror("File Error", f"Local load failed:\n{e}")
+    return None
+
+def merge_configs(remote, local):
+    if not remote:
+        return local
+# 1) Collect local ‘enabled’ values into a name‐keyed map   
+    enabled_map = {}
+    for feat in (local or {}).get("tweaks", []):
+        for cat in feat.get("categories", []):
+            for item in cat.get("items", []):
+                key = (feat["feature"], cat["category"], item["name"])
+                enabled_map[key] = item.get("enabled", False)
+# 2) Apply these to the remote structure
+    for feat in remote.get("tweaks", []):
+        for cat in feat.get("categories", []):
+            for item in cat.get("items", []):
+                key = (feat["feature"], cat["category"], item["name"])
+                item["enabled"] = enabled_map.get(key, item.get("enabled", False))
+
+    return remote
+
+# 1) Fetch from GitHub
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/wirekurosastak/Winsane/main/data.yaml"
+# 2) Load the local file if it exists
+local_data = load_local_config(TWEAKS_FILE)
+# 3) Try fetching from GitHub, but if it fails, just continue
 try:
-    with open(TWEAKS_FILE, "r", encoding="utf-8") as f:
-        global_tweak_data = yaml.safe_load(f)
-except FileNotFoundError:
-    messagebox.showerror("Error", f"Configuration file not found!")
-except yaml.YAMLError as e:
-    messagebox.showerror("Error", f"Configuration reading error: {e}")
+    remote_data = fetch_remote_config(GITHUB_RAW_URL)
+except Exception:
+    remote_data = None
+# 4) 3) Decision: if local data is available, use it
+if local_data:
+    if remote_data:
+        global_tweak_data = merge_configs(remote_data, local_data)
+    else:
+        global_tweak_data = local_data
+else:
+     # if there's no local file, it has to come from remote (or None, in which case the GUI won’t start)
+     global_tweak_data = remote_data
+if global_tweak_data is not None:
+    try:
+        with open(TWEAKS_FILE, "w", encoding="utf-8") as f:
+            yaml.safe_dump(
+                global_tweak_data,
+                f,
+                allow_unicode=True,
+                indent=2,
+                sort_keys=False
+            )
+    except Exception as e:
+        messagebox.showerror(
+            "Save Error",
+            f"Could not cache config locally:\n{e}"
+        )
 
 # --- GUI Components ---
 class TweakItemControl(ctk.CTkFrame):
@@ -156,4 +244,4 @@ class Winsane(ctk.CTk):
 # --- Start Application ---
 if global_tweak_data is not None:
     app = Winsane(global_tweak_data)
-    app.mainloop()
+    app.mainloop()  
