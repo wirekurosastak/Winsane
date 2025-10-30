@@ -99,6 +99,36 @@ class MainTabView(ctk.CTkTabview):
                 ctk.CTkLabel(self.tab(tab_name),text=f"'{tab_name}' content coming soon...",
                              text_color=("black","white")).pack(pady=20,padx=20)
 
+class AddTweakWindow(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Add tweaks")
+        self.grab_set()
+        self.geometry("500x200")
+        self.resizable(False,False)
+
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+        self.input_name = self._create_entry("Tweak name", 10)
+        self.input_command = self._create_entry("Full command", 40)
+        ctk.CTkLabel(self, text="Command's purpose").place(x=10, y=70)
+        # Több soros szövegbevitelhez
+        self.input_description = ctk.CTkTextbox(self, width=340, height=85)  # 100px magas
+        self.input_description.place(x=150, y=70)  # x-pozíció a label után
+
+        ctk.CTkButton(self, text="Add", command="Nincs kész még").place(x=175, y=165)
+
+
+    def _create_entry(self, label, y):
+        # Creates label-entry pair for input
+        ctk.CTkLabel(self,text=label).place(x=10,y=y)
+        entry = ctk.CTkEntry(self,width=340)
+        entry.insert(0,"0")
+        entry.place(x=150,y=y)
+        return entry
 
 class PowerTimer(ctk.CTkToplevel):
     def __init__(self,parent):
@@ -229,7 +259,7 @@ class Winsane(ctk.CTk):
         sidebar.grid(row=0, column=0, sticky="nsw")
         sidebar.grid_propagate(False)
         sidebar.grid_rowconfigure(0, weight=1)
-        sidebar.grid_rowconfigure(5, weight=1)
+        sidebar.grid_rowconfigure(6, weight=1)
 
         # Sidebar buttons configuration
         btn_cfg = dict(width=40, height=40, font=ctk.CTkFont(size=14),
@@ -241,9 +271,10 @@ class Winsane(ctk.CTk):
         b_color = ctk.CTkButton(sidebar, text="🎨", command=self.pick_color, **btn_cfg)
         b_power = ctk.CTkButton(sidebar, text="⏻", command=lambda: PowerTimer(self), **btn_cfg)
         b_github = ctk.CTkButton(sidebar, text="🐱", command=self.open_github, **btn_cfg)
+        b_add_tweaks = ctk.CTkButton(sidebar, text="➕", command =lambda: AddTweakWindow(self), **btn_cfg)
 
         # Place buttons vertically
-        buttons = [b_theme, b_color, b_power, b_github]
+        buttons = [b_theme, b_color, b_power, b_github, b_add_tweaks]
         for i, btn in enumerate(buttons, start=1):
             btn.grid(row=i, column=0, pady=5, padx=10)
 
@@ -252,6 +283,7 @@ class Winsane(ctk.CTk):
         add_tooltip(b_color, "Accent Color")
         add_tooltip(b_power, "Power Scheduler")
         add_tooltip(b_github, "GitHub")
+        add_tooltip(b_add_tweaks, "Add more Tweaks manually")
 
         # Create main tweak tab area
         MainTabView(self, tweak_data).grid(row=0, column=1, padx=(3, 60), pady=(10, 30), sticky="nsew")
