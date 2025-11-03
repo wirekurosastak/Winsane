@@ -104,7 +104,7 @@ class AddTweakWindow(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Add tweaks")
         self.grab_set()
-        self.geometry("500x200")
+        self.geometry("500x255")
         self.resizable(False,False)
 
         self.update_idletasks()
@@ -112,21 +112,42 @@ class AddTweakWindow(ctk.CTkToplevel):
         y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
         self.geometry(f"+{x}+{y}")
 
-        self.input_name = self._create_entry("Tweak name", 10)
-        self.input_command = self._create_entry("Full command", 40)
-        ctk.CTkLabel(self, text="Command's purpose").place(x=10, y=70)
-        # Több soros szövegbevitelhez
-        self.input_description = ctk.CTkTextbox(self, width=340, height=85)  # 100px magas
-        self.input_description.place(x=150, y=70)  # x-pozíció a label után
+        hover_col = darker(ACCENT_COLOR,0.85)
 
-        ctk.CTkButton(self, text="Add", command="Nincs kész még").place(x=175, y=165)
+        ctk.CTkLabel(self, text="Select category:").place(x=10, y=10)
 
+        self.category_var = ctk.StringVar(value="Performance")
+        self.category_menu = ctk.CTkOptionMenu(self,
+            values=["Performance", "Security & Privacy", "Explorer & UI", "Extra"], 
+            variable=self.category_var,
+            width=180,
+            fg_color=ACCENT_COLOR,
+            button_color=ACCENT_COLOR,
+            button_hover_color=hover_col
+        )
+        self.category_menu.place(x=150, y=10)
 
-    def _create_entry(self, label, y):
-        # Creates label-entry pair for input
+        self.input_name = self._create_entry(
+            "Tweak name", 40, placeholder="Enter tweak name"
+        )
+        self.input_command = self._create_entry(
+            "PowerShell command", 70, placeholder="Enter the full command to execute"
+        )
+        self.input_turn_off_command = self._create_entry(
+            "Turn off command", 100, placeholder="Enter the command to undo the tweak"
+        )
+
+        ctk.CTkLabel(self, text="Command's purpose").place(x=10, y=130)
+        
+        self.input_description = ctk.CTkTextbox(self, width=340, height=85)
+        self.input_description.place(x=150, y=130)
+        self.input_description.insert("0.0", "Enter a brief description...")
+
+        ctk.CTkButton(self, text="Add", fg_color=ACCENT_COLOR, hover_color=hover_col).place(x=175, y=220)
+
+    def _create_entry(self, label, y, placeholder=""):
         ctk.CTkLabel(self,text=label).place(x=10,y=y)
-        entry = ctk.CTkEntry(self,width=340)
-        entry.insert(0,"0")
+        entry = ctk.CTkEntry(self, width=340, placeholder_text=placeholder)
         entry.place(x=150,y=y)
         return entry
 
