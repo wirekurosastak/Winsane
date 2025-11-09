@@ -164,5 +164,99 @@ tweaks:
         $Trigger -Principal $Principal
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
       enabled: false
-- feature: Display Settings
+- feature: Display
 - feature: Dashboard
+  layout:
+    left:
+    - type: header
+      title: Motherboard
+    - type: row
+      key: mb_name
+      label: "Name:"
+      source_key: mb_text
+      default: "N/A"
+      wrap: 300
+    - type: header
+      title: "Processor (CPU)"
+    - type: row
+      key: cpu_name
+      label: "Name:"
+      source_key: cpu
+      default: "N/A"
+      wrap: 300
+    - type: row
+      key: cpu_cores
+      label: "Topology:"
+      source_key: cpu_cores_text
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: cpu_load
+      label: "Usage:"
+      default: "0.0%"
+      wrap: 350
+    - type: header
+      title: "Memory (RAM)"
+    - type: row
+      key: ram_speed
+      label: "Speed:"
+      source_key: ram_speed
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: ram_usage
+      label: "Usage:"
+      default: "0.0% (0.0 GB / 0.0 GB)"
+      wrap: 350
+    - type: header
+      title: "Graphics (GPU)"
+    - type: row
+      key: gpu_name
+      label: "Name:"
+      default: "N/A"
+      wrap: 300
+    - type: row
+      key: gpu_mem
+      label: "VRAM:"
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: gpu_load
+      label: "Usage:"
+      default: "N/A"
+      wrap: 350
+    - type: header
+      title: Storage
+    right:
+    - type: header
+      title: System
+    - type: row
+      key: os_caption
+      label: "OS:"
+      source_key: os_caption
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: os_version
+      label: "Build:"
+      source_key: os_version
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: os_arch
+      label: "Arch:"
+      source_key: os_arch
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: os_install_date
+      label: "Installed:"
+      source_key: os_install_date
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: boot_time
+      label: "Boot Time:"
+      source_key: boot_time
+      default: "N/A"
+      wrap: 350
