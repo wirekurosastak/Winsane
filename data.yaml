@@ -260,3 +260,21 @@ tweaks:
       source_key: boot_time
       default: "N/A"
       wrap: 350
+    - type: row
+      key: secure_boot_status
+      label: "Secure Boot:"
+      source_key: secure_boot_status
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: tpm_status
+      label: "TPM:"
+      source_key: tpm_status
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: hyperv_status
+      label: "Hyper-V:"
+      source_key: hyperv_status
+      default: "N/A"
+      wrap: 350

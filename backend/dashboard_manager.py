@@ -2,6 +2,7 @@ import platform
 import psutil
 import datetime
 from collections import Counter
+import winreg
 
 # --- Optional Imports ---
 try:
@@ -108,6 +109,54 @@ class SystemInfoManager:
         
         info.update(self._safe_wmi_query(ram_query, 
                     default_value={"ram_speed": "N/A", "ram_slots_used": "N/A"}))
+        
+        # Secure Boot
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\SecureBoot\State")
+            value, _ = winreg.QueryValueEx(key, "UEFISecureBootEnabled")
+            info["secure_boot_status"] = "Enabled" if value == 1 else "Disabled"
+            winreg.CloseKey(key)
+        except (OSError, FileNotFoundError):
+            info["secure_boot_status"] = "N/A (Check BIOS)"
+        
+        # TPM
+        def tpm_query():
+            # Connect to the specific namespace for TPM
+            w_tpm = wmi.WMI(namespace="root/CIMV2/Security/MicrosoftTpm")
+            tpm_info = w_tpm.Win32_Tpm()
+            if not tpm_info:
+                return {"tpm_status": "Not Found"}
+            tpm = tpm_info[0]
+            
+            spec_version = tpm.SpecVersion.split(',')[0].strip() if tpm.SpecVersion else "N/A"
+            status = "N/A"
+            
+            if tpm.IsActivated_InitialValue and tpm.IsEnabled_InitialValue:
+                status = f"Enabled & Activated (v{spec_version})"
+            elif tpm.IsEnabled_InitialValue:
+                status = f"Enabled (v{spec_version})"
+            else:
+                status = f"Disabled (v{spec_version})"
+            
+            return {"tpm_status": status}
+        
+        # We must use a separate wrapper for this query, as it uses a different namespace
+        if WMI_AVAILABLE:
+            try:
+                info.update(tpm_query())
+            except Exception as e:
+                print(f"TPM WMI query error: {e}")
+                info.update({"tpm_status": "N/A (Query Failed)"})
+        else:
+            info.update({"tpm_status": "N/A (WMI Error)"})
+
+
+        # Hyper-V
+        def hyperv_query():
+            cs_info = self.w.Win32_ComputerSystem()[0]
+            # HypervisorPresent is a boolean, use getattr for safety
+            return {"hyperv_status": "Enabled" if getattr(cs_info, 'HypervisorPresent', False) else "Disabled"}
+        info.update(self._safe_wmi_query(hyperv_query, default_value={"hyperv_status": "N/A"}))
         
         # Get list of drive partitions (C:\, D:\) for dynamic updates later
         info['drives'] = []
