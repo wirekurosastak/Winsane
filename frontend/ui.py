@@ -9,6 +9,7 @@ from backend.config import (
     ACCENT_COLOR,
     save_tweaks,
 )
+from .display_frame import DisplayFrame
 from .dashboard_frame import InfoFrame
 
 class TweakItemControl(ctk.CTkFrame):
@@ -92,8 +93,11 @@ class MainTabView(ctk.CTkTabview):
             if not tab_name: continue
             self.add(tab_name)
             categories = main_tab.get('categories',[])
-            if tab_name == "Dashboard":
-                InfoFrame(self.tab(tab_name)).pack(fill="both", expand=True, padx=5, pady=5)
+            if tab_name == "Display":
+                display_frame = DisplayFrame(self.tab(tab_name))
+                display_frame.pack(fill="both", expand=True)
+            elif tab_name == "Dashboard":
+                InfoFrame(self.tab(tab_name), dashboard_data=main_tab).pack(fill="both", expand=True, padx=5, pady=5)
             elif categories:
                 # If there are categories, create subtabs for them
                 SubTabView(self.tab(tab_name),categories,all_data,tab_name).pack(fill="both",expand=True,padx=5,pady=5)
