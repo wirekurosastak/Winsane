@@ -1,10 +1,10 @@
 theme:
   mode: dark
   accent_color: '#0581ff'
-tweaks:
-- feature: Tweaks
+features:
+- feature: Optimizer
   categories:
-  - category: System
+  - category: Performance
     items:
     - name: Ultimate Performance
       purpose: Enables the Ultimate Performance power plan for maximum speed.
@@ -145,8 +145,6 @@ tweaks:
       true: ''
       false: ''
       enabled: false
-- feature: Cleaner
-  categories:
   - category: Junk Files
     items:
     - name: Enable Auto Clean
@@ -258,5 +256,23 @@ tweaks:
       key: boot_time
       label: "Boot Time:"
       source_key: boot_time
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: secure_boot_status
+      label: "Secure Boot:"
+      source_key: secure_boot_status
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: tpm_status
+      label: "TPM:"
+      source_key: tpm_status
+      default: "N/A"
+      wrap: 350
+    - type: row
+      key: hyperv_status
+      label: "Hyper-V:"
+      source_key: hyperv_status
       default: "N/A"
       wrap: 350
