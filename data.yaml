@@ -126,6 +126,8 @@ features:
         $Trigger -Principal $Principal
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
       enabled: false
+  - category: User
+    items: []
 - feature: Display
 - feature: Dashboard
   layout:
