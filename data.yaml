@@ -109,7 +109,9 @@ features:
       true: ''
       false: ''
       enabled: false
-  - category: Cleaner
+- feature: Cleaner
+  categories:
+  - category: Junk Files
     items:
     - name: Enable Auto Clean
       purpose: Automatically cleans user and system temp files, Windows prefetch,
@@ -126,6 +128,7 @@ features:
         $Trigger -Principal $Principal
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
       enabled: false
+  - category: Browser
   - category: User
     items: []
 - feature: Display
