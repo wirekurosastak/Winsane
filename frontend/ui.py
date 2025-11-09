@@ -93,7 +93,7 @@ class MainTabView(ctk.CTkTabview):
             self.add(tab_name)
             categories = main_tab.get('categories',[])
             if tab_name == "Dashboard":
-                InfoFrame(self.tab(tab_name)).pack(fill="both", expand=True, padx=5, pady=5)
+                InfoFrame(self.tab(tab_name), dashboard_data=main_tab).pack(fill="both", expand=True, padx=5, pady=5)
             elif categories:
                 # If there are categories, create subtabs for them
                 SubTabView(self.tab(tab_name),categories,all_data,tab_name).pack(fill="both",expand=True,padx=5,pady=5)
