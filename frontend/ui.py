@@ -7,15 +7,15 @@ from tkinter import messagebox
 from backend.config import (
     darker,
     ACCENT_COLOR,
-    save_tweaks,
+    save_config,
 )
 from .dashboard_frame import InfoFrame
 
 class TweakItemControl(ctk.CTkFrame):
-    def __init__(self, master, item, all_data, **kwargs):
+    def __init__(self, master, item, config_data, **kwargs):
         super().__init__(master, **kwargs)
         self.item = item
-        self.all_data = all_data
+        self.config_data = config_data
         self.grid_columnconfigure(0, weight=1)
 
         # Configures the name and description of the command
@@ -38,12 +38,12 @@ class TweakItemControl(ctk.CTkFrame):
         from backend.config import run_powershell_as_admin
         run_powershell_as_admin(command)
         self.item['enabled'] = is_on
-        save_tweaks(self.all_data)
+        save_config(self.config_data)
 
 
 # Makes subtabs in the main tabs by category names
 class SubTabView(ctk.CTkTabview):
-    def __init__(self, master, categories_data, root_data, feature_name, **kwargs):
+    def __init__(self, master, categories_data, config_data, feature_name, **kwargs):
         super().__init__(master, **kwargs)
         hover_col = darker(ACCENT_COLOR,0.85)
         # Configures the tabs 
@@ -70,12 +70,12 @@ class SubTabView(ctk.CTkTabview):
             scroll_frame = ctk.CTkScrollableFrame(master=self.tab(category_name))
             scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
             for item in items:
-                TweakItemControl(scroll_frame,item=item,all_data=root_data,
+                TweakItemControl(scroll_frame,item=item,config_data=config_data,
                                  fg_color=("white","gray15")).pack(fill="x",pady=5,padx=5)
 
 
 class MainTabView(ctk.CTkTabview):
-    def __init__(self, master, all_data, **kwargs):
+    def __init__(self, master, config_data, **kwargs):
         super().__init__(master, **kwargs)
         hover_col = darker(ACCENT_COLOR,0.85)
         # Configures the top-level tabs (main tweak categories)
@@ -87,7 +87,7 @@ class MainTabView(ctk.CTkTabview):
             segmented_button_unselected_hover_color=("#D5D5D5","#3B3B3B")
         )
         # Loop through all tweak sections and create tabs for each
-        for main_tab in all_data.get('tweaks',[]):
+        for main_tab in config_data.get('features',[]):
             tab_name = main_tab.get('feature')
             if not tab_name: continue
             self.add(tab_name)
@@ -96,7 +96,7 @@ class MainTabView(ctk.CTkTabview):
                 InfoFrame(self.tab(tab_name), dashboard_data=main_tab).pack(fill="both", expand=True, padx=5, pady=5)
             elif categories:
                 # If there are categories, create subtabs for them
-                SubTabView(self.tab(tab_name),categories,all_data,tab_name).pack(fill="both",expand=True,padx=5,pady=5)
+                SubTabView(self.tab(tab_name),categories,config_data,tab_name).pack(fill="both",expand=True,padx=5,pady=5)
             else:
                 # Placeholder for upcoming sections
                 ctk.CTkLabel(self.tab(tab_name),text=f"'{tab_name}' content coming soon...",
@@ -247,14 +247,14 @@ def add_tooltip(widget,text):
 
 
 class Winsane(ctk.CTk):
-    def __init__(self, tweak_data):
+    def __init__(self, config_data):
         super().__init__()
         global ACCENT_COLOR
-        if not tweak_data or 'tweaks' not in tweak_data:
+        if not config_data or 'features' not in config_data:
             self.destroy(); return
 
         # Load theme data and accent color
-        theme_data = tweak_data.get("theme", {})
+        theme_data = config_data.get("theme", {})
         if isinstance(theme_data, dict):
             self.current_theme = theme_data.get("mode", "system")
             ACCENT_COLOR = theme_data.get("accent_color", ACCENT_COLOR)
@@ -265,7 +265,7 @@ class Winsane(ctk.CTk):
         ctk.set_appearance_mode(self.current_theme)
         useLightTheme(ctk.get_appearance_mode() == "Light")
 
-        self.root_data = tweak_data
+        self.root_data = config_data
         self.title("Winsane")
         
         # Smooth startup animation
@@ -310,7 +310,7 @@ class Winsane(ctk.CTk):
         add_tooltip(b_add_tweaks, "Add more Tweaks manually")
 
         # Create main tweak tab area
-        MainTabView(self, tweak_data).grid(row=0, column=1, padx=(3, 60), pady=(10, 30), sticky="nsew")
+        MainTabView(self, config_data).grid(row=0, column=1, padx=(3, 60), pady=(10, 30), sticky="nsew")
         
         # Fade in animation
         self.fade_in()
@@ -345,7 +345,7 @@ class Winsane(ctk.CTk):
         if "theme" not in self.root_data:
             self.root_data["theme"] = {}
         self.root_data["theme"]["mode"] = self.current_theme
-        save_tweaks(self.root_data)
+        save_config(self.root_data)
 
     def pick_color(self):
         # Opens color picker and updates accent color
@@ -358,7 +358,7 @@ class Winsane(ctk.CTk):
             if "theme" not in self.root_data or not isinstance(self.root_data.get("theme"), dict):
                 self.root_data["theme"] = {}
             self.root_data["theme"]["accent_color"] = ACCENT_COLOR
-            save_tweaks(self.root_data)
+            save_config(self.root_data)
             self.refresh_accent()
 
     def refresh_accent(self):
