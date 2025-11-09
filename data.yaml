@@ -109,6 +109,8 @@ features:
       true: ''
       false: ''
       enabled: false
+  - category: User
+    items: []
 - feature: Cleaner
   categories:
   - category: Junk Files
@@ -129,8 +131,6 @@ features:
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
       enabled: false
   - category: Browser
-  - category: User
-    items: []
 - feature: Apps
   categories:
   - category: Browsers
