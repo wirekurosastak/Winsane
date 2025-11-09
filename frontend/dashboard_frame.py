@@ -2,7 +2,7 @@ import customtkinter as ctk
 from backend.dashboard_manager import SystemInfoManager
 
 class InfoFrame(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, dashboard_data, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="transparent")
 
@@ -29,51 +29,36 @@ class InfoFrame(ctk.CTkFrame):
             static_data["cpu_cores_text"] = f"{static_data.get('cpu_cores', 'N/A')} Cores / {static_data.get('cpu_threads', 'N/A')} Threads"
             static_data["mb_text"] = f"{static_data.get('mb_manufacturer', 'N/A')} {static_data.get('mb_product', 'N/A')}"
 
-            # Static Layout Definition
-            LAYOUT_CONFIG = {
-                "left": [
-                    ("header", None, "Motherboard"),
-                    ("row", "mb_name", "Name:", "mb_text", "N/A", 300),
-                    ("header", None, "Processor (CPU)"), 
-                    ("row", "cpu_name", "Name:", "cpu", "N/A", 300),
-                    ("row", "cpu_cores", "Topology:", "cpu_cores_text", "N/A", 350),
-                    ("row", "cpu_load", "Usage:", None, "0.0%", 350),
-                    ("header", None, "Memory (RAM)"),
-                    ("row", "ram_speed", "Speed:", "ram_speed", "N/A", 350),
-                    ("row", "ram_usage", "Usage:", None, "0.0% (0.0 GB / 0.0 GB)", 350),
-                    ("header", None, "Graphics (GPU)"),
-                    ("row", "gpu_name", "Name:", None, "N/A", 300),
-                    ("row", "gpu_mem", "VRAM:", None, "N/A", 350),
-                    ("row", "gpu_load", "Usage:", None, "N/A", 350),
-                    
-                    ("header", None, "Storage"),
-                ],
-                "right": [
-                    ("header", None, "System"),
-                    ("row", "os_caption", "OS:", "os_caption", "N/A", 350),
-                    ("row", "os_version", "Build:", "os_version", "N/A", 350),
-                    ("row", "os_arch", "Arch:", "os_arch", "N/A", 350),
-                    ("row", "os_install_date", "Installed:", "os_install_date", "N/A", 350),
-                    ("row", "boot_time", "Boot Time:", "boot_time", "N/A", 350),
-                ]
-            }
-
-            # UI Builder
+            # UI Builder from YAML
+            layout_config = dashboard_data.get('layout', {})
             frames = {"left": left_frame, "right": right_frame}
+            column_layouts = {
+                "left": layout_config.get('left', []),
+                "right": layout_config.get('right', [])
+            }
             row_counters = {"left": 0, "right": 0}
 
-            for frame_key, layout in LAYOUT_CONFIG.items():
+            for frame_key, layout in column_layouts.items():
                 parent_frame = frames[frame_key]
                 row_idx = 0
                 for item in layout:
-                    item_type = item[0]
+                    item_type = item.get('type')
                     if item_type == "header":
-                        self._create_section_header(parent_frame, item[2], row_idx)
+                        self._create_section_header(parent_frame, item.get('title', '...'), row_idx)
                     
                     elif item_type == "row":
-                        key, label, static_key, default, wrap = item[1], item[2], item[3], item[4], item[5]
+                        key = item.get('key')
+                        if not key:
+                            row_idx += 1
+                            continue
+                        
+                        label = item.get('label', '')
+                        static_key = item.get('source_key')
+                        default = item.get('default', 'N/A')
+                        wrap = item.get('wrap', 350)
+
                         initial_text = static_data.get(static_key, default) if static_key else default
-                        # Store the data label widget in a dict for easy updating
+                        
                         self.data_labels[key] = self._create_info_row(
                             parent_frame, label, initial_text, row_idx, data_wraplength=wrap
                         )
