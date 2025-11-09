@@ -8,7 +8,7 @@ from tkinter import messagebox
 # --- Constants ---
 WINSANE_FOLDER = r"C:\Winsane"
 TWEAKS_FILE = os.path.join(WINSANE_FOLDER, "data.yaml")
-GITHUB_RAW_URL = "https://raw.githubusercontent.com/wirekurosastak/Switchcraft/main/data.yaml"
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/wirekurosastak/Winsane/main/data.yaml"
 ACCENT_COLOR = "#3B8ED0"
 
 
