@@ -109,7 +109,7 @@ features:
       true: ''
       false: ''
       enabled: false
-  - category: Junk Files
+  - category: Cleaner
     items:
     - name: Enable Auto Clean
       purpose: Automatically cleans user and system temp files, Windows prefetch,
