@@ -165,3 +165,4 @@ tweaks:
       false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
       enabled: false
 - feature: Display Settings
+- feature: Dashboard
