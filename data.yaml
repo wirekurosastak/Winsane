@@ -1,10 +1,10 @@
 theme:
   mode: dark
   accent_color: '#0581ff'
-tweaks:
-- feature: Tweaks
+features:
+- feature: Optimizer
   categories:
-  - category: System
+  - category: Performance
     items:
     - name: Ultimate Performance
       purpose: Enables the Ultimate Performance power plan for maximum speed.
@@ -145,8 +145,6 @@ tweaks:
       true: ''
       false: ''
       enabled: false
-- feature: Cleaner
-  categories:
   - category: Junk Files
     items:
     - name: Enable Auto Clean
