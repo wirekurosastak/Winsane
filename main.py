@@ -3,9 +3,9 @@ from frontend.ui import Winsane
 
 
 def main():
-    tweak_data = init_config()
-    if tweak_data:
-        app = Winsane(tweak_data)
+    config_data = init_config()
+    if config_data:
+        app = Winsane(config_data)
         app.mainloop()
 
 

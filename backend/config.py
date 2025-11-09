@@ -7,7 +7,7 @@ from tkinter import messagebox
 
 # --- Constants ---
 WINSANE_FOLDER = r"C:\Winsane"
-TWEAKS_FILE = os.path.join(WINSANE_FOLDER, "data.yaml")
+DATA_FILE = os.path.join(WINSANE_FOLDER, "data.yaml")
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/wirekurosastak/Winsane/main/data.yaml"
 ACCENT_COLOR = "#3B8ED0"
 
@@ -40,9 +40,9 @@ def ensure_winsane_folder():
             pass
 
 
-def save_tweaks(data):
+def save_config(data):
     try:
-        with open(TWEAKS_FILE,"w",encoding="utf-8") as f:
+        with open(DATA_FILE,"w",encoding="utf-8") as f:
             yaml.safe_dump(data,f,allow_unicode=True,indent=2,sort_keys=False)
     except Exception as e:
         messagebox.showerror("Save Error", f"Error saving configuration:\n{e}")
@@ -73,10 +73,10 @@ def merge_configs(remote, local):
         return local
     theme_backup = local.get("theme",{}).copy() if local else {}
     enabled_map = {(feat["feature"], cat["category"], item["name"]): item.get("enabled", False)
-                   for feat in (local or {}).get("tweaks", [])
+                   for feat in (local or {}).get("features", [])
                    for cat in feat.get("categories", [])
                    for item in cat.get("items", [])}
-    for feat in remote.get("tweaks", []):
+    for feat in remote.get("features", []):
         for cat in feat.get("categories", []):
             for item in cat.get("items", []):
                 key = (feat["feature"], cat["category"], item["name"])
@@ -89,12 +89,12 @@ def merge_configs(remote, local):
 # Initialization helper
 def init_config():
     ensure_winsane_folder()
-    local_data = load_local_config(TWEAKS_FILE)
+    local_data = load_local_config(DATA_FILE)
     remote_data = fetch_remote_config(GITHUB_RAW_URL)
     if local_data:
-        global_tweak_data = merge_configs(remote_data, local_data) if remote_data else local_data
+        global_config_data = merge_configs(remote_data, local_data) if remote_data else local_data
     else:
-        global_tweak_data = remote_data
-    if global_tweak_data:
-        save_tweaks(global_tweak_data)
-    return global_tweak_data
+        global_config_data = remote_data
+    if global_config_data:
+        save_config(global_config_data)
+    return global_config_data
