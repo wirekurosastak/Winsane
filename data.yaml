@@ -53,7 +53,7 @@ features:
       false: Set-Service -Name WSearch -StartupType Automatic; Start-Service -Name
         WSearch
       enabled: false
-  - category: Security
+  - category: Security & Privacy
     items:
     - name: Disable UAC
       purpose: Turns off the security feature that prompts for permission when programs
@@ -62,18 +62,6 @@ features:
         -Name 'EnableLUA' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
         -Name 'EnableLUA' -Value 1 -Type DWORD -Force
-      enabled: false
-  - category: Privacy
-    items:
-    - name: example tweak 1
-      purpose: example description (purpose)
-      true: ''
-      false: ''
-      enabled: false
-    - name: example tweak 2
-      purpose: example description (purpose)
-      true: ''
-      false: ''
       enabled: false
   - category: Explorer & UI
     items:
@@ -93,18 +81,6 @@ features:
       false: Remove-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
         -Recurse -Force
       enabled: false
-  - category: Network
-    items:
-    - name: example tweak 1
-      purpose: example description (purpose)
-      true: ''
-      false: ''
-      enabled: false
-    - name: example tweak 2
-      purpose: example description (purpose)
-      true: ''
-      false: ''
-      enabled: false
   - category: Gaming
     items:
     - name: Enable Gaming Mode
@@ -117,18 +93,6 @@ features:
         -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
       enabled: false
     - name: example tweak
-      purpose: example description (purpose)
-      true: ''
-      false: ''
-      enabled: false
-  - category: Touch
-    items:
-    - name: example tweak 1
-      purpose: example description (purpose)
-      true: ''
-      false: ''
-      enabled: false
-    - name: example tweak 2
       purpose: example description (purpose)
       true: ''
       false: ''
