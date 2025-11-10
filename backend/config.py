@@ -53,13 +53,13 @@ def add_user_tweak(config_data, name, purpose, true_cmd, false_cmd):
     Adds a new tweak to the 'User' category and saves the config.
     Returns the new tweak item dictionary on success, None on failure.
     """
-    if not name or not true_cmd:
-        messagebox.showerror("Error", "Tweak Name and PowerShell (ON) command are required.")
+    if not name or not true_cmd or not false_cmd:
+        messagebox.showerror("Error", "Tweak Name and PowerShell (ON/OFF) commands are required.")
         return None
  
     new_tweak = {
         "name": name,
-        "purpose": purpose if purpose else "User-added tweak.",
+        "purpose": purpose if purpose else "No Description.",
         True: true_cmd,
         False: false_cmd,
         "enabled": False
