@@ -141,4 +141,4 @@ class InfoFrame(ctk.CTkFrame):
 
         # Schedule the next update
         if self.winfo_exists():
-            self.after(2000, self.update_info)
+            self.after(5000, self.update_info)
