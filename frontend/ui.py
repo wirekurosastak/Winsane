@@ -43,8 +43,7 @@ class TweakItemControl(ctk.CTkFrame):
             # Delete button (trash icon)
             self.delete_button = ctk.CTkButton(
                 self, 
-                text="🗑️",  # Trash icon emoji
-                width=35, 
+                text="Delete",
                 height=35,
                 fg_color="transparent", 
                 hover_color=("#F0D0D0", "#402020"), # Light red hover
@@ -132,7 +131,7 @@ class AddTweakFrame(ctk.CTkFrame):
         # Description textbox placeholder logic
         ctk.CTkLabel(form_frame, text="Description:").grid(row=3, column=0, padx=10, pady=5, sticky="nw")
         
-        self.placeholder_text = "Enter a brief description..."
+        self.placeholder_text = "Enter a brief description... (Optional)"
         # Get theme-aware colors
         try:
             self.placeholder_color = ctk.ThemeManager.theme["CTkLabel"]["text_color"]
@@ -190,8 +189,6 @@ class AddTweakFrame(ctk.CTkFrame):
         )
    
         if new_tweak_item:
-            # Success!
-            messagebox.showinfo("Success", f"Tweak '{name}' added.")
             
             # --- DYNAMIC UI UPDATE ---
             if self.no_tweaks_label:
