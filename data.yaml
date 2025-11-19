@@ -1,6 +1,6 @@
 theme:
   mode: dark
-  accent_color: '#5a009e'
+  accent_color: '#0581ff'
 features:
 - feature: Optimizer
   categories:
@@ -216,15 +216,11 @@ features:
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"
         -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
       enabled: false
-<<<<<<< Updated upstream
-  - category: Cleaner
-=======
   - category: User
     items: []
 - feature: Cleaner
   categories:
   - category: Windows
->>>>>>> Stashed changes
     items:
     - name: Temp Files
       purpose: Deletes temporary files from User and Windows temp folders at logon.
@@ -520,11 +516,6 @@ features:
       false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Session" -Confirm:$false
         -ErrorAction SilentlyContinue
       enabled: false
-<<<<<<< Updated upstream
-  - category: User
-    items: []
-=======
->>>>>>> Stashed changes
 - feature: Apps
   categories:
   - category: Browsers
@@ -576,7 +567,7 @@ features:
         --accept-package-agreements
       false: winget uninstall --id=LibreWolf.LibreWolf -e --disable-interactivity
       enabled: false
-    - name: DuckDuckGo (Windows)
+    - name: DuckDuckGo
       purpose: Privacy-focused browser from DuckDuckGo.
       true: winget install --id=DuckDuckGo.DuckDuckGo -e --accept-source-agreements
         --accept-package-agreements
