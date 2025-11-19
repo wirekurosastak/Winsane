@@ -1,6 +1,6 @@
 theme:
   mode: dark
-  accent_color: '#0581ff'
+  accent_color: '#5a009e'
 features:
 - feature: Optimizer
   categories:
@@ -14,120 +14,517 @@ features:
       false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
       enabled: false
     - name: Max Core Boot
-      purpose: Configures Windows to use the maximum number of CPU cores during boot.
-      true: '$logicalCores = [Environment]::ProcessorCount
-
-        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/set {current} numproc
-        $logicalCores" -Verb RunAs
-
+      purpose: Configures the system to use the maximum number of CPU cores during
+        boot.
+      true: $logicalCores = [Environment]::ProcessorCount; Start-Process -FilePath
+        "bcdedit.exe" -ArgumentList "/set {current} numproc $logicalCores" -Verb RunAs;
         Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 3" -Verb RunAs
-
-        '
-      false: 'Start-Process -FilePath "bcdedit.exe" -ArgumentList "/deletevalue {current}
-        numproc" -Verb RunAs
-
-        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/deletevalue {current}
-        timeout" -Verb RunAs
-
-        Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 30" -Verb RunAs
-
-        '
+      false: Start-Process -FilePath "bcdedit.exe" -ArgumentList "/deletevalue {current}
+        numproc" -Verb RunAs; Start-Process -FilePath "bcdedit.exe" -ArgumentList
+        "/deletevalue {current} timeout" -Verb RunAs; Start-Process -FilePath "bcdedit.exe"
+        -ArgumentList "/timeout 30" -Verb RunAs
       enabled: false
-    - name: Windows/Office Activation (legally problematic)
-      purpose: Activate Windows and Office using massgrave.dev.
+    - name: Windows/Office Activation
+      purpose: Activate Windows and Office using massgrave.dev (Online KMS).
       true: irm https://get.activated.win | iex
       false: slmgr.vbs /upk
       enabled: false
     - name: Disable Superfetch
-      purpose: Disables the service that preloads frequently used applications into
-        RAM.
+      purpose: Disables the SysMain service that preloads frequently used applications.
       true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain
         -Force
       false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name
         SysMain
       enabled: false
     - name: Disable Search Indexing
-      purpose: Disables the service that indexes files to speed up search.
+      purpose: Disables the service that indexes files to speed up search, saving
+        disk usage.
       true: Set-Service -Name WSearch -StartupType Disabled; Stop-Service -Name WSearch
         -Force
       false: Set-Service -Name WSearch -StartupType Automatic; Start-Service -Name
         WSearch
       enabled: false
-  - category: Security & Privacy
-    items:
-    - name: Disable UAC
-      purpose: Turns off the security feature that prompts for permission when programs
-        make changes.
-      true: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-        -Name 'EnableLUA' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-        -Name 'EnableLUA' -Value 1 -Type DWORD -Force
+    - name: Disable VBS
+      purpose: Disables Virtualization-Based Security to potentially boost gaming
+        FPS. (Requires Reboot)
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
+        -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
+        -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
+      enabled: false
+    - name: Disable Hibernation
+      purpose: Frees up disk space (removes hiberfil.sys) and prevents the system
+        from hibernating.
+      true: powercfg /h off
+      false: powercfg /h on
+      enabled: false
+    - name: Disable Network Throttling
+      purpose: Disables network throttling mechanism to potentially improve connection
+        speeds.
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
+        -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295 -Force
+      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
+        -Name "NetworkThrottlingIndex" -Type DWord -Value 10 -Force
       enabled: false
   - category: Explorer & UI
     items:
     - name: Align Taskbar to Left
-      purpose: Moves the taskbar icons to the left side of the screen.
-      true: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
+      purpose: Moves the centered taskbar icons to the left side.
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
         -Name 'TaskbarAl' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
         -Name 'TaskbarAl' -Value 1 -Type DWORD -Force
       enabled: false
-    - name: Enable Classic Right-Click Menu
-      purpose: Restores the full-featured right-click context menu.
-      true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
-        -Force | Out-Null; New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+    - name: Enable Classic Right-Click
+      purpose: Restores the full context menu by removing the "Show more options"
+        layer.
+      true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
         -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
         -Name "(default)" -Value "" -Force
       false: Remove-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
         -Recurse -Force
       enabled: false
+    - name: Disable Widgets
+      purpose: Removes the Widgets button (Weather/News) from the taskbar.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarDa" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarDa" -Type DWord -Value 1 -Force
+      enabled: false
+    - name: Disable Copilot
+      purpose: Removes the AI Copilot button from the taskbar.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "ShowCopilotButton" -Type DWord -Value 1 -Force
+      enabled: false
+    - name: Disable Chat / Teams
+      purpose: Removes the built-in Chat icon from the taskbar.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarMn" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarMn" -Type DWord -Value 1 -Force
+      enabled: false
+    - name: Show File Extensions
+      purpose: Forces Explorer to always show file extensions (e.g., .txt, .exe).
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer
+        -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer
+        -Force
+      enabled: false
+    - name: Show Hidden Files
+      purpose: Forces Explorer to show hidden files and folders.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
+      enabled: false
+    - name: Disable Sticky Keys
+      purpose: Prevents the prompt when pressing Shift 5 times.
+      true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
+        -Name "Flags" -Type String -Value "506" -Force
+      false: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
+        -Name "Flags" -Type String -Value "510" -Force
+      enabled: false
+  - category: Security & Privacy
+    items:
+    - name: Disable UAC
+      purpose: Turns off the security prompt that asks for permission when making
+        changes.
+      true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        -Name 'EnableLUA' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        -Name 'EnableLUA' -Value 1 -Type DWORD -Force
+      enabled: false
+    - name: Disable Telemetry
+      purpose: Reduces background data collection and feedback requests.
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+        -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
+        "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications"
+        -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+        -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue; Remove-ItemProperty
+        -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications"
+        -Force -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Disable Location Tracking
+      purpose: Prevents apps and the OS from tracking global location.
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
+        -Name "Value" -Type String -Value "Deny" -Force
+      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
+        -Name "Value" -Type String -Value "Allow" -Force
+      enabled: false
+    - name: Disable Advertising ID
+      purpose: Prevents apps from using your advertising ID for personalized experiences.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        -Name "Enabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        -Name "Enabled" -Type DWord -Value 1 -Force
+      enabled: false
   - category: Gaming
     items:
     - name: Enable Gaming Mode
       purpose: Prioritizes system resources for gaming applications.
-      true: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\GameBar' -Name 'AutoGameModeEnabled'
-        -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore'
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
+        -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
         -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\GameBar' -Name 'AutoGameModeEnabled'
-        -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore'
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
+        -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
         -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
       enabled: false
-    - name: example tweak
-      purpose: example description (purpose)
-      true: ''
-      false: ''
+    - name: Disable Mouse Acceleration
+      purpose: Disables "Enhance Pointer Precision" for 1:1 raw input.
+      true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
+        -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
+        "MouseThreshold1" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control
+        Panel\Mouse" -Name "MouseThreshold2" -Value "0" -Force
+      false: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
+        -Value "1" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
+        "MouseThreshold1" -Value "6" -Force; Set-ItemProperty -Path "HKCU:\Control
+        Panel\Mouse" -Name "MouseThreshold2" -Value "10" -Force
+      enabled: false
+    - name: Disable Xbox Game Bar
+      purpose: Disables the Game Bar overlay (Win+G) to save resources.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        1 -Force
       enabled: false
   - category: Windows Update
     items:
-    - name: example tweak 1
-      purpose: example description (purpose)
-      true: ''
-      false: ''
+    - name: Exclude Drivers from Updates
+      purpose: Prevents Windows Update from automatically overwriting manual drivers.
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+        -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+        -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+        -Name "ExcludeWUDriversInQualityUpdate" -Force -ErrorAction SilentlyContinue
       enabled: false
-    - name: example tweak 2
-      purpose: example description (purpose)
-      true: ''
-      false: ''
+    - name: Disable Automatic Maintenance
+      purpose: Disables automatic maintenance tasks that can cause random high CPU
+        usage.
+      true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"
+        -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows
+        NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type
+        DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"
+        -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
       enabled: false
+<<<<<<< Updated upstream
   - category: Cleaner
-    items:
-    - name: Enable Auto Clean
-      purpose: Automatically cleans user and system temp files, Windows prefetch,
-        and Recycle Bin at user logon using a scheduled PowerShell task.
-      true: $Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument
-        '-NoProfile -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:USERPROFILE\AppData\Local\Temp\*\"
-        -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Temp\*\"
-        -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Prefetch\*\"
-        -Recurse -Force -ErrorAction SilentlyContinue; (New-Object -ComObject Shell.Application).Namespace(0xA).Items()
-        | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue
-        } }"'; $Trigger = New-ScheduledTaskTrigger -AtLogon; $Principal = New-ScheduledTaskPrincipal
-        -UserId "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest;
-        Register-ScheduledTask -TaskName "Winsane Auto Clean" -Action $Action -Trigger
-        $Trigger -Principal $Principal
-      false: Unregister-ScheduledTask -TaskName "Winsane Auto Clean" -Confirm:$false
-      enabled: false
+=======
   - category: User
     items: []
+- feature: Cleaner
+  categories:
+  - category: Windows
+>>>>>>> Stashed changes
+    items:
+    - name: Temp Files
+      purpose: Deletes temporary files from User and Windows temp folders at logon.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:USERPROFILE\AppData\Local\Temp\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Temp\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Clean Temp" -Action $A
+        -Trigger $T -User "NT AUTHORITY\SYSTEM" -RunLevel Highest
+      false: Unregister-ScheduledTask -TaskName "Winsane Clean Temp" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Prefetch
+      purpose: Clears the Windows Prefetch folder at logon.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"C:\Windows\Prefetch\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Clean Prefetch" -Action
+        $A -Trigger $T -User "NT AUTHORITY\SYSTEM" -RunLevel Highest
+      false: Unregister-ScheduledTask -TaskName "Winsane Clean Prefetch" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Recycle Bin
+      purpose: Automatically empties the Recycle Bin at logon.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { (New-Object -ComObject Shell.Application).Namespace(0xA).Items()
+        | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue
+        } }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName
+        "Winsane Clean RecycleBin" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Clean RecycleBin" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: BSOD Minidumps
+      purpose: Deletes Windows crash dump files (Memory.dmp / Minidump) at logon.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"C:\Windows\Minidump\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Memory.dmp\"
+        -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+        Register-ScheduledTask -TaskName "Winsane Clean Minidumps" -Action $A -Trigger
+        $T -User "NT AUTHORITY\SYSTEM" -RunLevel Highest
+      false: Unregister-ScheduledTask -TaskName "Winsane Clean Minidumps" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+  - category: Browsers
+    items:
+    - header: Google Chrome
+    - name: Cache
+      purpose: Removes Chrome cached images and files.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Google\Chrome\User
+        Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
+        -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
+        -TaskName "Winsane Chrome Cache" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cache" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Cookies
+      purpose: Removes Chrome cookies (Will log you out).
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
+        Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome Cookies" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cookies" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: History
+      purpose: Removes Chrome browsing history.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
+        Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome History" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Chrome History" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Session
+      purpose: Removes Chrome session data (Open tabs/windows).
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
+        Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+        = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+        Chrome Session" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Chrome Session" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - header: Microsoft Edge
+    - name: Cache
+      purpose: Removes Edge cached images and files.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Microsoft\Edge\User
+        Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
+        -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
+        -TaskName "Winsane Edge Cache" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Edge Cache" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Cookies
+      purpose: Removes Edge cookies (Will log you out).
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
+        Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge Cookies" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Edge Cookies" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: History
+      purpose: Removes Edge browsing history.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
+        Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge History" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Edge History" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Session
+      purpose: Removes Edge session data (Open tabs/windows).
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
+        Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+        = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+        Edge Session" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Edge Session" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - header: Mozilla Firefox
+    - name: Cache
+      purpose: Removes Firefox cached files.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*\cache2\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse
+        }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName
+        "Winsane Firefox Cache" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cache" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Cookies
+      purpose: Removes Firefox cookies (Will log you out).
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\cookies.sqlite\"
+        -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox Cookies" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cookies" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: History
+      purpose: Removes Firefox history and bookmarks backups.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\places.sqlite\"
+        -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox History" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Firefox History" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Session
+      purpose: Removes Firefox session restore data.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore-backups\*\"
+        -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse;
+        Remove-Item \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore.jsonlz4\"
+        -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+        Register-ScheduledTask -TaskName "Winsane Firefox Session" -Action $A -Trigger
+        $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Firefox Session" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - header: Brave Browser
+    - name: Cache
+      purpose: Removes Brave cached images and files.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+        Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
+        -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
+        -TaskName "Winsane Brave Cache" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Brave Cache" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Cookies
+      purpose: Removes Brave cookies (Will log you out).
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+        Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave Cookies" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Brave Cookies" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: History
+      purpose: Removes Brave browsing history.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+        Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave History" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Brave History" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Session
+      purpose: Removes Brave session data.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+        Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+        = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+        Brave Session" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Brave Session" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - header: Opera
+    - name: Cache
+      purpose: Removes Opera cached files.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
+        Software\Opera Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
+        | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+        Register-ScheduledTask -TaskName "Winsane Opera Cache" -Action $A -Trigger
+        $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Opera Cache" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Cookies
+      purpose: Removes Opera cookies.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+        Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera Cookies" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Opera Cookies" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: History
+      purpose: Removes Opera history.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+        Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera History" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Opera History" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Session
+      purpose: Removes Opera session data.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+        Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+        = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+        Opera Session" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane Opera Session" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - header: Opera GX
+    - name: Cache
+      purpose: Removes Opera GX cached files.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
+        Software\Opera GX Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
+        | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+        Register-ScheduledTask -TaskName "Winsane OperaGX Cache" -Action $A -Trigger
+        $T
+      false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cache" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Cookies
+      purpose: Removes Opera GX cookies.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+        GX Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T =
+        New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+        OperaGX Cookies" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cookies" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: History
+      purpose: Removes Opera GX history.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+        GX Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+        -AtLogon; Register-ScheduledTask -TaskName "Winsane OperaGX History" -Action
+        $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane OperaGX History" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Session
+      purpose: Removes Opera GX session data.
+      true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+        -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+        GX Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"';
+        $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+        OperaGX Session" -Action $A -Trigger $T
+      false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Session" -Confirm:$false
+        -ErrorAction SilentlyContinue
+      enabled: false
+<<<<<<< Updated upstream
+  - category: User
+    items: []
+=======
+>>>>>>> Stashed changes
 - feature: Apps
   categories:
   - category: Browsers
@@ -169,17 +566,20 @@ features:
       enabled: false
     - name: Tor Browser
       purpose: Browse with enhanced privacy and anonymity.
-      true: winget install --id=TorProject.TorBrowser -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=TorProject.TorBrowser -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=TorProject.TorBrowser -e --disable-interactivity
       enabled: false
     - name: LibreWolf
       purpose: A fork of Firefox, focused on privacy, security and freedom.
-      true: winget install --id=LibreWolf.LibreWolf -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=LibreWolf.LibreWolf -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=LibreWolf.LibreWolf -e --disable-interactivity
       enabled: false
     - name: DuckDuckGo (Windows)
       purpose: Privacy-focused browser from DuckDuckGo.
-      true: winget install --id=DuckDuckGo.DuckDuckGo -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=DuckDuckGo.DuckDuckGo -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=DuckDuckGo.DuckDuckGo -e --disable-interactivity
       enabled: false
   - category: Communication
@@ -191,7 +591,8 @@ features:
       enabled: false
     - name: Slack
       purpose: Team-based communication and collaboration platform.
-      true: winget install --id=SlackTechnologies.Slack -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=SlackTechnologies.Slack -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=SlackTechnologies.Slack -e --disable-interactivity
       enabled: false
     - name: Zoom
@@ -201,7 +602,8 @@ features:
       enabled: false
     - name: Telegram Desktop
       purpose: Fast and secure desktop app for messaging.
-      true: winget install --id=Telegram.TelegramDesktop -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Telegram.TelegramDesktop -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Telegram.TelegramDesktop -e --disable-interactivity
       enabled: false
     - name: Signal
@@ -231,14 +633,16 @@ features:
       enabled: false
     - name: TeamSpeak 3 (Client)
       purpose: Voice communication for online gaming, education, and business.
-      true: winget install --id=TeamSpeak.TeamSpeak -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=TeamSpeak.TeamSpeak -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=TeamSpeak.TeamSpeak -e --disable-interactivity
       enabled: false
   - category: Development
     items:
     - name: Visual Studio Code
       purpose: Lightweight but powerful source code editor.
-      true: winget install --id=Microsoft.VisualStudioCode -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Microsoft.VisualStudioCode -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Microsoft.VisualStudioCode -e --disable-interactivity
       enabled: false
     - name: GitHub Desktop
@@ -253,7 +657,8 @@ features:
       enabled: false
     - name: OpenJDK 17 (Microsoft)
       purpose: Free, open-source Java Development Kit (LTS).
-      true: winget install --id=Microsoft.OpenJDK.17 -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Microsoft.OpenJDK.17 -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Microsoft.OpenJDK.17 -e --disable-interactivity
       enabled: false
     - name: Python 3.11
@@ -268,12 +673,14 @@ features:
       enabled: false
     - name: Docker Desktop
       purpose: Build, share, and run containers on your desktop.
-      true: winget install --id=Docker.DockerDesktop -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Docker.DockerDesktop -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Docker.DockerDesktop -e --disable-interactivity
       enabled: false
     - name: XAMPP
       purpose: Apache + MariaDB + PHP + Perl development environment.
-      true: winget install --id=ApacheFriends.Xampp.8.2 -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=ApacheFriends.Xampp.8.2 -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=ApacheFriends.Xampp.8.2 -e --disable-interactivity
       enabled: false
     - name: Postman
@@ -283,12 +690,14 @@ features:
       enabled: false
     - name: IntelliJ IDEA (Community)
       purpose: Free and open-source Java IDE from JetBrains.
-      true: winget install --id=JetBrains.IntelliJIDEA.Community -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=JetBrains.IntelliJIDEA.Community -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=JetBrains.IntelliJIDEA.Community -e --disable-interactivity
       enabled: false
     - name: PyCharm (Community)
       purpose: Free and open-source Python IDE from JetBrains.
-      true: winget install --id=JetBrains.PyCharm.Community -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=JetBrains.PyCharm.Community -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=JetBrains.PyCharm.Community -e --disable-interactivity
       enabled: false
     - name: GitKraken
@@ -298,7 +707,8 @@ features:
       enabled: false
     - name: VS 2022 Community
       purpose: Free, full-featured IDE for students and open-source developers.
-      true: winget install --id=Microsoft.VisualStudio.2022.Community -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Microsoft.VisualStudio.2022.Community -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Microsoft.VisualStudio.2022.Community -e --disable-interactivity
       enabled: false
   - category: Graphics & Design
@@ -315,7 +725,8 @@ features:
       enabled: false
     - name: Blender
       purpose: Free and open-source 3D creation suite.
-      true: winget install --id=BlenderFoundation.Blender -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=BlenderFoundation.Blender -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=BlenderFoundation.Blender -e --disable-interactivity
       enabled: false
     - name: Krita
@@ -336,7 +747,8 @@ features:
     - name: DaVinci Resolve
       purpose: Professional 8K editing, color correction, visual effects and audio
         post.
-      true: winget install --id=BlackmagicDesign.DaVinciResolve -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=BlackmagicDesign.DaVinciResolve -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=BlackmagicDesign.DaVinciResolve -e --disable-interactivity
       enabled: false
     - name: ShareX
@@ -347,12 +759,14 @@ features:
       enabled: false
     - name: Greenshot
       purpose: Lightweight screenshot tool optimized for productivity.
-      true: winget install --id=Greenshot.Greenshot -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Greenshot.Greenshot -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Greenshot.Greenshot -e --disable-interactivity
       enabled: false
     - name: darktable
       purpose: Open source photography workflow application and raw developer.
-      true: winget install --id=darktable.darktable -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=darktable.darktable -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=darktable.darktable -e --disable-interactivity
       enabled: false
   - category: Gaming & Launchers
@@ -364,7 +778,8 @@ features:
       enabled: false
     - name: Epic Games Launcher
       purpose: Digital distribution platform and launcher for Epic Games titles.
-      true: winget install --id=EpicGames.EpicGamesLauncher -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=EpicGames.EpicGamesLauncher -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=EpicGames.EpicGamesLauncher -e --disable-interactivity
       enabled: false
     - name: GOG Galaxy
@@ -379,7 +794,8 @@ features:
       enabled: false
     - name: EA App
       purpose: Digital distribution platform for Electronic Arts games.
-      true: winget install --id=ElectronicArts.EADesktop -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=ElectronicArts.EADesktop -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=ElectronicArts.EADesktop -e --disable-interactivity
       enabled: false
     - name: Battle.net
@@ -389,7 +805,8 @@ features:
       enabled: false
     - name: Riot Client
       purpose: Launcher for Riot Games titles (League of Legends, Valorant).
-      true: winget install --id=RiotGames.RiotClient -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=RiotGames.RiotClient -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=RiotGames.RiotClient -e --disable-interactivity
       enabled: false
     - name: itch.io
@@ -426,7 +843,8 @@ features:
       enabled: false
     - name: foobar2000
       purpose: Advanced freeware audio player for Windows.
-      true: winget install --id=PeterPawlowski.foobar2000 -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=PeterPawlowski.foobar2000 -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=PeterPawlowski.foobar2000 -e --disable-interactivity
       enabled: false
     - name: Winamp
@@ -441,7 +859,8 @@ features:
       enabled: false
     - name: MusicBee
       purpose: The ultimate music manager and player.
-      true: winget install --id=GetMusicBee.MusicBee -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=GetMusicBee.MusicBee -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=GetMusicBee.MusicBee -e --disable-interactivity
       enabled: false
     - name: Kodi
@@ -451,12 +870,14 @@ features:
       enabled: false
     - name: Plex (Media Player)
       purpose: Client for browsing and playing media from a Plex server.
-      true: winget install --id=Plex.PlexMediaPlayer -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Plex.PlexMediaPlayer -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Plex.PlexMediaPlayer -e --disable-interactivity
       enabled: false
     - name: Jellyfin Server
       purpose: Free and open-source media server to host your movies and shows.
-      true: winget install --id=Jellyfin.JellyfinServer -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Jellyfin.JellyfinServer -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Jellyfin.JellyfinServer -e --disable-interactivity
       enabled: false
     - name: Emby Server
@@ -466,19 +887,22 @@ features:
       enabled: false
     - name: HandBrake
       purpose: Tool for converting video from nearly any format to modern codecs.
-      true: winget install --id=HandBrake.HandBrake -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=HandBrake.HandBrake -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=HandBrake.HandBrake -e --disable-interactivity
       enabled: false
   - category: Productivity
     items:
     - name: LibreOffice
       purpose: Free and open-source office productivity software suite.
-      true: winget install --id=TheDocumentFoundation.LibreOffice -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=TheDocumentFoundation.LibreOffice -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=TheDocumentFoundation.LibreOffice -e --disable-interactivity
       enabled: false
     - name: OBS Studio
       purpose: Free and open source software for video recording and live streaming.
-      true: winget install --id=OBSProject.OBSStudio -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=OBSProject.OBSStudio -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=OBSProject.OBSStudio -e --disable-interactivity
       enabled: false
     - name: Notion
@@ -503,12 +927,14 @@ features:
       enabled: false
     - name: Mozilla Thunderbird
       purpose: Free email application that's easy to set up and customize.
-      true: winget install --id=Mozilla.Thunderbird -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Mozilla.Thunderbird -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Mozilla.Thunderbird -e --disable-interactivity
       enabled: false
     - name: qBittorrent
       purpose: Free and open-source bittorrent client.
-      true: winget install --id=qBittorrent.qBittorrent -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=qBittorrent.qBittorrent -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=qBittorrent.qBittorrent -e --disable-interactivity
       enabled: false
     - name: Tixati
@@ -523,7 +949,8 @@ features:
       enabled: false
     - name: TeamViewer
       purpose: Remote access, remote control, and online meetings software.
-      true: winget install --id=TeamViewer.TeamViewer -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=TeamViewer.TeamViewer -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=TeamViewer.TeamViewer -e --disable-interactivity
       enabled: false
   - category: System Tools
@@ -531,7 +958,8 @@ features:
     - name: Microsoft PowerToys
       purpose: A set of utilities for power users to tune and streamline their Windows
         experience.
-      true: winget install --id=Microsoft.PowerToys -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Microsoft.PowerToys -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Microsoft.PowerToys -e --disable-interactivity
       enabled: false
     - name: HWiNFO
@@ -573,17 +1001,20 @@ features:
       enabled: false
     - name: Revo Uninstaller
       purpose: Advanced uninstaller to remove programs and their leftover files.
-      true: winget install --id=VSRevoGroup.RevoUninstaller -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=VSRevoGroup.RevoUninstaller -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=VSRevoGroup.RevoUninstaller -e --disable-interactivity
       enabled: false
     - name: TreeSize Free
       purpose: Quickly scan directory sizes and find out which folders are the largest.
-      true: winget install --id=JAMSoftware.TreeSize.Free -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=JAMSoftware.TreeSize.Free -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=JAMSoftware.TreeSize.Free -e --disable-interactivity
       enabled: false
     - name: WinDirStat
       purpose: Disk usage statistics viewer and cleanup tool (alternative to TreeSize).
-      true: winget install --id=WinDirStat.WinDirStat -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=WinDirStat.WinDirStat -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=WinDirStat.WinDirStat -e --disable-interactivity
       enabled: false
     - name: VeraCrypt
@@ -595,7 +1026,8 @@ features:
     items:
     - name: Notepad++
       purpose: Fast and lightweight text and source code editor.
-      true: winget install --id=Notepad++.Notepad++ -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=Notepad++.Notepad++ -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=Notepad++.Notepad++ -e --disable-interactivity
       enabled: false
     - name: 7-Zip
@@ -610,7 +1042,8 @@ features:
       enabled: false
     - name: Everything
       purpose: Lightning-fast file search utility for Windows.
-      true: winget install --id=voidtools.Everything -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=voidtools.Everything -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=voidtools.Everything -e --disable-interactivity
       enabled: false
     - name: WinMerge
@@ -625,17 +1058,20 @@ features:
       enabled: false
     - name: FileZilla (Client)
       purpose: Free and open-source, cross-platform FTP, FTPS and SFTP client.
-      true: winget install --id=FileZilla.FileZilla -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=FileZilla.FileZilla -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=FileZilla.FileZilla -e --disable-interactivity
       enabled: false
     - name: TeraCopy
       purpose: Fast and reliable file copying and moving utility.
-      true: winget install --id=CodeSector.TeraCopy -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=CodeSector.TeraCopy -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=CodeSector.TeraCopy -e --disable-interactivity
       enabled: false
     - name: AutoHotkey
       purpose: Custom scripting language for task automation in Windows.
-      true: winget install --id=AutoHotkey.AutoHotkey -e --accept-source-agreements --accept-package-agreements
+      true: winget install --id=AutoHotkey.AutoHotkey -e --accept-source-agreements
+        --accept-package-agreements
       false: winget uninstall --id=AutoHotkey.AutoHotkey -e --disable-interactivity
       enabled: false
     - name: Ditto
@@ -651,58 +1087,58 @@ features:
       title: Motherboard
     - type: row
       key: mb_name
-      label: "Name:"
+      label: 'Name:'
       source_key: mb_text
-      default: "N/A"
+      default: N/A
       wrap: 300
     - type: header
-      title: "Processor (CPU)"
+      title: Processor (CPU)
     - type: row
       key: cpu_name
-      label: "Name:"
+      label: 'Name:'
       source_key: cpu
-      default: "N/A"
+      default: N/A
       wrap: 300
     - type: row
       key: cpu_cores
-      label: "Topology:"
+      label: 'Topology:'
       source_key: cpu_cores_text
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: cpu_load
-      label: "Usage:"
-      default: "0.0%"
+      label: 'Usage:'
+      default: 0.0%
       wrap: 350
     - type: header
-      title: "Memory (RAM)"
+      title: Memory (RAM)
     - type: row
       key: ram_speed
-      label: "Speed:"
+      label: 'Speed:'
       source_key: ram_speed
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: ram_usage
-      label: "Usage:"
-      default: "0.0% (0.0 GB / 0.0 GB)"
+      label: 'Usage:'
+      default: 0.0% (0.0 GB / 0.0 GB)
       wrap: 350
     - type: header
-      title: "Graphics (GPU)"
+      title: Graphics (GPU)
     - type: row
       key: gpu_name
-      label: "Name:"
-      default: "N/A"
+      label: 'Name:'
+      default: N/A
       wrap: 300
     - type: row
       key: gpu_mem
-      label: "VRAM:"
-      default: "N/A"
+      label: 'VRAM:'
+      default: N/A
       wrap: 350
     - type: row
       key: gpu_load
-      label: "Usage:"
-      default: "N/A"
+      label: 'Usage:'
+      default: N/A
       wrap: 350
     - type: header
       title: Storage
@@ -711,49 +1147,49 @@ features:
       title: System
     - type: row
       key: os_caption
-      label: "OS:"
+      label: 'OS:'
       source_key: os_caption
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: os_version
-      label: "Build:"
+      label: 'Build:'
       source_key: os_version
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: os_arch
-      label: "Arch:"
+      label: 'Arch:'
       source_key: os_arch
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: os_install_date
-      label: "Installed:"
+      label: 'Installed:'
       source_key: os_install_date
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: boot_time
-      label: "Boot Time:"
+      label: 'Boot Time:'
       source_key: boot_time
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: secure_boot_status
-      label: "Secure Boot:"
+      label: 'Secure Boot:'
       source_key: secure_boot_status
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: tpm_status
-      label: "TPM:"
+      label: 'TPM:'
       source_key: tpm_status
-      default: "N/A"
+      default: N/A
       wrap: 350
     - type: row
       key: hyperv_status
-      label: "Hyper-V:"
+      label: 'Hyper-V:'
       source_key: hyperv_status
-      default: "N/A"
+      default: N/A
       wrap: 350

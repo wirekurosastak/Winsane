@@ -220,7 +220,7 @@ class SubTabView(ctk.CTkTabview):
     def __init__(self, master, categories_data, config_data, feature_name, **kwargs):
         super().__init__(master, **kwargs)
         hover_col = darker(ACCENT_COLOR,0.85)
-        # Configure tab appearance
+        
         self.configure(
             text_color=("black","white"),
             segmented_button_selected_color=(ACCENT_COLOR,ACCENT_COLOR),
@@ -229,63 +229,51 @@ class SubTabView(ctk.CTkTabview):
             segmented_button_unselected_hover_color=("#D5D5D5","#3B3B3B")
         )
         
-        # Create a tab for each category
         for cat_entry in categories_data:
             category_name = cat_entry.get('category')
-            if not category_name:
-                continue
+            if not category_name: continue
  
             items = cat_entry.get('items', [])
-            
             tab_frame = self.add(category_name)
- 
-            # Set 'is_user_tweak' flag
-            is_user_tweak = False # Default
+            is_user_tweak = (category_name == "User" and feature_name == "Optimizer")
             
-            # Special layout for "User" tab
-            if category_name == "User" and feature_name == "Optimizer":
-                
-                is_user_tweak = True # Enable flag
-                
-                # 1. Create a single scrollable frame
+            if is_user_tweak:
                 scroll_frame = ctk.CTkScrollableFrame(master=tab_frame, fg_color=("gray90", "gray20"))
                 scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
- 
-                # 2. Add the 'AddTweakFrame' form (pass config_data only)
                 add_form = AddTweakFrame(scroll_frame, config_data=config_data)
                 add_form.pack(fill="x", padx=5, pady=5)
                 
-                # 3. Handle empty list case
                 no_tweaks_label = None
                 if not items:
                     no_tweaks_label = ctk.CTkLabel(scroll_frame, text="No custom tweaks found.\nAdd one above.")
                     no_tweaks_label.pack(pady=10, padx=10)
-                
-                # 4. Pass scroll info to the form for dynamic updates
                 add_form.set_scroll_info(scroll_frame, no_tweaks_label)
-                
-            # Layout for all other tabs
             else:
-                label = ctk.CTkLabel(tab_frame,
-                                     text="Please restart your computer after desired tweaks are set.",
-                                     text_color=("black","white"))
-                label.pack(pady=(10,0))
-                
-                # Add scrollable frame for items
+                ctk.CTkLabel(tab_frame, text="Please restart your computer after desired tweaks are set.", text_color=("black","white")).pack(pady=(10,0))
                 scroll_frame = ctk.CTkScrollableFrame(master=tab_frame)
                 scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
             
-            # Add all tweak items to the scroll frame
             for item in items:
-                # Pass 'is_user_tweak' flag to TweakItemControl
+                # --- UPDATED HEADER LOGIC ---
+                if 'header' in item:
+                    # create label as a variable so we can update it later
+                    lbl = ctk.CTkLabel(
+                        scroll_frame,
+                        text=item['header'],
+                        font=ctk.CTkFont(size=20, weight="bold"),
+                        anchor="w",
+                        text_color=ACCENT_COLOR
+                    )
+                    # mark header labels so refresh_accent can find and update them
+                    setattr(lbl, '_is_header', True)
+                    lbl.pack(fill="x", pady=(25, 5), padx=5)
+                    continue
+                # ----------------------------
+
                 TweakItemControl(
-                    scroll_frame,
-                    item=item,
-                    config_data=config_data,
-                    is_user_tweak=is_user_tweak, # <-- Passed here
-                    fg_color=("white","gray15")
+                    scroll_frame, item=item, config_data=config_data,
+                    is_user_tweak=is_user_tweak, fg_color=("white","gray15")
                 ).pack(fill="x",pady=5,padx=5)
- 
  
 class MainTabView(ctk.CTkTabview):
     """The main TabView that holds 'Optimizer', 'Dashboard', etc."""
@@ -532,6 +520,15 @@ class Winsane(ctk.CTk):
         def update(widget):
             if isinstance(widget, ctk.CTkSwitch):
                 widget.configure(progress_color=ACCENT_COLOR)
+            elif isinstance(widget, ctk.CTkLabel) and getattr(widget, '_is_header', False):
+                # update header labels created from data.yaml 'header' entries
+                widget.configure(text_color=ACCENT_COLOR)
+            elif isinstance(widget, DisplayFrame):
+                # Let DisplayFrame handle its own accent refresh (option menus, canvas outline, apply button)
+                try:
+                    widget.refresh_accent(ACCENT_COLOR)
+                except Exception:
+                    pass
             elif isinstance(widget, ctk.CTkTabview):
                 widget.configure(segmented_button_selected_color=(ACCENT_COLOR, ACCENT_COLOR),
                                  segmented_button_selected_hover_color=(hover_col, hover_col))
