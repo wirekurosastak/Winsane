@@ -41,8 +41,8 @@
 | **FS-3.2.2** | **Kötelező mezők** | A **"Tweak Name"**, a **"PowerShell (ON)"** és a **"PowerShell (OFF)"** parancsok kötelezők. Hibaüzenet jelenik meg, ha hiányoznak. | `backend/config.py` (`add_user_tweak`) |
 | **FS-3.2.3** | **Hozzáadás** | A `add_user_tweak` hívása hozzáadja az új tweaket az `Optimizer -> User` kategória `items` listájához és elmenti a konfigurációt. | `frontend/ui.py` (`AddTweakFrame.add_tweak`) |
 | **FS-3.2.4** | **Dinamikus UI frissítés** | Sikeres hozzáadás után az új tweaknek azonnal meg kell jelennie a görgethető listában (UI), és ha volt "Nincs tweak" üzenet, azt el kell távolítani. | `frontend/ui.py` (`AddTweakFrame.add_tweak`) |
-| **FS-3.2.5** | **Törlés gomb** | Minden "User" fülön lévő tweak mellett meg kell jelennie egy "Törlés" (🗑️) gombnak (`is_user_tweak=True`). | `frontend/ui.py` (`TweakItemControl.__init__`) |
-| **FS-3.2.6** | **Törlés megerősítés** | A "Törlés" gombra kattintva egy **megerősítő párbeszédablakot** (`messagebox.askyesno`) kell megjeleníteni. | `frontend/ui.py` (`TweakItemControl.on_delete_press`) |
+| **FS-3.2.5** | **Törlés gomb** | Minden "User" fülön lévő tweak mellett meg kell jelennie egy "Delete" gombnak (`is_user_tweak=True`). | `frontend/ui.py` (`TweakItemControl.__init__`) |
+| **FS-3.2.6** | **Törlés megerősítés** | A "Delete" gombra kattintva egy **megerősítő párbeszédablakot** (`messagebox.askyesno`) kell megjeleníteni. | `frontend/ui.py` (`TweakItemControl.on_delete_press`) |
 | **FS-3.2.7** | **Tweak eltávolítása** | Megerősítés után a `delete_user_tweak` funkció eltávolítja a tweaket a config adatstruktúrából, majd a widget megsemmisül (`self.destroy()`), a config mentésre kerül. | `frontend/ui.py` (`TweakItemControl.on_delete_press`) |
 | **FS-3.2.8** | **Beépített tweakek** | A beépített (nem "User") tweakek mellett nem jelenhet meg törlés gomb (`is_user_tweak=False`). | `frontend/ui.py` (`TweakItemControl.__init__`) |
 
