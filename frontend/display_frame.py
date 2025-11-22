@@ -126,6 +126,11 @@ class DisplayFrame(ctk.CTkFrame):
         """Handle canvas resize by redrawing the monitor layout."""
         self.draw_monitor_layout()
 
+    def _set_appearance_mode(self, mode_string):
+        super()._set_appearance_mode(mode_string)
+        current_accent = self.root_app.root_data.get("theme", {}).get("accent_color", "#3B8ED0")
+        self.refresh_accent(current_accent)
+
     def on_projection_change(self, mode_name: str):
         """Attempt to change the overall projection mode (e.g., Extend, Duplicate)."""
         success, message = self.display_manager.set_projection_mode(mode_name)
@@ -300,6 +305,7 @@ class DisplayFrame(ctk.CTkFrame):
         if self.selected_monitor is None:
             return
 
+        
         res_str = self.resolution_var.get()
         hz_str = self.refresh_rate_var.get()
 
