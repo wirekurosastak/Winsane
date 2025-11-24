@@ -250,7 +250,12 @@ class SubTabView(ctk.CTkTabview):
                     no_tweaks_label.pack(pady=10, padx=10)
                 add_form.set_scroll_info(scroll_frame, no_tweaks_label)
             else:
-                ctk.CTkLabel(tab_frame, text="Please restart your computer after desired tweaks are set.", text_color=("black","white")).pack(pady=(10,0))
+                if feature_name == "Cleaner":
+                    ctk.CTkLabel(tab_frame, text="These actions are persistent and will be applied automatically at system startup.", text_color=("black","white")).pack(pady=(10,0))
+                elif feature_name == "Apps":
+                    ctk.CTkLabel(tab_frame, text="Install apps using winget.", text_color=("black","white")).pack(pady=(10,0))  
+                else:
+                    ctk.CTkLabel(tab_frame, text="Please restart your computer after desired tweaks are set.", text_color=("black","white")).pack(pady=(10,0))
                 scroll_frame = ctk.CTkScrollableFrame(master=tab_frame)
                 scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
             
