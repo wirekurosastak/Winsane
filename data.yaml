@@ -1,11 +1,12 @@
 theme:
-  mode: dark
+  mode: system
   accent_color: '#0581ff'
 features:
 - feature: Optimizer
   categories:
-  - category: Performance
+  - category: General
     items:
+    - header: Performance
     - name: Ultimate Performance
       purpose: Enables the Ultimate Performance power plan for maximum speed.
       true: $guid = powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
@@ -25,7 +26,7 @@ features:
         -ArgumentList "/timeout 30" -Verb RunAs
       enabled: false
     - name: Windows/Office Activation
-      purpose: Activate Windows and Office using massgrave.dev (Online KMS).
+      purpose: Activate Windows and Office using massgrave.dev.
       true: irm https://get.activated.win | iex
       false: slmgr.vbs /upk
       enabled: false
@@ -44,19 +45,43 @@ features:
       false: Set-Service -Name WSearch -StartupType Automatic; Start-Service -Name
         WSearch
       enabled: false
-    - name: Disable VBS
-      purpose: Disables Virtualization-Based Security to potentially boost gaming
-        FPS. (Requires Reboot)
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
-        -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
-        -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
-      enabled: false
     - name: Disable Hibernation
       purpose: Frees up disk space (removes hiberfil.sys) and prevents the system
         from hibernating.
       true: powercfg /h off
       false: powercfg /h on
+      enabled: false
+    - header: Gaming
+    - name: Enable Gaming Mode
+      purpose: Prioritizes system resources for gaming applications.
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
+        -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
+        -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
+        -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
+        -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
+      enabled: false
+    - name: Disable Xbox Game Bar
+      purpose: Disables the Game Bar overlay (Win+G) to save resources.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        1 -Force
+      enabled: false
+    - name: Disable Mouse Acceleration
+      purpose: Disables "Enhance Pointer Precision" for 1:1 raw input.
+      true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
+        -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
+        "MouseThreshold1" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control
+        Panel\Mouse" -Name "MouseThreshold2" -Value "0" -Force
+      false: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
+        -Value "1" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
+        "MouseThreshold1" -Value "6" -Force; Set-ItemProperty -Path "HKCU:\Control
+        Panel\Mouse" -Name "MouseThreshold2" -Value "10" -Force
       enabled: false
     - name: Disable Network Throttling
       purpose: Disables network throttling mechanism to potentially improve connection
@@ -66,8 +91,34 @@ features:
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
         -Name "NetworkThrottlingIndex" -Type DWord -Value 10 -Force
       enabled: false
-  - category: Explorer & UI
+    - header: Accessibility
+    - name: Disable Sticky Keys
+      purpose: Prevents the prompt when pressing Shift 5 times.
+      true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
+        -Name "Flags" -Type String -Value "506" -Force
+      false: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
+        -Name "Flags" -Type String -Value "510" -Force
+      enabled: false
+  - category: Visuals
     items:
+    - header: Explorer
+    - name: Show File Extensions
+      purpose: Forces Explorer to always show file extensions (e.g., .txt, .exe).
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer
+        -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer
+        -Force
+      enabled: false
+    - name: Show Hidden Files
+      purpose: Forces Explorer to show hidden files and folders.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
+      enabled: false
+    - header: UI
     - name: Align Taskbar to Left
       purpose: Moves the centered taskbar icons to the left side.
       true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
@@ -105,43 +156,30 @@ features:
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         -Name "TaskbarMn" -Type DWord -Value 1 -Force
       enabled: false
-    - name: Show File Extensions
-      purpose: Forces Explorer to always show file extensions (e.g., .txt, .exe).
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer
-        -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer
-        -Force
-      enabled: false
-    - name: Show Hidden Files
-      purpose: Forces Explorer to show hidden files and folders.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
-      enabled: false
-    - name: Disable Sticky Keys
-      purpose: Prevents the prompt when pressing Shift 5 times.
-      true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
-        -Name "Flags" -Type String -Value "506" -Force
-      false: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
-        -Name "Flags" -Type String -Value "510" -Force
-      enabled: false
   - category: Security & Privacy
     items:
+    - header: Security
+    - name: Disable VBS
+      purpose: Disables Virtualization-Based Security to potentially boost gaming
+        FPS. (Requires Reboot)
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
+        -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
+        -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
+      enabled: false
     - name: Disable UAC
       purpose: Turns off the security prompt that asks for permission when making
         changes.
       true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\h\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 1 -Type DWORD -Force
       enabled: false
+    - header: Privacy
     - name: Disable Telemetry
       purpose: Reduces background data collection and feedback requests.
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
-        -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
+        -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Pathh
         "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications"
         -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
@@ -163,41 +201,7 @@ features:
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
         -Name "Enabled" -Type DWord -Value 1 -Force
       enabled: false
-  - category: Gaming
-    items:
-    - name: Enable Gaming Mode
-      purpose: Prioritizes system resources for gaming applications.
-      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
-        -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
-        -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
-        -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
-        -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
-      enabled: false
-    - name: Disable Mouse Acceleration
-      purpose: Disables "Enhance Pointer Precision" for 1:1 raw input.
-      true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
-        -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
-        "MouseThreshold1" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control
-        Panel\Mouse" -Name "MouseThreshold2" -Value "0" -Force
-      false: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
-        -Value "1" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
-        "MouseThreshold1" -Value "6" -Force; Set-ItemProperty -Path "HKCU:\Control
-        Panel\Mouse" -Name "MouseThreshold2" -Value "10" -Force
-      enabled: false
-    - name: Disable Xbox Game Bar
-      purpose: Disables the Game Bar overlay (Win+G) to save resources.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
-        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
-        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
-        0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
-        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
-        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
-        1 -Force
-      enabled: false
-  - category: Windows Update
-    items:
+    - header: Windows Update
     - name: Exclude Drivers from Updates
       purpose: Prevents Windows Update from automatically overwriting manual drivers.
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
