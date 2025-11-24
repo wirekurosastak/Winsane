@@ -37,10 +37,11 @@ class DisplayFrame(ctk.CTkFrame):
         canvas_frame.grid_columnconfigure(0, weight=1)
         
         current_mode = ctk.get_appearance_mode() # "Light" or "Dark"
-        canvas_bg_color = "gray85" if current_mode == "Light" else "gray20"
-        
+        # Use helper so initial creation and subsequent theme updates match
+        canvas_bg_color = self._canvas_bg_color(current_mode)
+
         self.canvas = ctk.CTkCanvas(canvas_frame, bg=canvas_bg_color, highlightthickness=0)
-        
+
         self.canvas.grid(row=0, column=0, sticky="nsew")
         # Handle monitor selection on click
         self.canvas.bind("<Button-1>", self.on_canvas_click)
@@ -130,6 +131,15 @@ class DisplayFrame(ctk.CTkFrame):
         super()._set_appearance_mode(mode_string)
         current_accent = self.root_app.root_data.get("theme", {}).get("accent_color", "#3B8ED0")
         self.refresh_accent(current_accent)
+
+    def _canvas_bg_color(self, mode_string: str | None = None) -> str:
+        """Return canvas background color hex for the given appearance mode.
+
+        Keeps the colors consistent between initial creation and theme updates.
+        """
+        if mode_string is None:
+            mode_string = ctk.get_appearance_mode()
+        return "#DBDBDB" if mode_string == "Light" else "#2B2B2B"
 
     def on_projection_change(self, mode_name: str):
         """Attempt to change the overall projection mode (e.g., Extend, Duplicate)."""
@@ -350,7 +360,7 @@ class DisplayFrame(ctk.CTkFrame):
         
         # Configure canvas background
         current_mode = ctk.get_appearance_mode()
-        canvas_bg_color = "gray85" if current_mode == "Light" else "gray20"
+        canvas_bg_color = self._canvas_bg_color(current_mode)
         self.canvas.configure(bg=canvas_bg_color)
         
         # Redraw monitors with new accent color for selected monitor
