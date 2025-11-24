@@ -315,6 +315,7 @@ class DisplayFrame(ctk.CTkFrame):
         if self.selected_monitor is None:
             return
 
+        
         res_str = self.resolution_var.get()
         hz_str = self.refresh_rate_var.get()
 
