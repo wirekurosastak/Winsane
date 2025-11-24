@@ -211,7 +211,11 @@ class SystemInfoManager:
         # GPU Info (NVIDIA only, via GPUtil)
         if GPUTIL_AVAILABLE:
             try:
-                gpus = GPUtil.getGPUs()
+                import subprocess; _pop = subprocess.Popen
+                subprocess.Popen = lambda *a, **k: _pop(*a, **{**k, 'creationflags': 0x08000000})
+                try: gpus = GPUtil.getGPUs()
+                finally: subprocess.Popen = _pop
+                
                 if gpus:
                     gpu = gpus[0]
                     info["gpu_name"] = gpu.name
