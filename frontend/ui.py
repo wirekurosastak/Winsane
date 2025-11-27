@@ -3,6 +3,7 @@ import customtkinter as ctk
 from vcolorpicker import getColor, useLightTheme
 from collections import defaultdict
 from tkinter import messagebox
+from threading import Thread
  
 from backend.config import (
     darker,
@@ -21,6 +22,7 @@ class TweakItemControl(ctk.CTkFrame):
         self.item = item
         self.config_data = config_data
         self.is_user_tweak = is_user_tweak # Store flag
+        self.is_running = False # <-- 1. MÓDOSÍTÁS: Állapotjelző a futó művelethez
         self.grid_columnconfigure(0, weight=1)
  
         # Name and description
@@ -35,10 +37,24 @@ class TweakItemControl(ctk.CTkFrame):
         self.tweak_switch = ctk.CTkSwitch(self, text="", variable=self.tweak_var,
                                          command=self.toggle_tweak, progress_color=ACCENT_COLOR)
         
+        # --- 2. MÓDOSÍTÁS: Folyamatjelző (Progress Bar) létrehozása ---
+        # Létrehozzuk, de még nem jelenítjük meg (nincs .grid() hívás)
+        self.progress_bar = ctk.CTkProgressBar(
+            self, 
+            mode="indeterminate", 
+            height=10, 
+            width=50 # Kisebb szélesség, hogy elférjen
+        )
+        self.progress_bar.set(0) # Kezdeti állapot
+        # --- VÉGE: ÚJ RÉSZ ---
+        
         # Add delete button if 'is_user_tweak' is true
         if self.is_user_tweak:
+            # --- 3. MÓDOSÍTÁS: Elmentjük a grid pozíciókat ---
+            self.switch_grid_info = {"row": 0, "column": 1, "rowspan": 2, "padx": (20, 5), "pady": 10, "sticky": "e"}
+            
             # User tweak switch takes less space
-            self.tweak_switch.grid(row=0, column=1, rowspan=2, padx=(20, 5), pady=10, sticky="e")
+            self.tweak_switch.grid(**self.switch_grid_info) # Alkalmazzuk a pozíciót
             
             # Delete button (trash icon)
             self.delete_button = ctk.CTkButton(
@@ -53,21 +69,94 @@ class TweakItemControl(ctk.CTkFrame):
             )
             self.delete_button.grid(row=0, column=2, rowspan=2, padx=(0, 15), pady=10, sticky="e")
         else:
+            # --- 3. MÓDOSÍTÁS: Elmentjük a grid pozíciókat ---
+            self.switch_grid_info = {"row": 0, "column": 1, "rowspan": 2, "padx": 20, "pady": 10, "sticky": "e"}
+            
             # Original layout for built-in tweaks
-            self.tweak_switch.grid(row=0,column=1,rowspan=2,padx=20,pady=10,sticky="e")
- 
+            self.tweak_switch.grid(**self.switch_grid_info) # Alkalmazzuk a pozíciót
+
     def toggle_tweak(self):
-        # Run PowerShell command on toggle
+        # Ha már fut egy művelet, megakadályozzuk az újraindítást
+        if self.is_running:
+            self.tweak_var.set(not self.tweak_var.get()) # Visszaállítja a kapcsolót
+            messagebox.showwarning("Foglalt", "Egy művelet már fut ennél az elemnél. Kérlek, várj.")
+            return
+
+        self.is_running = True
         is_on = self.tweak_var.get()
-        # Get command from item using boolean key (True/False)
-        command = self.item.get(is_on,'')
-        from backend.config import run_powershell_as_admin
-        run_powershell_as_admin(command)
-        self.item['enabled'] = is_on
-        save_config(self.config_data)
+        command = self.item.get(is_on, '')
+
+        # --- UI FRISSÍTÉS: MŰVELET INDÍTÁSA ---
+        self.tweak_switch.grid_forget() # Kapcsoló elrejtése
+        self.progress_bar.grid(**self.switch_grid_info) # Folyamatjelző megjelenítése ugyanott
+        self.progress_bar.start() # Animáció indítása
+
+        # Ha van Delete gomb, tiltsuk le a művelet idejére
+        if self.is_user_tweak:
+            self.delete_button.configure(state="disabled")
+        # --- VÉGE: UI FRISSÍTÉS ---
+
+        # Háttérszál indítása a PowerShell parancs futtatásához
+        Thread(
+            target=self._run_powershell_threaded, # Ezt a függvényt fogja futtatni
+            args=(command, is_on), # Ezeket az argumentumokat adja át neki
+            daemon=True # A szál bezáródik a főprogrammal együtt
+        ).start()
+
+    def _run_powershell_threaded(self, command, is_on):
+        """
+        Ez a metódus a HÁTTÉRSZÁLON fut.
+        Lefuttatja a blokkoló PowerShell parancsot.
+        """
+        try:
+            # Ez a lassú, blokkoló hívás, ami eddig a fagyást okozta
+            from backend.config import run_powershell_as_admin
+            run_powershell_as_admin(command)
+            
+            # Ha sikeres volt, elmentjük az állapotot
+            self.item['enabled'] = is_on
+            save_config(self.config_data)
+            
+            # Visszajelzés a FŐ SZÁLNAK, hogy sikeres volt
+            # Az .after(0, ...) biztosítja, hogy a _on_task_complete a UI szálon fusson
+            self.after(0, self._on_task_complete, True, None) 
+            
+        except Exception as e:
+            # Hiba történt a futtatás közben
+            print(f"Hiba a tweak futtatása közben ('{self.item['name']}'): {e}")
+            # Visszajelzés a FŐ SZÁLNAK, hogy hiba történt
+            self.after(0, self._on_task_complete, False, str(e))
+
+    def _on_task_complete(self, success, error_message=None):
+        """
+        Ez a metódus a FŐ (UI) SZÁLON fut, miután a háttérszál végzett.
+        Visszaállítja a UI-t az eredeti állapotba.
+        """
         
+        # --- UI FRISSÍTÉS: MŰVELET VÉGE ---
+        self.progress_bar.stop() # Folyamatjelző leállítása
+        self.progress_bar.grid_forget() # és elrejtése
+        self.tweak_switch.grid(**self.switch_grid_info) # Kapcsoló visszahelyezése
+        
+        # Ha van Delete gomb, engedélyezzük újra
+        if self.is_user_tweak:
+            self.delete_button.configure(state="normal")
+        # --- VÉGE: UI FRISSÍTÉS ---
+
+        if not success:
+            # Hiba esetén mutassunk hibaüzenetet
+            messagebox.showerror("Hiba", f"A művelet végrehajtása sikertelen ('{self.item['name']}'):\n{error_message}")
+            # És állítsuk vissza a kapcsolót az eredeti állapotába
+            self.tweak_var.set(not self.tweak_var.get())
+        
+        # Akár sikeres volt, akár nem, a művelet befejeződött
+        self.is_running = False
     # New method to handle delete button
     def on_delete_press(self):
+        if self.is_running:
+            messagebox.showwarning("Foglalt", "Nem törölheted ezt az elemet, amíg egy művelet fut.")
+            return
+
         tweak_name = self.item.get('name')
         if not tweak_name:
             messagebox.showerror("Error", "Cannot find tweak name to delete.")
