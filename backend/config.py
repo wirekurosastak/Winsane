@@ -142,6 +142,11 @@ def merge_configs(remote, local):
             
             # Build the 'enabled' map
             for item in cat.get("items", []):
+                
+                # If this is a header, we leave it out because it doesn't have 'name' and 'enabled' keys
+                if 'header' in item:
+                    continue
+                
                 key = (feat["feature"], cat["category"], item["name"])
                 enabled_map[key] = item.get("enabled", False)
 
@@ -155,11 +160,15 @@ def merge_configs(remote, local):
             # Find the 'User' category in the remote config
             if feat.get('feature') == 'Optimizer' and cat.get('category') == 'User':
                 if 'items' not in cat:
-                     cat['items'] = [] # Create 'items' list if it doesn't exist
+                        cat['items'] = [] # Create 'items' list if it doesn't exist
                 remote_user_category_items_list = cat['items']
             
             # Apply the 'enabled' statuses
             for item in cat.get("items", []):
+                # If this is a header, we leave it out because it doesn't have a 'name' key
+                if 'header' in item:
+                    continue
+                
                 key = (feat["feature"], cat["category"], item["name"])
                 if key in enabled_map:
                     item["enabled"] = enabled_map[key]
@@ -167,9 +176,15 @@ def merge_configs(remote, local):
     # 4. Add the local custom tweaks (from local_user_tweaks) to the remote config
     if remote_user_category_items_list is not None:
         # Get a set of names already in the remote list to avoid duplicates
-        remote_tweak_names = {item.get('name') for item in remote_user_category_items_list}
+        # Ensure that headers are not considered in name collision checking
+        remote_tweak_names = {item.get('name') for item in remote_user_category_items_list if 'header' not in item}
         
         for local_tweak in local_user_tweaks:
+            
+           # If the saved "User" tweak is a header, don't try to treat it as a tweak
+            if 'header' in local_tweak:
+                continue
+           
             # Only add the tweak if its name is not already in the remote list
             if local_tweak.get('name') not in remote_tweak_names:
                 # Before adding, set its 'enabled' status based on the map
@@ -183,7 +198,6 @@ def merge_configs(remote, local):
         remote["theme"] = theme_backup
         
     return remote
- 
  
 # Initialization helper
 def init_config():
