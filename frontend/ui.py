@@ -16,12 +16,13 @@ from .display_frame import DisplayFrame
 from .dashboard_frame import InfoFrame
  
 class TweakItemControl(ctk.CTkFrame):
-    """A single Tweak item row, with a name, description, and switch."""
-    def __init__(self, master, item, config_data, is_user_tweak=False, **kwargs):
+    """A single Tweak item row, with a name, description, and switch or button."""
+    def __init__(self, master, item, config_data, is_user_tweak=False, use_button=False, **kwargs):
         super().__init__(master, **kwargs)
         self.item = item
         self.config_data = config_data
         self.is_user_tweak = is_user_tweak # Store flag
+        self.use_button = use_button # Store flag
         self.is_running = False # <-- 1. MÓDOSÍTÁS: Állapotjelző a futó művelethez
         self.grid_columnconfigure(0, weight=1)
  
@@ -32,11 +33,6 @@ class TweakItemControl(ctk.CTkFrame):
                      justify="left", fg_color="transparent", text_color=("gray30","gray70")
         ).grid(row=1,column=0,padx=15,pady=(0,5),sticky="w")
  
-        # Tweak switch
-        self.tweak_var = ctk.BooleanVar(value=item.get('enabled',False))
-        self.tweak_switch = ctk.CTkSwitch(self, text="", variable=self.tweak_var,
-                                         command=self.toggle_tweak, progress_color=ACCENT_COLOR)
-        
         # --- 2. MÓDOSÍTÁS: Folyamatjelző (Progress Bar) létrehozása ---
         # Létrehozzuk, de még nem jelenítjük meg (nincs .grid() hívás)
         self.progress_bar = ctk.CTkProgressBar(
@@ -47,33 +43,72 @@ class TweakItemControl(ctk.CTkFrame):
         )
         self.progress_bar.set(0) # Kezdeti állapot
         # --- VÉGE: ÚJ RÉSZ ---
-        
-        # Add delete button if 'is_user_tweak' is true
-        if self.is_user_tweak:
-            # --- 3. MÓDOSÍTÁS: Elmentjük a grid pozíciókat ---
-            self.switch_grid_info = {"row": 0, "column": 1, "rowspan": 2, "padx": (20, 5), "pady": 10, "sticky": "e"}
-            
-            # User tweak switch takes less space
-            self.tweak_switch.grid(**self.switch_grid_info) # Alkalmazzuk a pozíciót
-            
-            # Delete button (trash icon)
-            self.delete_button = ctk.CTkButton(
-                self, 
-                text="Delete",
-                height=35,
-                fg_color="transparent", 
-                hover_color=("#F0D0D0", "#402020"), # Light red hover
-                text_color=("#D00000", "#FF4040"), # Red text/icon
-                font=ctk.CTkFont(size=16),
-                command=self.on_delete_press # Call new method
+
+        # Control widget (Switch or Button)
+        if self.use_button:
+            # Button mode (for Admin Tools)
+            self.control_widget = ctk.CTkButton(
+                self,
+                text="Open",
+                width=60,
+                height=24,
+                fg_color=ACCENT_COLOR,
+                command=self.on_button_click
             )
-            self.delete_button.grid(row=0, column=2, rowspan=2, padx=(0, 15), pady=10, sticky="e")
-        else:
-            # --- 3. MÓDOSÍTÁS: Elmentjük a grid pozíciókat ---
             self.switch_grid_info = {"row": 0, "column": 1, "rowspan": 2, "padx": 20, "pady": 10, "sticky": "e"}
+            self.control_widget.grid(**self.switch_grid_info)
+        else:
+            # Switch mode (default)
+            self.tweak_var = ctk.BooleanVar(value=item.get('enabled',False))
+            self.control_widget = ctk.CTkSwitch(self, text="", variable=self.tweak_var,
+                                             command=self.toggle_tweak, progress_color=ACCENT_COLOR)
             
-            # Original layout for built-in tweaks
-            self.tweak_switch.grid(**self.switch_grid_info) # Alkalmazzuk a pozíciót
+            # Add delete button if 'is_user_tweak' is true
+            if self.is_user_tweak:
+                # --- 3. MÓDOSÍTÁS: Elmentjük a grid pozíciókat ---
+                self.switch_grid_info = {"row": 0, "column": 1, "rowspan": 2, "padx": (20, 5), "pady": 10, "sticky": "e"}
+                
+                # User tweak switch takes less space
+                self.control_widget.grid(**self.switch_grid_info) # Alkalmazzuk a pozíciót
+                
+                # Delete button (trash icon)
+                self.delete_button = ctk.CTkButton(
+                    self, 
+                    text="Delete",
+                    height=35,
+                    fg_color="transparent", 
+                    hover_color=("#F0D0D0", "#402020"), # Light red hover
+                    text_color=("#D00000", "#FF4040"), # Red text/icon
+                    font=ctk.CTkFont(size=16),
+                    command=self.on_delete_press # Call new method
+                )
+                self.delete_button.grid(row=0, column=2, rowspan=2, padx=(0, 15), pady=10, sticky="e")
+            else:
+                # --- 3. MÓDOSÍTÁS: Elmentjük a grid pozíciókat ---
+                self.switch_grid_info = {"row": 0, "column": 1, "rowspan": 2, "padx": 20, "pady": 10, "sticky": "e"}
+                
+                # Original layout for built-in tweaks
+                self.control_widget.grid(**self.switch_grid_info) # Alkalmazzuk a pozíciót
+
+    def on_button_click(self):
+        """Handles button click for Admin Tools items."""
+        if self.is_running:
+            return
+
+        self.is_running = True
+        command = self.item.get(True, '') # Use 'True' key for command
+
+        # UI Update
+        self.control_widget.grid_forget()
+        self.progress_bar.grid(**self.switch_grid_info)
+        self.progress_bar.start()
+
+        # Run command in thread
+        Thread(
+            target=self._run_powershell_threaded,
+            args=(command, None), # No 'is_on' state for buttons
+            daemon=True
+        ).start()
 
     def toggle_tweak(self):
         # Ha már fut egy művelet, megakadályozzuk az újraindítást
@@ -81,28 +116,28 @@ class TweakItemControl(ctk.CTkFrame):
             self.tweak_var.set(not self.tweak_var.get()) # Visszaállítja a kapcsolót
             messagebox.showwarning("Foglalt", "Egy művelet már fut ennél az elemnél. Kérlek, várj.")
             return
-
+ 
         self.is_running = True
         is_on = self.tweak_var.get()
         command = self.item.get(is_on, '')
-
+ 
         # --- UI FRISSÍTÉS: MŰVELET INDÍTÁSA ---
-        self.tweak_switch.grid_forget() # Kapcsoló elrejtése
+        self.control_widget.grid_forget() # Kapcsoló elrejtése
         self.progress_bar.grid(**self.switch_grid_info) # Folyamatjelző megjelenítése ugyanott
         self.progress_bar.start() # Animáció indítása
-
+ 
         # Ha van Delete gomb, tiltsuk le a művelet idejére
         if self.is_user_tweak:
             self.delete_button.configure(state="disabled")
         # --- VÉGE: UI FRISSÍTÉS ---
-
+ 
         # Háttérszál indítása a PowerShell parancs futtatásához
         Thread(
             target=self._run_powershell_threaded, # Ezt a függvényt fogja futtatni
             args=(command, is_on), # Ezeket az argumentumokat adja át neki
             daemon=True # A szál bezáródik a főprogrammal együtt
         ).start()
-
+ 
     def _run_powershell_threaded(self, command, is_on):
         """
         Ez a metódus a HÁTTÉRSZÁLON fut.
@@ -113,9 +148,10 @@ class TweakItemControl(ctk.CTkFrame):
             from backend.config import run_powershell_as_admin
             run_powershell_as_admin(command)
             
-            # Ha sikeres volt, elmentjük az állapotot
-            self.item['enabled'] = is_on
-            save_config(self.config_data)
+            # Ha sikeres volt, elmentjük az állapotot (csak switch esetén)
+            if not self.use_button:
+                self.item['enabled'] = is_on
+                save_config(self.config_data)
             
             # Visszajelzés a FŐ SZÁLNAK, hogy sikeres volt
             # Az .after(0, ...) biztosítja, hogy a _on_task_complete a UI szálon fusson
@@ -126,7 +162,7 @@ class TweakItemControl(ctk.CTkFrame):
             print(f"Hiba a tweak futtatása közben ('{self.item['name']}'): {e}")
             # Visszajelzés a FŐ SZÁLNAK, hogy hiba történt
             self.after(0, self._on_task_complete, False, str(e))
-
+ 
     def _on_task_complete(self, success, error_message=None):
         """
         Ez a metódus a FŐ (UI) SZÁLON fut, miután a háttérszál végzett.
@@ -136,18 +172,19 @@ class TweakItemControl(ctk.CTkFrame):
         # --- UI FRISSÍTÉS: MŰVELET VÉGE ---
         self.progress_bar.stop() # Folyamatjelző leállítása
         self.progress_bar.grid_forget() # és elrejtése
-        self.tweak_switch.grid(**self.switch_grid_info) # Kapcsoló visszahelyezése
+        self.control_widget.grid(**self.switch_grid_info) # Kapcsoló/Gomb visszahelyezése
         
         # Ha van Delete gomb, engedélyezzük újra
         if self.is_user_tweak:
             self.delete_button.configure(state="normal")
         # --- VÉGE: UI FRISSÍTÉS ---
-
+ 
         if not success:
             # Hiba esetén mutassunk hibaüzenetet
             messagebox.showerror("Hiba", f"A művelet végrehajtása sikertelen ('{self.item['name']}'):\n{error_message}")
-            # És állítsuk vissza a kapcsolót az eredeti állapotába
-            self.tweak_var.set(not self.tweak_var.get())
+            # És állítsuk vissza a kapcsolót az eredeti állapotába (csak switch esetén)
+            if not self.use_button:
+                self.tweak_var.set(not self.tweak_var.get())
         
         # Akár sikeres volt, akár nem, a művelet befejeződött
         self.is_running = False
@@ -156,12 +193,12 @@ class TweakItemControl(ctk.CTkFrame):
         if self.is_running:
             messagebox.showwarning("Foglalt", "Nem törölheted ezt az elemet, amíg egy művelet fut.")
             return
-
+ 
         tweak_name = self.item.get('name')
         if not tweak_name:
             messagebox.showerror("Error", "Cannot find tweak name to delete.")
             return
-
+ 
         # Ask for confirmation
         if not messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete the tweak '{tweak_name}'?"):
             return
@@ -342,7 +379,9 @@ class SubTabView(ctk.CTkTabview):
                 if feature_name == "Cleaner":
                     ctk.CTkLabel(tab_frame, text="These actions are persistent and will be applied automatically at system startup.", text_color=("black","white")).pack(pady=(10,0))
                 elif feature_name == "Apps":
-                    ctk.CTkLabel(tab_frame, text="Install apps using winget.", text_color=("black","white")).pack(pady=(10,0))  
+                    ctk.CTkLabel(tab_frame, text="Install apps using winget.", text_color=("black","white")).pack(pady=(10,0))
+                elif feature_name == "Admin Tools":
+                    ctk.CTkLabel(tab_frame, text="Windows settings.", text_color=("black","white")).pack(pady=(10,0)) 
                 else:
                     ctk.CTkLabel(tab_frame, text="Please restart your computer after desired tweaks are set.", text_color=("black","white")).pack(pady=(10,0))
                 scroll_frame = ctk.CTkScrollableFrame(master=tab_frame)
@@ -364,10 +403,11 @@ class SubTabView(ctk.CTkTabview):
                     lbl.pack(fill="x", pady=(25, 5), padx=5)
                     continue
                 # ----------------------------
-
+ 
                 TweakItemControl(
                     scroll_frame, item=item, config_data=config_data,
-                    is_user_tweak=is_user_tweak, fg_color=("white","gray15")
+                    is_user_tweak=is_user_tweak, fg_color=("white","gray15"),
+                    use_button=(feature_name == "Admin Tools") # Pass button flag
                 ).pack(fill="x",pady=5,padx=5)
  
 class MainTabView(ctk.CTkTabview):
