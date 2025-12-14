@@ -1,7 +1,8 @@
 customtkinter
-PyYAML
-requests
 vcolorpicker
+requests
 psutil
 GPUtil
+PyYAML
+PyQt5
 wmi
