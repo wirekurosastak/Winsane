@@ -61,17 +61,6 @@ features:
         -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
         -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
       enabled: false
-    - name: Disable Xbox Game Bar
-      purpose: Disables the Game Bar overlay (Win+G) to save resources.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
-        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
-        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
-        0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
-        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
-        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
-        1 -Force
-      enabled: false
     - name: Disable Mouse Acceleration
       purpose: Disables 'Enhance Pointer Precision' for 1:1 raw input.
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
@@ -135,27 +124,6 @@ features:
       false: Remove-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
         -Recurse -Force
       enabled: false
-    - name: Disable Widgets
-      purpose: Removes the Widgets button (Weather/News) from the taskbar.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarDa" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarDa" -Type DWord -Value 1 -Force
-      enabled: false
-    - name: Disable Copilot
-      purpose: Removes the AI Copilot button from the taskbar.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "ShowCopilotButton" -Type DWord -Value 1 -Force
-      enabled: false
-    - name: Disable Chat / Teams
-      purpose: Removes the built-in Chat icon from the taskbar.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarMn" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarMn" -Type DWord -Value 1 -Force
-      enabled: false
     - name: Disable Startup Sound
       purpose: Prevents Windows from playing the jingle when you reach the login screen.
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation"
@@ -217,15 +185,6 @@ features:
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
         -Name "Enabled" -Type DWord -Value 1 -Force
       enabled: false
-    - name: Disable Windows Consumer Features
-      purpose: Disables 'Suggested' apps and ads (like Candy Crush or Disney+) in
-        the Start Menu.
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-        -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-        -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-        -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
-      enabled: false
     - name: Disable Edge Startup Boost
       purpose: Stops Edge from running processes in the background when it is closed
         to save RAM.
@@ -258,7 +217,115 @@ features:
     items: []
 - feature: Cleaner
   categories:
-  - category: Windows
+  - category: Debloat
+    items:
+    - header: System & UI Settings
+    - name: Disable Windows Consumer Features
+      purpose: Disables 'Suggested' apps and ads (like Candy Crush or Disney+) in
+        the Start Menu.
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Disable Xbox Game Bar
+      purpose: Disables the Game Bar overlay (Win+G) to save resources.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        1 -Force
+      enabled: false
+    - name: Disable Widgets
+      purpose: Removes the Widgets button (Weather/News) from the taskbar.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarDa" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarDa" -Type DWord -Value 1 -Force
+      enabled: false
+    - name: Disable Chat / Teams
+      purpose: Removes the built-in Chat icon from the taskbar.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarMn" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarMn" -Type DWord -Value 1 -Force
+      enabled: false
+    - header: Remove Windows Apps
+    - name: Remove Copilot
+      purpose: 'Uninstalls the Copilot app and disables the Taskbar icon. (Warning:
+        Reinstall requires MS Store)'
+      true: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue;
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
+      false: Write-Output "Reinstall via Store or Settings"
+      enabled: false
+    - name: Remove Bing, News & Weather
+      purpose: 'Removes Bing Search, News, Weather, and Finance apps. (Warning: Reinstall
+        requires MS Store)'
+      true: Get-AppxPackage *Bing* | Remove-AppxPackage -ErrorAction SilentlyContinue;
+        Get-AppxPackage *News* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove Xbox Apps
+      purpose: 'Removes Xbox Gaming Overlay, Game Bar, and Identity Provider. (Warning:
+        Reinstall requires MS Store)'
+      true: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue;
+        Get-AppxPackage *GamingApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove Solitaire Collection
+      purpose: 'Removes the pre-installed Solitaire game. (Warning: Reinstall requires
+        MS Store)'
+      true: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove Outlook (New)
+      purpose: 'Removes the new Outlook for Windows app. (Warning: Reinstall requires
+        MS Store)'
+      true: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove Dev Home
+      purpose: 'Removes the Windows Dev Home app. (Warning: Reinstall requires MS
+        Store)'
+      true: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove YourPhone
+      purpose: 'Removes the ''Phone Link'' integration app. (Warning: Reinstall requires
+        MS Store)'
+      true: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove Feedback Hub
+      purpose: 'Removes the Windows Feedback Hub. (Warning: Reinstall requires MS
+        Store)'
+      true: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove Maps
+      purpose: 'Removes the built-in Windows Maps application. (Warning: Reinstall
+        requires MS Store)'
+      true: Get-AppxPackage *Maps* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      false: Write-Output "Reinstall via Store"
+      enabled: false
+    - name: Remove WordPad
+      purpose: Uninstalls the legacy WordPad application.
+      true: Remove-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
+        -ErrorAction SilentlyContinue
+      false: Add-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
+      enabled: false
+    - name: Remove Steps Recorder
+      purpose: Uninstalls the legacy Steps Recorder tool.
+      true: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
+        -ErrorAction SilentlyContinue
+      false: Add-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
+      enabled: false
+  - category: Files
     items:
     - name: Temp Files
       purpose: Deletes temporary files from User and Windows temp folders at logon.
@@ -556,78 +623,6 @@ features:
       enabled: false
 - feature: Apps
   categories:
-  - category: Debloat Windows
-    items:
-    - name: Remove Copilot
-      purpose: 'Uninstalls the Copilot app and disables the Taskbar icon. (Warning:
-        Reinstall requires MS Store)'
-      true: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
-      false: Write-Output "Reinstall via Store or Settings"
-      enabled: false
-    - name: Remove Bing, News & Weather
-      purpose: 'Removes Bing Search, News, Weather, and Finance apps. (Warning: Reinstall
-        requires MS Store)'
-      true: Get-AppxPackage *Bing* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Get-AppxPackage *News* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Xbox Apps
-      purpose: 'Removes Xbox Gaming Overlay, Game Bar, and Identity Provider. (Warning:
-        Reinstall requires MS Store)'
-      true: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Get-AppxPackage *GamingApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Solitaire Collection
-      purpose: 'Removes the pre-installed Solitaire game. (Warning: Reinstall requires
-        MS Store)'
-      true: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Outlook (New)
-      purpose: 'Removes the new Outlook for Windows app. (Warning: Reinstall requires
-        MS Store)'
-      true: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Dev Home
-      purpose: 'Removes the Windows Dev Home app. (Warning: Reinstall requires MS
-        Store)'
-      true: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove YourPhone
-      purpose: 'Removes the ''Phone Link'' integration app. (Warning: Reinstall requires
-        MS Store)'
-      true: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Feedback Hub
-      purpose: 'Removes the Windows Feedback Hub. (Warning: Reinstall requires MS
-        Store)'
-      true: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Maps
-      purpose: 'Removes the built-in Windows Maps application. (Warning: Reinstall
-        requires MS Store)'
-      true: Get-AppxPackage *Maps* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove WordPad
-      purpose: Uninstalls the legacy WordPad application.
-      true: Remove-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
-        -ErrorAction SilentlyContinue
-      false: Add-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
-      enabled: false
-    - name: Remove Steps Recorder
-      purpose: Uninstalls the legacy Steps Recorder tool.
-      true: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
-        -ErrorAction SilentlyContinue
-      false: Add-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
-      enabled: false
   - category: Browsers
     items:
     - name: Google Chrome
@@ -660,11 +655,6 @@ features:
       true: winget install --id=Vivaldi.Vivaldi -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=Vivaldi.Vivaldi -e --disable-interactivity
       enabled: false
-    - name: Microsoft Edge
-      purpose: Installs/updates the Chromium-based Microsoft Edge.
-      true: winget install --id=Microsoft.Edge -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Microsoft.Edge -e --disable-interactivity
-      enabled: false
     - name: Tor Browser
       purpose: Browse with enhanced privacy and anonymity.
       true: winget install --id=TorProject.TorBrowser -e --accept-source-agreements
@@ -676,12 +666,6 @@ features:
       true: winget install --id=LibreWolf.LibreWolf -e --accept-source-agreements
         --accept-package-agreements
       false: winget uninstall --id=LibreWolf.LibreWolf -e --disable-interactivity
-      enabled: false
-    - name: DuckDuckGo
-      purpose: Privacy-focused browser from DuckDuckGo.
-      true: winget install --id=DuckDuckGo.DuckDuckGo -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=DuckDuckGo.DuckDuckGo -e --disable-interactivity
       enabled: false
   - category: Communication
     items:
@@ -707,36 +691,10 @@ features:
         --accept-package-agreements
       false: winget uninstall --id=Telegram.TelegramDesktop -e --disable-interactivity
       enabled: false
-    - name: Signal
-      purpose: End-to-end encrypted messaging for secure communication.
-      true: winget install --id=Signal.Signal -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Signal.Signal -e --disable-interactivity
-      enabled: false
-    - name: WhatsApp
-      purpose: Desktop client for the popular mobile messaging app.
-      true: winget install --id=Meta.WhatsApp -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Meta.WhatsApp -e --disable-interactivity
-      enabled: false
     - name: Microsoft Teams
       purpose: The hub for team collaboration in Microsoft 365.
       true: winget install --id=Microsoft.Teams -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=Microsoft.Teams -e --disable-interactivity
-      enabled: false
-    - name: Skype
-      purpose: Video and voice calls, messaging, and file sharing.
-      true: winget install --id=Microsoft.Skype -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Microsoft.Skype -e --disable-interactivity
-      enabled: false
-    - name: Viber
-      purpose: Free and secure calls and messages to anyone, anywhere.
-      true: winget install --id=Viber.Viber -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Viber.Viber -e --disable-interactivity
-      enabled: false
-    - name: TeamSpeak 3 (Client)
-      purpose: Voice communication for online gaming, education, and business.
-      true: winget install --id=TeamSpeak.TeamSpeak -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=TeamSpeak.TeamSpeak -e --disable-interactivity
       enabled: false
   - category: Development
     items:
@@ -745,11 +703,6 @@ features:
       true: winget install --id=Microsoft.VisualStudioCode -e --accept-source-agreements
         --accept-package-agreements
       false: winget uninstall --id=Microsoft.VisualStudioCode -e --disable-interactivity
-      enabled: false
-    - name: GitHub Desktop
-      purpose: A graphical interface for Git.
-      true: winget install --id=GitHub.Desktop -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=GitHub.Desktop -e --disable-interactivity
       enabled: false
     - name: Git
       purpose: Distributed version control system for tracking changes in source code.
@@ -814,11 +767,6 @@ features:
       enabled: false
   - category: Graphics & Design
     items:
-    - name: GIMP
-      purpose: Free and open-source raster graphics editor.
-      true: winget install --id=GIMP.GIMP -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=GIMP.GIMP -e --disable-interactivity
-      enabled: false
     - name: Inkscape
       purpose: Free and open-source vector graphics editor.
       true: winget install --id=Inkscape.Inkscape -e --accept-source-agreements --accept-package-agreements
@@ -830,11 +778,6 @@ features:
         --accept-package-agreements
       false: winget uninstall --id=BlenderFoundation.Blender -e --disable-interactivity
       enabled: false
-    - name: Krita
-      purpose: Free and open-source digital painting application.
-      true: winget install --id=Krita.Krita -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Krita.Krita -e --disable-interactivity
-      enabled: false
     - name: Paint.NET
       purpose: Free image and photo editing software for Windows.
       true: winget install --id=dotPDN.PaintDotNet -e --accept-source-agreements --accept-package-agreements
@@ -844,13 +787,6 @@ features:
       purpose: Collaborative interface design tool for teams.
       true: winget install --id=Figma.Figma -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=Figma.Figma -e --disable-interactivity
-      enabled: false
-    - name: DaVinci Resolve
-      purpose: Professional 8K editing, color correction, visual effects and audio
-        post.
-      true: winget install --id=BlackmagicDesign.DaVinciResolve -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=BlackmagicDesign.DaVinciResolve -e --disable-interactivity
       enabled: false
     - name: ShareX
       purpose: Advanced screenshot, screen recorder, file sharing, and productivity
@@ -899,22 +835,6 @@ features:
         --accept-package-agreements
       false: winget uninstall --id=ElectronicArts.EADesktop -e --disable-interactivity
       enabled: false
-    - name: Battle.net
-      purpose: Digital distribution and launcher for Blizzard Entertainment games.
-      true: winget install --id=Blizzard.BattleNet -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Blizzard.BattleNet -e --disable-interactivity
-      enabled: false
-    - name: Riot Client
-      purpose: Launcher for Riot Games titles (League of Legends, Valorant).
-      true: winget install --id=RiotGames.RiotClient -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=RiotGames.RiotClient -e --disable-interactivity
-      enabled: false
-    - name: itch.io
-      purpose: App for installing and running indie games from itch.io.
-      true: winget install --id=Itch.itch -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Itch.itch -e --disable-interactivity
-      enabled: false
   - category: Media & Streaming
     items:
     - name: VLC Media Player
@@ -931,11 +851,6 @@ features:
       purpose: Digital music, podcast, and video streaming service.
       true: winget install --id=Spotify.Spotify -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=Spotify.Spotify -e --disable-interactivity
-      enabled: false
-    - name: TIDAL
-      purpose: High-fidelity music streaming service.
-      true: winget install --id=TIDAL.TIDAL -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=TIDAL.TIDAL -e --disable-interactivity
       enabled: false
     - name: Audacity
       purpose: Free, open-source, cross-platform audio software.
@@ -958,33 +873,11 @@ features:
       true: winget install --id=AIMP.AIMP -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=AIMP.AIMP -e --disable-interactivity
       enabled: false
-    - name: MusicBee
-      purpose: The ultimate music manager and player.
-      true: winget install --id=GetMusicBee.MusicBee -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=GetMusicBee.MusicBee -e --disable-interactivity
-      enabled: false
-    - name: Kodi
-      purpose: Free and open-source media player software application (HTPC).
-      true: winget install --id=Kodi.Kodi -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Kodi.Kodi -e --disable-interactivity
-      enabled: false
     - name: Plex (Media Player)
       purpose: Client for browsing and playing media from a Plex server.
       true: winget install --id=Plex.PlexMediaPlayer -e --accept-source-agreements
         --accept-package-agreements
       false: winget uninstall --id=Plex.PlexMediaPlayer -e --disable-interactivity
-      enabled: false
-    - name: Jellyfin Server
-      purpose: Free and open-source media server to host your movies and shows.
-      true: winget install --id=Jellyfin.JellyfinServer -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=Jellyfin.JellyfinServer -e --disable-interactivity
-      enabled: false
-    - name: Emby Server
-      purpose: Personal media server to organize and stream your media.
-      true: winget install --id=Emby.EmbyServer -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Emby.EmbyServer -e --disable-interactivity
       enabled: false
     - name: HandBrake
       purpose: Tool for converting video from nearly any format to modern codecs.
@@ -1016,11 +909,6 @@ features:
       true: winget install --id=Obsidian.Obsidian -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=Obsidian.Obsidian -e --disable-interactivity
       enabled: false
-    - name: Todoist
-      purpose: To-do list and task manager application.
-      true: winget install --id=Todoist.Todoist -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Todoist.Todoist -e --disable-interactivity
-      enabled: false
     - name: Evernote
       purpose: Note-taking, organizing, and task management application.
       true: winget install --id=Evernote.Evernote -e --accept-source-agreements --accept-package-agreements
@@ -1037,11 +925,6 @@ features:
       true: winget install --id=qBittorrent.qBittorrent -e --accept-source-agreements
         --accept-package-agreements
       false: winget uninstall --id=qBittorrent.qBittorrent -e --disable-interactivity
-      enabled: false
-    - name: Tixati
-      purpose: Lightweight and efficient BitTorrent client.
-      true: winget install --id=Tixati.Tixati -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Tixati.Tixati -e --disable-interactivity
       enabled: false
     - name: AnyDesk
       purpose: Remote desktop application for remote support and access.
@@ -1063,11 +946,6 @@ features:
         --accept-package-agreements
       false: winget uninstall --id=Microsoft.PowerToys -e --disable-interactivity
       enabled: false
-    - name: HWiNFO
-      purpose: In-depth hardware information, real-time monitoring, and reporting.
-      true: winget install --id=HWiNFO.HWiNFO -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=HWiNFO.HWiNFO -e --disable-interactivity
-      enabled: false
     - name: CPU-Z
       purpose: Freeware that gathers information on some of the main devices of your
         system.
@@ -1080,11 +958,6 @@ features:
       true: winget install --id=TechPowerUp.GPU-Z -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=TechPowerUp.GPU-Z -e --disable-interactivity
       enabled: false
-    - name: MSI Afterburner
-      purpose: Overclocking utility, hardware monitoring, and fan control.
-      true: winget install --id=MSI.Afterburner -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=MSI.Afterburner -e --disable-interactivity
-      enabled: false
     - name: RivaTuner (RTSS)
       purpose: On-screen display and framerate monitoring (often used with Afterburner).
       true: winget install --id=Guru3D.RTSS -e --accept-source-agreements --accept-package-agreements
@@ -1094,17 +967,6 @@ features:
       purpose: Utility that helps format and create bootable USB flash drives.
       true: winget install --id=Rufus.Rufus -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=Rufus.Rufus -e --disable-interactivity
-      enabled: false
-    - name: CCleaner
-      purpose: Popular tool for cleaning temporary files and optimizing your system.
-      true: winget install --id=Piriform.CCleaner -e --accept-source-agreements --accept-package-agreements
-      false: winget uninstall --id=Piriform.CCleaner -e --disable-interactivity
-      enabled: false
-    - name: Revo Uninstaller
-      purpose: Advanced uninstaller to remove programs and their leftover files.
-      true: winget install --id=VSRevoGroup.RevoUninstaller -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=VSRevoGroup.RevoUninstaller -e --disable-interactivity
       enabled: false
     - name: TreeSize Free
       purpose: Quickly scan directory sizes and find out which folders are the largest.
@@ -1157,12 +1019,6 @@ features:
       true: winget install --id=PuTTY.PuTTY -e --accept-source-agreements --accept-package-agreements
       false: winget uninstall --id=PuTTY.PuTTY -e --disable-interactivity
       enabled: false
-    - name: FileZilla (Client)
-      purpose: Free and open-source, cross-platform FTP, FTPS and SFTP client.
-      true: winget install --id=FileZilla.FileZilla -e --accept-source-agreements
-        --accept-package-agreements
-      false: winget uninstall --id=FileZilla.FileZilla -e --disable-interactivity
-      enabled: false
     - name: TeraCopy
       purpose: Fast and reliable file copying and moving utility.
       true: winget install --id=CodeSector.TeraCopy -e --accept-source-agreements
@@ -1188,102 +1044,66 @@ features:
     - name: Computer Management (compmgmt.msc)
       purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
       true: Start-Process compmgmt.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Services Manager (services.msc)
       purpose: Manage background services (Stop, Start, Disable).
       true: Start-Process services.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Task Scheduler (taskschd.msc)
       purpose: View and manage automated system tasks.
       true: Start-Process taskschd.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Event Viewer (eventvwr.msc)
       purpose: View system logs, errors, and security audits.
       true: Start-Process eventvwr.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - header: Policy & Security
     - name: Group Policy Editor (gpedit.msc)
       purpose: Advanced system configuration (Requires Pro/Enterprise).
       true: Start-Process gpedit.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Local Security Policy (secpol.msc)
       purpose: Manage security settings and password policies.
       true: Start-Process secpol.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Registry Editor (regedit.exe)
       purpose: View and edit the Windows Registry.
       true: Start-Process regedit.exe -Verb RunAs
-      false: Write-Output "Launcher only"
-      enabled: false
     - header: Hardware
     - name: Device Manager (devmgmt.msc)
       purpose: Manage hardware drivers and devices.
       true: Start-Process devmgmt.msc
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Disk Management (diskmgmt.msc)
       purpose: Create partitions and format drives.
       true: Start-Process diskmgmt.msc
-      false: Write-Output "Launcher only"
-      enabled: false
   - category: Control Panel
     items:
     - header: System
     - name: System Configuration (msconfig.exe)
       purpose: Manage boot options and startup services.
       true: Start-Process msconfig.exe
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: System Properties (sysdm.cpl)
       purpose: Quick access to Computer Name, System Restore, and Env Variables.
       true: Start-Process sysdm.cpl
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Programs and Features (appwiz.cpl)
       purpose: The classic 'Add or Remove Programs' interface.
       true: Start-Process appwiz.cpl
-      false: Write-Output "Launcher only"
-      enabled: false
     - header: Network & Power
     - name: Network Connections (ncpa.cpl)
       purpose: Instant access to network adapters and IP settings.
       true: Start-Process ncpa.cpl
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Power Options (powercfg.cpl)
       purpose: Configure sleep settings and power plans.
       true: Start-Process powercfg.cpl
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: Firewall Rules (wf.msc)
       purpose: Advanced Windows Firewall interface with inbound/outbound rules.
       true: Start-Process wf.msc
-      false: Write-Output "Launcher only"
-      enabled: false
   - category: Diagnostics
     items:
     - header: Analysis
     - name: Resource Monitor (resmon.exe)
       purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
       true: Start-Process resmon.exe
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: System Information (msinfo32.exe)
       purpose: Detailed hardware, BIOS, and OS environment information.
       true: Start-Process msinfo32.exe
-      false: Write-Output "Launcher only"
-      enabled: false
     - name: User Accounts (netplwiz.exe)
       purpose: Manage user passwords and auto-login settings.
       true: Start-Process netplwiz.exe
-      false: Write-Output "Launcher only"
-      enabled: false
 - feature: Display
 - feature: Dashboard
   layout:
