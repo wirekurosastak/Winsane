@@ -379,11 +379,11 @@ class SubTabView(ctk.CTkTabview):
                 if feature_name == "Cleaner":
                     ctk.CTkLabel(tab_frame, text="These actions are persistent and will be applied automatically at system startup.", text_color=("black","white")).pack(pady=(10,0))
                 elif feature_name == "Apps":
-                    ctk.CTkLabel(tab_frame, text="Install apps using winget.", text_color=("black","white")).pack(pady=(10,0))
+                    ctk.CTkLabel(tab_frame, text="Install apps using winget.\n\nSwitch ON -> Install    Switch OFF -> Uninstall", text_color=("black","white")).pack(pady=(10,0))
                 elif feature_name == "Admin Tools":
                     ctk.CTkLabel(tab_frame, text="Windows settings.", text_color=("black","white")).pack(pady=(10,0)) 
                 else:
-                    ctk.CTkLabel(tab_frame, text="Please restart your computer after desired tweaks are set.", text_color=("black","white")).pack(pady=(10,0))
+                    ctk.CTkLabel(tab_frame, text="Some tweaks require a restart to take effect.\n\nPlease restart your computer after desired tweaks are set.", text_color=("black","white")).pack(pady=(10,0))
                 scroll_frame = ctk.CTkScrollableFrame(master=tab_frame)
                 scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
             

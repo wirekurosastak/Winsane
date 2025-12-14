@@ -146,7 +146,7 @@ features:
     - header: Security
     - name: Disable VBS
       purpose: Disables Virtualization-Based Security to potentially boost gaming
-        FPS. (Requires Reboot)
+        FPS.
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
         -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
@@ -156,7 +156,7 @@ features:
       purpose: 'Disables Security Prompts (Warning: Breaks Windows Store Apps/Calculator).'
       true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\h\Windows\CurrentVersion\Policies\System'
+      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 1 -Type DWORD -Force
       enabled: false
     - header: Privacy

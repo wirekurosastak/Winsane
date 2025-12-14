@@ -4,32 +4,87 @@ import yaml
 import requests
 from collections import defaultdict
 from tkinter import messagebox
- 
+from .winget_manager import WingetManager
+
+# Initialize global manager
+winget_manager = WingetManager()
+
 # --- Constants ---
 WINSANE_FOLDER = r"C:\Winsane"
 DATA_FILE = os.path.join(WINSANE_FOLDER, "data.yaml")
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/wirekurosastak/Winsane/main/data.yaml"
 ACCENT_COLOR = "#3B8ED0"
- 
+
 
 def darker(hex_color, factor=0.8):
     c = hex_color.lstrip("#")
     r, g, b = [int(c[i:i+2],16) for i in (0,2,4)]
     return "#%02x%02x%02x" % (int(r*factor), int(g*factor), int(b*factor))
- 
- 
+
+
+def manage_uac(enable: bool):
+    """
+    Enables or disables UAC based on the 'Disable UAC' tweak setting.
+    If 'Disable UAC' is enabled in the config (meaning the user wants UAC OFF),
+    this function does nothing (respects the user's choice).
+    If 'Disable UAC' is disabled (meaning the user wants UAC ON),
+    this function temporarily disables it on startup (enable=False)
+    and re-enables it on exit (enable=True) to suppress Winget prompts.
+    """
+    # 1. Load current config to check "Disable UAC" status
+    # We can't rely on global_config_data being fully init if called too early,
+    # but we can try to load local file.
+    if not os.path.exists(DATA_FILE):
+        return
+
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+    except Exception:
+        return
+
+    # 2. Check if "Disable UAC" is enabled
+    uac_disabled_permanently = False
+    for feat in data.get('features', []):
+        for cat in feat.get('categories', []):
+            for item in cat.get('items', []):
+                if item.get('name') == "Disable UAC":
+                    uac_disabled_permanently = item.get('enabled', False)
+                    break
+    
+    # If user wants UAC off permanently, we don't touch it.
+    if uac_disabled_permanently:
+        return
+
+    # 3. Toggle UAC
+    # EnableLUA: 1 = Enabled, 0 = Disabled
+    value = 1 if enable else 0
+    command = (
+        f"Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' "
+        f"-Name 'EnableLUA' -Value {value} -Type DWORD -Force"
+    )
+    
+    try:
+        # We use subprocess directly here to avoid circular deps or locking issues
+        subprocess.run(
+            ["powershell", "-Command", command],
+            check=True,
+            creationflags=0x08000000 # CREATE_NO_WINDOW
+        )
+    except Exception as e:
+        print(f"Failed to manage UAC (enable={enable}): {e}")
+
+
 def run_powershell_as_admin(command):
     if not command.strip():
         return
     try:
-        subprocess.run([
-            "powershell","-Command",
-            f"{command}"
-        ], check=True)
+        # Delegate to WingetManager which handles locking for winget commands
+        winget_manager.run_command(command)
     except subprocess.CalledProcessError as e:
         messagebox.showerror("Error", f"Command failed:\n{e}")
- 
- 
+
+
 def ensure_winsane_folder():
     os.makedirs(WINSANE_FOLDER, exist_ok=True)
     legacy_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.yaml")
@@ -38,16 +93,16 @@ def ensure_winsane_folder():
             os.remove(legacy_file)
         except Exception:
             pass
- 
- 
+
+
 def save_config(data):
     try:
         with open(DATA_FILE,"w",encoding="utf-8") as f:
             yaml.safe_dump(data,f,allow_unicode=True,indent=2,sort_keys=False)
     except Exception as e:
         messagebox.showerror("Save Error", f"Error saving configuration:\n{e}")
- 
- 
+
+
 def add_user_tweak(config_data, name, purpose, true_cmd, false_cmd):
     """
     Adds a new tweak to the 'User' category and saves the config.
@@ -56,7 +111,7 @@ def add_user_tweak(config_data, name, purpose, true_cmd, false_cmd):
     if not name or not true_cmd or not false_cmd:
         messagebox.showerror("Error", "Tweak Name and PowerShell (ON/OFF) commands are required.")
         return None
- 
+
     new_tweak = {
         "name": name,
         "purpose": purpose if purpose else "No Description.",
@@ -64,7 +119,7 @@ def add_user_tweak(config_data, name, purpose, true_cmd, false_cmd):
         False: false_cmd,
         "enabled": False
     }
- 
+
     # Find the Optimizer feature and User category
     user_category = None
     for feature in config_data.get('features', []):
@@ -79,20 +134,20 @@ def add_user_tweak(config_data, name, purpose, true_cmd, false_cmd):
     if user_category is None:
         messagebox.showerror("Config Error", "Could not find 'Optimizer' -> 'User' category in config.")
         return None
- 
+
     if 'items' not in user_category:
         user_category['items'] = []
     
     user_category['items'].append(new_tweak)
- 
+
     try:
         save_config(config_data)
         return new_tweak # Return the newly created item
     except Exception as e:
         messagebox.showerror("Save Error", f"Failed to save config: {e}")
         return None
- 
- 
+
+
 def load_local_config(path):
     if os.path.exists(path):
         try:
@@ -101,8 +156,8 @@ def load_local_config(path):
         except Exception as e:
             messagebox.showerror("File Error", f"Local load failed:\n{e}")
     return None
- 
- 
+
+
 def fetch_remote_config(url,timeout=5):
     try:
         resp = requests.get(url, timeout=timeout)
@@ -111,7 +166,7 @@ def fetch_remote_config(url,timeout=5):
     except Exception:
         messagebox.showinfo("Network Error", "Failed to fetch config from GitHub.\nLocal configuration will be used if available.")
         return None
- 
+
 
 def merge_configs(remote, local):
     """
@@ -198,7 +253,7 @@ def merge_configs(remote, local):
         remote["theme"] = theme_backup
         
     return remote
- 
+
 # Initialization helper
 def init_config():
     ensure_winsane_folder()
