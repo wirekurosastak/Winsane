@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:WinsaneCS.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="80"
+             x:Class="WinsaneCS.Views.ItemControl"
+             x:DataType="vm:ItemViewModel">
+    
+    <Grid>
+        <!-- Header Separator -->
+        <Border IsVisible="{Binding IsHeader}"
+                Margin="0,16,0,8">
+            <TextBlock Text="{Binding Header}"
+                       Theme="{StaticResource SubtitleTextBlockStyle}"
+                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+        </Border>
+        
+        <!-- Regular Item -->
+        <ui:SettingsExpander IsVisible="{Binding !IsHeader}"
+                            Header="{Binding Name}"
+                            Description="{Binding Purpose}"
+                            ItemsSource="{Binding SubItems}"
+                            IsExpanded="False"
+                            Margin="0,4">
+            
+            <ui:SettingsExpander.ItemTemplate>
+                <DataTemplate x:DataType="vm:ItemViewModel">
+                    <ui:SettingsExpanderItem Content="{Binding Name}"
+                                             Description="{Binding Purpose}">
+                        <ui:SettingsExpanderItem.Footer>
+                            <ToggleSwitch IsChecked="{Binding IsEnabled}"
+                                          OnContent="On" OffContent="Off"/>
+                        </ui:SettingsExpanderItem.Footer>
+                    </ui:SettingsExpanderItem>
+                </DataTemplate>
+            </ui:SettingsExpander.ItemTemplate>
+            
+            <ui:SettingsExpander.Footer>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <!-- Status text -->
+                    <TextBlock Text="{Binding StatusText}"
+                              VerticalAlignment="Center"
+                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                              IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    
+                    <!-- Loading indicator -->
+                    <ui:ProgressRing IsIndeterminate="True"
+                                    Width="20" Height="20"
+                                    IsVisible="{Binding IsLoading}"/>
+                    
+                    <!-- Toggle Switch (only for items without buttons) -->
+                    <ToggleSwitch IsChecked="{Binding IsEnabled}"
+                                 IsVisible="{Binding ShowToggle}"
+                                 IsEnabled="{Binding !IsLoading}"
+                                 OnContent="On"
+                                 OffContent="Off"/>
+                    
+                    <!-- Run/Open Button -->
+                    <Button Content="{Binding ButtonText}"
+                           IsVisible="{Binding ShowRunButton}"
+                           IsEnabled="{Binding !IsLoading}"
+                           Command="{Binding ExecuteButtonCommand}"
+                           Classes="accent"/>
+                    
+                    <!-- Delete Button (for user tweaks) -->
+                    <Button Content="Delete"
+                           IsVisible="{Binding ShowDeleteButton}"
+                           IsEnabled="{Binding !IsLoading}"
+                           Command="{Binding DeleteCommand}"
+                           Foreground="#E74856"/>
+                </StackPanel>
+            </ui:SettingsExpander.Footer>
+        </ui:SettingsExpander>
+    </Grid>
+</UserControl>

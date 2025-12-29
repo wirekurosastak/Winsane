@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:WinsaneCS.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="300"
+             x:Class="WinsaneCS.Views.AddTweakControl"
+             x:DataType="vm:AddTweakViewModel">
+    
+    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="8"
+            Padding="16"
+            Margin="0,0,0,16">
+        <StackPanel Spacing="16">
+            <TextBlock Text="Add Custom Tweak" 
+                       FontWeight="SemiBold" 
+                       FontSize="16"/>
+            <TextBlock Text="Create your own PowerShell tweak with ON/OFF commands"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            
+            <!-- Name -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Name" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding Name}"
+                         Watermark="Enter tweak name"
+                         IsEnabled="{Binding !IsAdding}"/>
+            </StackPanel>
+            
+            <!-- PowerShell ON Command -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="PowerShell (ON)" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding TrueCommand}"
+                         Watermark="Command to enable the tweak"
+                         IsEnabled="{Binding !IsAdding}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="60"/>
+            </StackPanel>
+            
+            <!-- PowerShell OFF Command -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="PowerShell (OFF)" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding FalseCommand}"
+                         Watermark="Command to disable the tweak"
+                         IsEnabled="{Binding !IsAdding}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="60"/>
+            </StackPanel>
+            
+            <!-- Description (Optional) -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Description (Optional)" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding Purpose}"
+                         Watermark="Brief description of what this tweak does"
+                         IsEnabled="{Binding !IsAdding}"/>
+            </StackPanel>
+            
+            <!-- Error Message -->
+            <TextBlock Text="{Binding ErrorMessage}"
+                      Foreground="Red"
+                      IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            
+            <!-- Add Button -->
+            <Button Content="Add Tweak"
+                    Command="{Binding AddTweakCommand}"
+                    IsEnabled="{Binding !IsAdding}"
+                    HorizontalAlignment="Right"
+                    Classes="accent"/>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:WinsaneCS.ViewModels"
+             xmlns:views="using:WinsaneCS.Views"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="WinsaneCS.Views.FeatureView"
+             x:DataType="vm:FeatureViewModel">
+    
+    <Grid RowDefinitions="Auto,*">
+        <!-- Category Selector -->
+        <ComboBox Grid.Row="0"
+                  ItemsSource="{Binding Categories}"
+                  SelectedItem="{Binding SelectedCategory}"
+                  HorizontalAlignment="Left"
+                  MinWidth="200"
+                  Margin="0,0,0,16">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:CategoryViewModel">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        
+        <!-- Items List -->
+        <ScrollViewer Grid.Row="1"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,0,24">
+                <!-- Add Tweak Form (only for User category) -->
+                <ContentControl Content="{Binding SelectedCategory.AddTweakViewModel}"
+                                IsVisible="{Binding SelectedCategory.IsUserCategory, FallbackValue=False}">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate x:DataType="vm:AddTweakViewModel">
+                            <views:AddTweakControl/>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+                
+                <!-- Items -->
+                <ItemsControl ItemsSource="{Binding SelectedCategory.Items}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ItemViewModel">
+                            <views:ItemControl DataContext="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

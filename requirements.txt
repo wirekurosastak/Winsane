@@ -1,8 +1,0 @@
-customtkinter
-vcolorpicker
-requests
-psutil
-GPUtil
-PyYAML
-PyQt5
-wmi
