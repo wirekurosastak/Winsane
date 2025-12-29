@@ -16,10 +16,11 @@ public class PowerShellService
         {
             try
             {
+                var encoded = Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(command));
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command.Replace("\"", "\\\"")}\"",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encoded}",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -52,10 +53,11 @@ public class PowerShellService
         {
             try
             {
+                var encoded = Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(command));
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command.Replace("\"", "\\\"")}\"",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encoded}",
                     UseShellExecute = true,
                     Verb = "runas",
                     CreateNoWindow = true,

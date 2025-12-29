@@ -838,7 +838,6 @@ features:
       enabled: false
   - category: System Utilities
     items:
-    - header: Tools
     - name: Microsoft PowerToys
       purpose: A set of utilities for power users to tune their Windows experience.
       id: Microsoft.PowerToys

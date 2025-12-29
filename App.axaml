@@ -11,5 +11,19 @@
   
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferSystemTheme="True" />
+        
+        <!-- Force White text on Accent buttons -->
+        <Style Selector="Button.accent">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.accent /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.accent:pointerover /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.accent:pressed /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
     </Application.Styles>
 </Application>

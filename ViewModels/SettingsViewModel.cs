@@ -4,6 +4,8 @@ using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.Styling;
+using WinsaneCS.Models;
+using WinsaneCS.Services;
 
 namespace WinsaneCS.ViewModels;
 
@@ -21,20 +23,47 @@ public partial class SettingsViewModel : ViewModelBase
     // Preset accent colors
     public Color[] PresetColors { get; } = new[]
     {
-        Color.Parse("#0078D4"),  // Windows Blue
-        Color.Parse("#0099BC"),  // Teal
-        Color.Parse("#00B294"),  // Green
-        Color.Parse("#8764B8"),  // Purple
         Color.Parse("#E74856"),  // Red
         Color.Parse("#FF8C00"),  // Orange
         Color.Parse("#FFB900"),  // Yellow
-        Color.Parse("#E91E63"),  // Pink
-        Color.Parse("#744DA9"),  // Violet
+        Color.Parse("#107C10"),  // Green
+        Color.Parse("#00B294"),  // Mint
         Color.Parse("#018574"),  // Dark Teal
-        Color.Parse("#107C10"),  // Dark Green
+        Color.Parse("#0099BC"),  // Teal
+        Color.Parse("#0078D4"),  // Blue
+        Color.Parse("#0063B1"),  // Dark Blue
+        Color.Parse("#744DA9"),  // Violet
+        Color.Parse("#8764B8"),  // Purple
+        Color.Parse("#E91E63"),  // Pink
+        Color.Parse("#C30052"),  // Rose
         Color.Parse("#767676"),  // Gray
     };
     
+    private ConfigService? _configService;
+    private AppConfig? _config;
+
+    public void Initialize(ConfigService configService, AppConfig config)
+    {
+        _configService = configService;
+        _config = config;
+        
+        // Restore saved theme setting if present
+        if (_config?.Theme != null)
+        {
+             if (!string.IsNullOrEmpty(_config.Theme.AccentColor))
+             {
+                 try 
+                 {
+                     var savedColor = Color.Parse(_config.Theme.AccentColor);
+                     AccentColor = savedColor;
+                 }
+                 catch {}
+             }
+             
+             // Restore Mode... (Optional, user didn't explicitly ask for Mode persistence fix but implied "color doesn't save")
+        }
+    }
+
     public SettingsViewModel()
     {
         // Load current theme
@@ -54,7 +83,14 @@ public partial class SettingsViewModel : ViewModelBase
             if (faTheme.CustomAccentColor.HasValue)
             {
                 AccentColor = faTheme.CustomAccentColor.Value;
-                AccentColorHex = $"#{AccentColor.R:X2}{AccentColor.G:X2}{AccentColor.B:X2}";
+            }
+            else
+            {
+                 // Try to get system accent color
+                 if (Application.Current != null && Application.Current.TryGetResource("SystemAccentColor", null, out var res) && res is Color color)
+                 {
+                     AccentColor = color;
+                 }
             }
         }
     }
@@ -71,28 +107,41 @@ public partial class SettingsViewModel : ViewModelBase
             _ => ThemeVariant.Default  // System
         };
     }
-    
+
     partial void OnAccentColorChanged(Color value)
     {
-        AccentColorHex = $"#{value.R:X2}{value.G:X2}{value.B:X2}";
+        var hex = $"#{value.R:X2}{value.G:X2}{value.B:X2}";
+        if (!string.Equals(AccentColorHex, hex, StringComparison.OrdinalIgnoreCase))
+        {
+            AccentColorHex = hex;
+        }
+        
         ApplyAccentColor(value);
+        
+        // Save to config
+        if (_config != null && _configService != null)
+        {
+            if (_config.Theme == null) _config.Theme = new Models.ThemeConfig();
+            _config.Theme.AccentColor = hex;
+            _ = _configService.SaveConfigAsync(_config);
+        }
+    }
+    
+    partial void OnAccentColorHexChanged(string value)
+    {
+        if (Color.TryParse(value, out var color))
+        {
+            if (AccentColor != color)
+            {
+                AccentColor = color;
+            }
+        }
     }
     
     [RelayCommand]
     private void SetAccentColor(Color color)
     {
         AccentColor = color;
-    }
-    
-    [RelayCommand]
-    private void ApplyHexColor()
-    {
-        try
-        {
-            var color = Color.Parse(AccentColorHex);
-            AccentColor = color;
-        }
-        catch { /* Invalid hex */ }
     }
     
     private void ApplyAccentColor(Color color)

@@ -10,7 +10,7 @@ namespace WinsaneCS.Services;
 /// </summary>
 public class ConfigService
 {
-    private const string WinsaneFolder = @"C:\Winsane";
+    private static readonly string WinsaneFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Winsane");
     private const string DataFileName = "data.yaml";
     private const string GitHubRawUrl = "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/WinsaneC%23/Assets/data.yaml";
     

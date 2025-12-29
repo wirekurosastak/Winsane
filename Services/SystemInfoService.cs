@@ -245,25 +245,47 @@ public class SystemInfoService
         }
     }
     
+    private float _totalRamGb = -1f;
+    private PerformanceCounter? _ramCounter;
+
+    public void InitializeRamCounter()
+    {
+         try
+        {
+            _ramCounter = new PerformanceCounter("Memory", "Available MBytes");
+            
+            // Get Total RAM once via WMI or GC (approximated)
+            if (_totalRamGb < 0)
+            {
+                using var searcher = new ManagementObjectSearcher("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem");
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    var totalBytes = Convert.ToDouble(obj["TotalVisibleMemorySize"]) * 1024;
+                    _totalRamGb = (float)(totalBytes / 1024 / 1024 / 1024);
+                    break;
+                }
+            }
+        }
+        catch { }
+    }
+
     public (float UsedGb, float TotalGb, float Percentage) GetRamUsage()
     {
         try
         {
-            var gcMemInfo = GC.GetGCMemoryInfo();
-            var totalMemory = gcMemInfo.TotalAvailableMemoryBytes;
-            
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-            foreach (ManagementObject obj in searcher.Get())
+             if (_ramCounter == null || _totalRamGb < 0)
             {
-                var totalVisible = Convert.ToDouble(obj["TotalVisibleMemorySize"]) * 1024; // KB to bytes
-                var freePhysical = Convert.ToDouble(obj["FreePhysicalMemory"]) * 1024;
+                InitializeRamCounter();
+            }
+
+            if (_ramCounter != null && _totalRamGb > 0)
+            {
+                var availableMb = _ramCounter.NextValue();
+                var availableGb = availableMb / 1024f;
+                var usedGb = _totalRamGb - availableGb;
+                var percentage = (usedGb / _totalRamGb) * 100f;
                 
-                var usedBytes = totalVisible - freePhysical;
-                var usedGb = (float)(usedBytes / 1024 / 1024 / 1024);
-                var totalGb = (float)(totalVisible / 1024 / 1024 / 1024);
-                var percentage = (float)(usedBytes / totalVisible * 100);
-                
-                return (usedGb, totalGb, percentage);
+                return (usedGb, _totalRamGb, percentage);
             }
         }
         catch { }

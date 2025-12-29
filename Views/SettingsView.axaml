@@ -11,7 +11,7 @@
     
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="8" MaxWidth="800">
+        <StackPanel Spacing="8" MaxWidth="800" Margin="24">
             <!-- Header -->
             <TextBlock Text="Settings"
                        Theme="{StaticResource TitleTextBlockStyle}"
@@ -49,9 +49,6 @@
                             <TextBox Text="{Binding AccentColorHex}"
                                      Width="100"
                                      VerticalAlignment="Center"/>
-                            <Button Content="Apply"
-                                    Command="{Binding ApplyHexColorCommand}"
-                                    Classes="accent"/>
                         </StackPanel>
                     </ui:SettingsExpanderItem.Footer>
                 </ui:SettingsExpanderItem>

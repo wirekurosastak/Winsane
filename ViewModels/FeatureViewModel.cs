@@ -55,6 +55,8 @@ public partial class FeatureViewModel : ViewModelBase
                 Categories.Add(categoryVm);
             }
             
+            ShowCategories = Categories.Count > 1;
+            
             // Select first category by default
             if (Categories.Any())
             {
@@ -62,6 +64,9 @@ public partial class FeatureViewModel : ViewModelBase
             }
         }
     }
+
+    [ObservableProperty]
+    private bool _showCategories;
     
     public void RefreshDashboard(SystemInfoService systemInfoService)
     {

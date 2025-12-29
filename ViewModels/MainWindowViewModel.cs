@@ -45,6 +45,9 @@ public partial class MainWindowViewModel : ViewModelBase
                 Features.Add(featureVm);
             }
             
+            // Initialize Settings with config
+            _settingsViewModel.Initialize(_configService, config);
+            
             // Select first feature by default
             if (Features.Count > 0)
             {

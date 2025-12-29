@@ -49,13 +49,11 @@
                             <Grid>
                                 <!-- Dashboard View - only visible when IsDashboard is true -->
                                 <views:DashboardView DataContext="{Binding Dashboard}"
-                                                     IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"
-                                                     Margin="24"/>
+                                                     IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
                                 
                                 <!-- Feature View - only visible when IsDashboard is false -->
                                 <views:FeatureView DataContext="{Binding}"
-                                                   IsVisible="{Binding !IsDashboard}"
-                                                   Margin="24"/>
+                                                   IsVisible="{Binding !IsDashboard}"/>
                             </Grid>
                         </DataTemplate>
                     </ContentControl.ContentTemplate>
@@ -63,8 +61,7 @@
                 
                 <!-- Settings View -->
                 <views:SettingsView DataContext="{Binding SettingsViewModel}"
-                                    IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsVisible}"
-                                    Margin="24"/>
+                                    IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsVisible}"/>
             </Grid>
         </ui:NavigationView.Content>
 </ui:NavigationView>

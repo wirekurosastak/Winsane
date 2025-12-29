@@ -10,7 +10,6 @@ public class WingetService
 {
     private readonly ConcurrentQueue<WingetTask> _taskQueue = new();
     private readonly SemaphoreSlim _semaphore = new(1, 1);
-    private bool _isProcessing;
     
     public event EventHandler<WingetProgressEventArgs>? ProgressChanged;
     public event EventHandler<WingetCompletedEventArgs>? TaskCompleted;
@@ -33,13 +32,9 @@ public class WingetService
     
     private async Task ProcessQueueAsync()
     {
-        if (_isProcessing) return;
-        
         await _semaphore.WaitAsync();
         try
         {
-            _isProcessing = true;
-            
             while (_taskQueue.TryDequeue(out var task))
             {
                 await ExecuteTaskAsync(task);
@@ -47,7 +42,6 @@ public class WingetService
         }
         finally
         {
-            _isProcessing = false;
             _semaphore.Release();
         }
     }
@@ -94,7 +88,12 @@ public class WingetService
                 
                 using var process = new Process { StartInfo = startInfo };
                 process.Start();
-                process.WaitForExit(TimeSpan.FromMinutes(10)); // 10 minute timeout
+                
+                if (!process.WaitForExit((int)TimeSpan.FromMinutes(10).TotalMilliseconds))
+                {
+                    try { process.Kill(); } catch {}
+                    return false;
+                }
                 
                 return process.ExitCode == 0;
             }
