@@ -2,7 +2,7 @@
 
 **Windows 11 Optimizer & “Ultimate Windows Tool” (in development)**
 
-Winsane is a Python-based utility to optimize, tweak, and clean Windows 11 systems.  
+Winsane is a C# utility to optimize, tweak, and clean Windows 11 systems.  
 Over time, it aims to grow into a fuller “ultimate toolset” for managing various aspects of Windows 11.
 
 
@@ -21,14 +21,9 @@ Over time, it aims to grow into a fuller “ultimate toolset” for managing var
 
 - ### Build It Yourself
 
-  **Install Requirements**
-  ```bash
-  pip install -r requirements.txt
-  ```
-
   **Build Executable**
   ```bash
-  pyinstaller --noconsole --onefile main.py
+  dotnet build
   ```
   
 ## Tested on Windows 11 Pro 10.0.26100 build 26100

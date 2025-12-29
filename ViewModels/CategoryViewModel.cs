@@ -17,6 +17,15 @@ public partial class CategoryViewModel : ViewModelBase
     private ObservableCollection<ItemViewModel> _items = new();
     
     [ObservableProperty]
+    private ObservableCollection<object> _visualItems = new();
+    
+    [ObservableProperty]
+    private ObservableCollection<object> _leftColumnItems = new();
+    
+    [ObservableProperty]
+    private ObservableCollection<object> _rightColumnItems = new();
+    
+    [ObservableProperty]
     private bool _isUserCategory;
     
     [ObservableProperty]
@@ -48,21 +57,72 @@ public partial class CategoryViewModel : ViewModelBase
         }
         
         // Create item ViewModels
+        var flatItems = new List<ItemViewModel>();
         foreach (var item in category.Items)
         {
             var itemVm = new ItemViewModel(item, powerShellService, wingetService, configService)
             {
                 IsAppsFeature = isApps,
-                IsUserTweak = IsUserCategory  // User category items are deletable
+                IsUserTweak = IsUserCategory
             };
             
-            // Subscribe to delete event for user tweaks
             if (IsUserCategory)
             {
                 itemVm.OnDeleted += OnItemDeleted;
             }
             
-            Items.Add(itemVm);
+            flatItems.Add(itemVm);
+            Items.Add(itemVm); // Keep flat list populated
+        }
+        
+        // Grouping Logic to create VisualItems
+        int i = 0;
+        while (i < flatItems.Count)
+        {
+            var item = flatItems[i];
+            
+            if (item.IsHeader)
+            {
+                // Look ahead
+                var futureItems = flatItems.Skip(i + 1).TakeWhile(x => !x.IsHeader && !x.IsUserTweak).ToList();
+                
+                // If we have items and NONE of them have subitems (Complex)
+                if (futureItems.Any() && futureItems.All(x => !x.HasSubItems))
+                {
+                    var group = new ItemGroupViewModel(item.Header ?? string.Empty);
+                    foreach(var f in futureItems) group.Items.Add(f);
+                    VisualItems.Add(group);
+                    i += 1 + futureItems.Count; // Skip header + items
+                    continue;
+                }
+            }
+            
+            // Fallback: Add standalone
+            VisualItems.Add(item);
+            i++;
+        }
+        
+        // Split Logic: Fill Left Column first, then Right Column (Vertical Split)
+        int splitIndex = (int)Math.Ceiling(VisualItems.Count / 2.0);
+        
+        // Adjust split index to avoid separating a Header from its Item
+        // If the item AT the split line is NOT a header, but the one BEFORE it IS a header,
+        // we should move the split point back so the header joins the item in the second column.
+        if (splitIndex > 0 && splitIndex < VisualItems.Count)
+        {
+            var itemBeforeSplit = VisualItems[splitIndex - 1] as ItemViewModel;
+            if (itemBeforeSplit != null && itemBeforeSplit.IsHeader)
+            {
+                splitIndex--;
+            }
+        }
+        
+        for (int j = 0; j < VisualItems.Count; j++)
+        {
+            if (j < splitIndex)
+                LeftColumnItems.Add(VisualItems[j]);
+            else
+                RightColumnItems.Add(VisualItems[j]);
         }
     }
     

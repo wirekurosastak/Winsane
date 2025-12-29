@@ -756,15 +756,16 @@ features:
       purpose: Free, full-featured IDE for students and open-source developers.
       id: Microsoft.VisualStudio.2022.Community
       enabled: false
-  - category: Graphics & Design
+  - category: Creative & Office
     items:
-    - name: Inkscape
-      purpose: Free and open-source vector graphics editor.
-      id: Inkscape.Inkscape
-      enabled: false
+    - header: Design & Editing
     - name: Blender
       purpose: Free and open-source 3D creation suite.
       id: BlenderFoundation.Blender
+      enabled: false
+    - name: Inkscape
+      purpose: Free and open-source vector graphics editor.
+      id: Inkscape.Inkscape
       enabled: false
     - name: Paint.NET
       purpose: Free image and photo editing software for Windows.
@@ -775,20 +776,33 @@ features:
       id: Figma.Figma
       enabled: false
     - name: ShareX
-      purpose: Advanced screenshot, screen recorder, file sharing, and productivity
-        tool.
+      purpose: Advanced screenshot, screen recorder, and productivity tool.
       id: ShareX.ShareX
       enabled: false
-    - name: Greenshot
-      purpose: Lightweight screenshot tool optimized for productivity.
-      id: Greenshot.Greenshot
+    - header: Productivity
+    - name: LibreOffice
+      purpose: Free and open-source office productivity software suite.
+      id: TheDocumentFoundation.LibreOffice
       enabled: false
-    - name: darktable
-      purpose: Open source photography workflow application and raw developer.
-      id: darktable.darktable
+    - name: Notion
+      purpose: All-in-one workspace for notes, tasks, wikis, and databases.
+      id: Notion.Notion
       enabled: false
-  - category: Gaming & Launchers
+    - name: Obsidian
+      purpose: A powerful knowledge base that works on top of local Markdown files.
+      id: Obsidian.Obsidian
+      enabled: false
+    - name: Mozilla Thunderbird
+      purpose: Free email application that's easy to set up and customize.
+      id: Mozilla.Thunderbird
+      enabled: false
+    - name: AnyDesk
+      purpose: Remote desktop application for remote support and access.
+      id: AnyDesk.AnyDesk
+      enabled: false
+  - category: Entertainment
     items:
+    - header: Gaming
     - name: Steam
       purpose: Digital distribution platform for video games.
       id: Valve.Steam
@@ -809,15 +823,10 @@ features:
       purpose: Digital distribution platform for Electronic Arts games.
       id: ElectronicArts.EADesktop
       enabled: false
-  - category: Media & Streaming
-    items:
+    - header: Media Players
     - name: VLC Media Player
       purpose: Free and open-source cross-platform multimedia player.
       id: VideoLAN.VLC
-      enabled: false
-    - name: PotPlayer
-      purpose: Lightweight, fast, and feature-rich multimedia player.
-      id: Daum.PotPlayer
       enabled: false
     - name: Spotify
       purpose: Digital music, podcast, and video streaming service.
@@ -827,144 +836,38 @@ features:
       purpose: Free, open-source, cross-platform audio software.
       id: Audacity.Audacity
       enabled: false
-    - name: foobar2000
-      purpose: Advanced freeware audio player for Windows.
-      id: PeterPawlowski.foobar2000
-      enabled: false
-    - name: Winamp
-      purpose: The classic media player, now updated.
-      id: Winamp.Winamp
-      enabled: false
-    - name: AIMP
-      purpose: Powerful audio player with support for many formats and playlists.
-      id: AIMP.AIMP
-      enabled: false
-    - name: Plex (Media Player)
-      purpose: Client for browsing and playing media from a Plex server.
-      id: Plex.PlexMediaPlayer
-      enabled: false
-    - name: HandBrake
-      purpose: Tool for converting video from nearly any format to modern codecs.
-      id: HandBrake.HandBrake
-      enabled: false
-  - category: Productivity
+  - category: System Utilities
     items:
-    - name: LibreOffice
-      purpose: Free and open-source office productivity software suite.
-      id: TheDocumentFoundation.LibreOffice
-      enabled: false
-    - name: OBS Studio
-      purpose: Free and open source software for video recording and live streaming.
-      id: OBSProject.OBSStudio
-      enabled: false
-    - name: Notion
-      purpose: All-in-one workspace for notes, tasks, wikis, and databases.
-      id: Notion.Notion
-      enabled: false
-    - name: Obsidian
-      purpose: A powerful knowledge base that works on top of local Markdown files.
-      id: Obsidian.Obsidian
-      enabled: false
-    - name: Evernote
-      purpose: Note-taking, organizing, and task management application.
-      id: Evernote.Evernote
-      enabled: false
-    - name: Mozilla Thunderbird
-      purpose: Free email application that's easy to set up and customize.
-      id: Mozilla.Thunderbird
-      enabled: false
-    - name: qBittorrent
-      purpose: Free and open-source bittorrent client.
-      id: qBittorrent.qBittorrent
-      enabled: false
-    - name: AnyDesk
-      purpose: Remote desktop application for remote support and access.
-      id: AnyDesk.AnyDesk
-      enabled: false
-    - name: TeamViewer
-      purpose: Remote access, remote control, and online meetings software.
-      id: TeamViewer.TeamViewer
-      enabled: false
-  - category: System Tools
-    items:
+    - header: Tools
     - name: Microsoft PowerToys
-      purpose: A set of utilities for power users to tune and streamline their Windows
-        experience.
+      purpose: A set of utilities for power users to tune their Windows experience.
       id: Microsoft.PowerToys
       enabled: false
     - name: CPU-Z
-      purpose: Freeware that gathers information on some of the main devices of your
-        system.
+      purpose: Freeware that gathers information on some of the main devices of your system.
       id: CPUID.CPU-Z
       enabled: false
     - name: GPU-Z
-      purpose: Lightweight utility designed to give you all information about your
-        video card.
+      purpose: Lightweight utility designed to give you all information about your video card.
       id: TechPowerUp.GPU-Z
-      enabled: false
-    - name: RivaTuner (RTSS)
-      purpose: On-screen display and framerate monitoring (often used with Afterburner).
-      id: Guru3D.RTSS
       enabled: false
     - name: Rufus
       purpose: Utility that helps format and create bootable USB flash drives.
       id: Rufus.Rufus
       enabled: false
-    - name: TreeSize Free
-      purpose: Quickly scan directory sizes and find out which folders are the largest.
-      id: JAMSoftware.TreeSize.Free
-      enabled: false
-    - name: WinDirStat
-      purpose: Disk usage statistics viewer and cleanup tool (alternative to TreeSize).
-      id: WinDirStat.WinDirStat
-      enabled: false
-    - name: VeraCrypt
-      purpose: Free and open-source disk encryption software.
-      id: IDRIX.VeraCrypt
-      enabled: false
-  - category: Utilities
-    items:
-    - name: Notepad++
-      purpose: Fast and lightweight text and source code editor.
-      id: Notepad++.Notepad++
-      enabled: false
     - name: 7-Zip
       purpose: Free and open-source file archiver with a high compression ratio.
       id: 7zip.7zip
-      enabled: false
-    - name: WinRAR
-      purpose: Powerful archive manager for .zip, .rar, and more.
-      id: RARLab.WinRAR
       enabled: false
     - name: Everything
       purpose: Lightning-fast file search utility for Windows.
       id: voidtools.Everything
       enabled: false
-    - name: WinMerge
-      purpose: Free and open-source differencing and merging tool.
-      id: WinMerge.WinMerge
-      enabled: false
-    - name: PuTTY
-      purpose: Free and open-source terminal emulator (SSH and Telnet client).
-      id: PuTTY.PuTTY
-      enabled: false
-    - name: TeraCopy
-      purpose: Fast and reliable file copying and moving utility.
-      id: CodeSector.TeraCopy
-      enabled: false
-    - name: AutoHotkey
-      purpose: Custom scripting language for task automation in Windows.
-      id: AutoHotkey.AutoHotkey
-      enabled: false
-    - name: Ditto
-      purpose: An extension to the standard Windows clipboard.
-      id: Ditto.Ditto
-      enabled: false
 - feature: Admin Tools
   categories:
-  - category: Management Consoles
+  - category: Windows Tools
     items:
-    - header: Administration
+    - header: Management
     - name: Computer Management (compmgmt.msc)
       purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
       true: Start-Process compmgmt.msc
@@ -977,26 +880,31 @@ features:
     - name: Event Viewer (eventvwr.msc)
       purpose: View system logs, errors, and security audits.
       true: Start-Process eventvwr.msc
-    - header: Policy & Security
+    - name: Registry Editor (regedit.exe)
+      purpose: View and edit the Windows Registry.
+      true: Start-Process regedit.exe -Verb RunAs
+    - header: System & Security
+      # Moved User Accounts here as it fits better with security/users
+    - name: User Accounts (netplwiz.exe)
+      purpose: Manage user passwords and auto-login settings.
+      true: Start-Process netplwiz.exe
     - name: Group Policy Editor (gpedit.msc)
       purpose: Advanced system configuration (Requires Pro/Enterprise).
       true: Start-Process gpedit.msc
     - name: Local Security Policy (secpol.msc)
       purpose: Manage security settings and password policies.
       true: Start-Process secpol.msc
-    - name: Registry Editor (regedit.exe)
-      purpose: View and edit the Windows Registry.
-      true: Start-Process regedit.exe -Verb RunAs
-    - header: Hardware
+    - name: Firewall Rules (wf.msc)
+      purpose: Advanced Windows Firewall interface with inbound/outbound rules.
+      true: Start-Process wf.msc
+    - header: Hardware & Storage
     - name: Device Manager (devmgmt.msc)
       purpose: Manage hardware drivers and devices.
       true: Start-Process devmgmt.msc
     - name: Disk Management (diskmgmt.msc)
       purpose: Create partitions and format drives.
       true: Start-Process diskmgmt.msc
-  - category: Control Panel
-    items:
-    - header: System
+    - header: Configuration
     - name: System Configuration (msconfig.exe)
       purpose: Manage boot options and startup services.
       true: Start-Process msconfig.exe
@@ -1006,28 +914,19 @@ features:
     - name: Programs and Features (appwiz.cpl)
       purpose: The classic 'Add or Remove Programs' interface.
       true: Start-Process appwiz.cpl
-    - header: Network & Power
     - name: Network Connections (ncpa.cpl)
       purpose: Instant access to network adapters and IP settings.
       true: Start-Process ncpa.cpl
     - name: Power Options (powercfg.cpl)
       purpose: Configure sleep settings and power plans.
       true: Start-Process powercfg.cpl
-    - name: Firewall Rules (wf.msc)
-      purpose: Advanced Windows Firewall interface with inbound/outbound rules.
-      true: Start-Process wf.msc
-  - category: Diagnostics
-    items:
-    - header: Analysis
+    - header: Diagnostics
     - name: Resource Monitor (resmon.exe)
       purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
       true: Start-Process resmon.exe
     - name: System Information (msinfo32.exe)
       purpose: Detailed hardware, BIOS, and OS environment information.
       true: Start-Process msinfo32.exe
-    - name: User Accounts (netplwiz.exe)
-      purpose: Manage user passwords and auto-login settings.
-      true: Start-Process netplwiz.exe
 - feature: Display
 - feature: Dashboard
   layout:

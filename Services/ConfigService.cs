@@ -12,7 +12,8 @@ public class ConfigService
 {
     private const string WinsaneFolder = @"C:\Winsane";
     private const string DataFileName = "data.yaml";
-    private const string GitHubRawUrl = "https://raw.githubusercontent.com/wirekurosastak/WinsaneCS/main/data.yaml";
+    private const string GitHubRawUrl = "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/WinsaneC%23/Assets/data.yaml";
+    
     
     private readonly IDeserializer _deserializer;
     private readonly ISerializer _serializer;
