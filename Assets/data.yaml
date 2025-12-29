@@ -927,7 +927,6 @@ features:
     - name: System Information (msinfo32.exe)
       purpose: Detailed hardware, BIOS, and OS environment information.
       true: Start-Process msinfo32.exe
-- feature: Display
 - feature: Dashboard
   layout:
     left:
