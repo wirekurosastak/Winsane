@@ -4,10 +4,10 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using WinsaneCS.ViewModels;
-using WinsaneCS.Views;
+using Winsane.UI;
+using Winsane.UI.Views;
 
-namespace WinsaneCS
+namespace Winsane
 {
     public partial class App : Application
     {
@@ -23,9 +23,10 @@ namespace WinsaneCS
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
+
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = Bootstrapper.CreateMainViewModel(),
                 };
             }
 

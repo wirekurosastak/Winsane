@@ -1,7 +1,7 @@
 ﻿using System;
 using Avalonia;
 
-namespace WinsaneCS
+namespace Winsane
 {
     internal sealed class Program
     {

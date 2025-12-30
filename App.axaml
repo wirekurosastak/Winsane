@@ -1,10 +1,10 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:WinsaneCS"
+             xmlns:local="using:Winsane.UI"
              xmlns:sty="using:FluentAvalonia.Styling"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:vm="using:WinsaneCS.ViewModels"
-             x:Class="WinsaneCS.App"
+             xmlns:vm="using:Winsane.UI.ViewModels"
+             x:Class="Winsane.App"
              RequestedThemeVariant="{x:Null}">
 
     <Application.DataTemplates>
@@ -82,7 +82,7 @@
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferSystemTheme="True" />
         
-        <!-- Force White text on Accent buttons -->
+        <!-- Force White text on Accent buttons (User Request) -->
         <Style Selector="Button.accent">
             <Setter Property="Foreground" Value="White" />
         </Style>

@@ -4,15 +4,11 @@ theme:
   accent_color: '#0581ff'
 features:
 - feature: Optimizer
+  icon: Settings
+  type: standard
+  user_tweaks_section: User
   items:
     - header: Performance
-    - name: Ultimate Performance
-      purpose: Enables the Ultimate Performance power plan.
-      true: $guid = powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
-        | ForEach-Object { if ($_ -match 'GUID:\s*([a-f0-9-]+)') { $matches[1] }};
-        if ($guid) { powercfg -setactive $guid }
-      false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
-      enabled: false
     - name: Max Core Boot
       purpose: Forces a specific core count during boot.
       true: $logicalCores = [Environment]::ProcessorCount; Start-Process -FilePath
@@ -23,6 +19,13 @@ features:
         "/deletevalue {current} timeout" -Verb RunAs; Start-Process -FilePath "bcdedit.exe"
         -ArgumentList "/timeout 30" -Verb RunAs
       enabled: false
+    - name: Ultimate Performance
+      purpose: Enables the Ultimate Performance power plan.
+      true: $guid = powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+        | ForEach-Object { if ($_ -match 'GUID:\s*([a-f0-9-]+)') { $matches[1] }};
+        if ($guid) { powercfg -setactive $guid }
+      false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
+      enabled: false
     - name: Windows/Office Activation
       purpose: Activate Windows and Office using massgrave.dev.
       true: irm https://get.activated.win | iex
@@ -30,6 +33,7 @@ features:
       enabled: false
     - name: Disable Superfetch
       purpose: Disables the SysMain service.
+      check: (Get-Service -Name SysMain -ErrorAction SilentlyContinue).StartType -eq 'Disabled'
       true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain
         -Force
       false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name
@@ -37,6 +41,7 @@ features:
       enabled: false
     - name: Disable Search Indexing
       purpose: Disables the search indexing service.
+      check: (Get-Service -Name WSearch -ErrorAction SilentlyContinue).StartType -eq 'Disabled'
       true: Set-Service -Name WSearch -StartupType Disabled; Stop-Service -Name WSearch
         -Force
       false: Set-Service -Name WSearch -StartupType Automatic; Start-Service -Name
@@ -44,12 +49,14 @@ features:
       enabled: false
     - name: Disable Hibernation
       purpose: Disables system hibernation and frees storage.
+      check: (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' -Name 'HibernateEnabled' -ErrorAction SilentlyContinue).HibernateEnabled -eq 0
       true: powercfg /h off
       false: powercfg /h on
       enabled: false
     - header: Gaming
     - name: Enable Gaming Mode
       purpose: Prioritizes system resources for gaming applications.
+      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -ErrorAction SilentlyContinue).AutoGameModeEnabled -eq 1
       true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
         -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore'
         -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
@@ -59,6 +66,7 @@ features:
       enabled: false
     - name: Disable Mouse Acceleration
       purpose: Disables 'Enhance Pointer Precision' for 1:1 raw input.
+      check: (Get-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -ErrorAction SilentlyContinue).MouseSpeed -eq "0"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed"
         -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name
         "MouseThreshold1" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control
@@ -70,6 +78,7 @@ features:
       enabled: false
     - name: Disable Network Throttling
       purpose: Disables network throttling.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -ErrorAction SilentlyContinue).NetworkThrottlingIndex -eq 4294967295
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
         -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295 -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
@@ -78,6 +87,7 @@ features:
     - header: Accessibility
     - name: Disable Sticky Keys
       purpose: Prevents the prompt when pressing Shift 5 times.
+      check: (Get-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -ErrorAction SilentlyContinue).Flags -eq "506"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
         -Name "Flags" -Type String -Value "506" -Force
       false: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys"
@@ -87,6 +97,7 @@ features:
     - header: Explorer & UI
     - name: Show File Extensions
       purpose: Forces Explorer to show file extensions.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -ErrorAction SilentlyContinue).HideFileExt -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer
         -Force
@@ -96,6 +107,7 @@ features:
       enabled: false
     - name: Show Hidden Files
       purpose: Forces Explorer to show hidden files and folders.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -ErrorAction SilentlyContinue).Hidden -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
@@ -103,6 +115,7 @@ features:
       enabled: false
     - name: Align Taskbar to Left
       purpose: Moves taskbar icons to the left.
+      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -ErrorAction SilentlyContinue).TaskbarAl -eq 0
       true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
         -Name 'TaskbarAl' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
@@ -110,6 +123,7 @@ features:
       enabled: false
     - name: Enable Classic Right-Click
       purpose: Restores the full context menu by removing 'Show more options'.
+      check: Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
       true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
         -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
         -Name "(default)" -Value "" -Force
@@ -118,6 +132,7 @@ features:
       enabled: false
     - name: Disable Startup Sound
       purpose: Prevents the Windows startup sound.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -ErrorAction SilentlyContinue).DisableStartupSound -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation"
         -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation"
         -Name "DisableStartupSound" -Type DWord -Value 1 -Force
@@ -126,6 +141,7 @@ features:
       enabled: false
     - name: Disable Lock Screen
       purpose: Skips the 'slide up' lock screen and goes straight to login.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue).NoLockScreen -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"
         -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"
         -Name "NoLockScreen" -Type DWord -Value 1 -Force
@@ -135,6 +151,7 @@ features:
 
     - name: Disable Windows Consumer Features
       purpose: Disables 'Suggested' apps and ads in the Start Menu.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
         -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
         -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
@@ -143,6 +160,7 @@ features:
       enabled: false
     - name: Disable Xbox Game Bar
       purpose: Disables the Game Bar overlay (Win+G).
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -ErrorAction SilentlyContinue).AppCaptureEnabled -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
         -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
         "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
@@ -154,6 +172,7 @@ features:
       enabled: false
     - name: Disable Widgets
       purpose: Removes the Widgets button from the taskbar.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -ErrorAction SilentlyContinue).TaskbarDa -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         -Name "TaskbarDa" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
@@ -163,6 +182,7 @@ features:
     - header: Security & Privacy
     - name: Disable VBS
       purpose: Disables Virtualization-Based Security to potentially boost gaming FPS.
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity -eq 0
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
         -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
@@ -170,6 +190,7 @@ features:
       enabled: false
     - name: Disable UAC
       purpose: Disables Security Prompts (Breaks Store Apps).
+      check: (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -ErrorAction SilentlyContinue).EnableLUA -eq 0
       true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
@@ -177,6 +198,7 @@ features:
       enabled: false
     - name: Disable Telemetry
       purpose: Reduces background data collection.
+      check: Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue | Where-Object { $_.AllowTelemetry -eq 0 }
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
         -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
         "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications"
@@ -188,6 +210,7 @@ features:
       enabled: false
     - name: Disable Location Tracking
       purpose: Prevents apps and the OS from tracking global location.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -ErrorAction SilentlyContinue).Value -eq "Deny"
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
         -Name "Value" -Type String -Value "Deny" -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
@@ -195,6 +218,7 @@ features:
       enabled: false
     - name: Disable Advertising ID
       purpose: Prevents apps from using your advertising ID.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
         -Name "Enabled" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
@@ -202,6 +226,7 @@ features:
       enabled: false
     - name: Disable Edge Startup Boost
       purpose: Stops Edge from running background processes when closed.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -ErrorAction SilentlyContinue).StartupBoostEnabled -eq 0
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Force | Out-Null;
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled"
         -Type DWord -Value 0 -Force
@@ -211,6 +236,7 @@ features:
     - header: Windows Update
     - name: Exclude Drivers from Updates
       purpose: Prevents Windows Update from installing drivers.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue).ExcludeWUDriversInQualityUpdate -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
         -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
         -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1 -Force
@@ -219,6 +245,7 @@ features:
       enabled: false
     - name: Disable Automatic Maintenance
       purpose: Disables automatic maintenance tasks.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -ErrorAction SilentlyContinue).MaintenanceDisabled -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"
         -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows
         NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type
@@ -227,6 +254,8 @@ features:
         -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
       enabled: false
 - feature: Cleaner
+  icon: Delete
+  type: standard
   items:
     - name: Files
       purpose: Automatically clean various system files at logon.
@@ -587,6 +616,8 @@ features:
       true: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
         -ErrorAction SilentlyContinue
 - feature: Apps
+  icon: AllApps
+  type: apps
   items:
     - header: Browsers
     - name: Google Chrome
@@ -793,6 +824,8 @@ features:
       id: voidtools.Everything
       enabled: false
 - feature: Admin Tools
+  icon: Admin
+  type: standard
   items:
   - header: Management
   - name: Computer Management (compmgmt.msc)
@@ -854,115 +887,6 @@ features:
     purpose: Detailed hardware, BIOS, and OS environment information.
     true: Start-Process msinfo32.exe
 - feature: Dashboard
-  layout:
-    left:
-    - type: header
-      title: Motherboard
-    - type: row
-      key: mb_name
-      label: 'Name:'
-      source_key: mb_text
-      default: N/A
-      wrap: 300
-    - type: header
-      title: Processor (CPU)
-    - type: row
-      key: cpu_name
-      label: 'Name:'
-      source_key: cpu
-      default: N/A
-      wrap: 300
-    - type: row
-      key: cpu_cores
-      label: 'Topology:'
-      source_key: cpu_cores_text
-      default: N/A
-      wrap: 350
-    - type: row
-      key: cpu_load
-      label: 'Usage:'
-      default: 0.0%
-      wrap: 350
-    - type: header
-      title: Memory (RAM)
-    - type: row
-      key: ram_speed
-      label: 'Speed:'
-      source_key: ram_speed
-      default: N/A
-      wrap: 350
-    - type: row
-      key: ram_usage
-      label: 'Usage:'
-      default: 0.0% (0.0 GB / 0.0 GB)
-      wrap: 350
-    - type: header
-      title: Graphics (GPU)
-    - type: row
-      key: gpu_name
-      label: 'Name:'
-      default: N/A
-      wrap: 300
-    - type: row
-      key: gpu_mem
-      label: 'VRAM:'
-      default: N/A
-      wrap: 350
-    - type: row
-      key: gpu_load
-      label: 'Usage:'
-      default: N/A
-      wrap: 350
-    - type: header
-      title: Storage
-    right:
-    - type: header
-      title: System
-    - type: row
-      key: os_caption
-      label: 'OS:'
-      source_key: os_caption
-      default: N/A
-      wrap: 350
-    - type: row
-      key: os_version
-      label: 'Build:'
-      source_key: os_version
-      default: N/A
-      wrap: 350
-    - type: row
-      key: os_arch
-      label: 'Arch:'
-      source_key: os_arch
-      default: N/A
-      wrap: 350
-    - type: row
-      key: os_install_date
-      label: 'Installed:'
-      source_key: os_install_date
-      default: N/A
-      wrap: 350
-    - type: row
-      key: boot_time
-      label: 'Boot Time:'
-      source_key: boot_time
-      default: N/A
-      wrap: 350
-    - type: row
-      key: secure_boot_status
-      label: 'Secure Boot:'
-      source_key: secure_boot_status
-      default: N/A
-      wrap: 350
-    - type: row
-      key: tpm_status
-      label: 'TPM:'
-      source_key: tpm_status
-      default: N/A
-      wrap: 350
-    - type: row
-      key: hyperv_status
-      label: 'Hyper-V:'
-      source_key: hyperv_status
-      default: N/A
-      wrap: 350
+  icon: Home
+  type: dashboard
+  
