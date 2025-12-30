@@ -88,7 +88,7 @@
                                     <views:AddTweakControl/>
                                 </DataTemplate>
                                 <DataTemplate DataType="vm:ItemViewModel">
-           							<views:ItemControl/>
+                                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemLeafTemplate}"/>
                                 </DataTemplate>
                             </ContentControl.DataTemplates>
                         </ContentControl>

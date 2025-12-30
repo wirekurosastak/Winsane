@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:WinsaneCS"
              xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:vm="using:WinsaneCS.ViewModels"
              x:Class="WinsaneCS.App"
              RequestedThemeVariant="{x:Null}">
 
@@ -17,6 +19,64 @@
         <SolidColorBrush x:Key="AccentButtonBackground" Color="{DynamicResource SystemAccentColor}" />
         <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="{DynamicResource SystemAccentColor}" />
         <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="{DynamicResource SystemAccentColor}" />
+
+        <!-- Shared Item Footer Template (Buttons/Toggles) -->
+        <DataTemplate x:Key="ItemFooterTemplate" x:DataType="vm:ItemViewModel">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                 <!-- Status text -->
+                <TextBlock Text="{Binding StatusText}"
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                          IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                
+                <!-- Loading indicator -->
+                <ui:ProgressRing IsIndeterminate="True"
+                                Width="20" Height="20"
+                                IsVisible="{Binding IsLoading}"/>
+                
+                <!-- Toggle Switch (only for items without buttons) -->
+                <ToggleSwitch IsChecked="{Binding IsEnabled}"
+                             IsVisible="{Binding ShowToggle}"
+                             IsEnabled="{Binding !IsLoading}"
+                             OnContent="{x:Null}"
+                             OffContent="{x:Null}"/>
+                
+                <!-- Run/Open Button -->
+                <Button Content="{Binding ButtonText}"
+                       IsVisible="{Binding ShowRunButton}"
+                       IsEnabled="{Binding !IsLoading}"
+                       Command="{Binding ExecuteButtonCommand}"
+                       Classes="accent"/>
+                
+                <!-- Delete Button (for user tweaks) -->
+                <Button Content="Delete"
+                       IsVisible="{Binding ShowDeleteButton}"
+                       IsEnabled="{Binding !IsLoading}"
+                       Command="{Binding DeleteCommand}"
+                       Foreground="#E74856"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Shared Item Leaf Template (Grid Layout) -->
+        <DataTemplate x:Key="ItemLeafTemplate" x:DataType="vm:ItemViewModel">
+           <Grid ColumnDefinitions="*,Auto" Margin="16,12">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{Binding Name}" 
+                               Theme="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <TextBlock Text="{Binding Purpose}" 
+                               Theme="{StaticResource CaptionTextBlockStyle}" 
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+                
+                <!-- Footer -->
+                <ContentControl Grid.Column="1" 
+                                VerticalAlignment="Center"
+                                Content="{Binding}" 
+                                ContentTemplate="{StaticResource ItemFooterTemplate}"
+                                Margin="12,0,0,0"/>
+           </Grid>
+        </DataTemplate>
     </Application.Resources>
   
     <Application.Styles>

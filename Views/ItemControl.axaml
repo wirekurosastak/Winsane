@@ -10,43 +10,6 @@
     
     <Grid>
         <Grid.Resources>
-            <!-- Shared Footer Template to avoid duplication -->
-            <DataTemplate x:Key="SharedFooterTemplate" x:DataType="vm:ItemViewModel">
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                     <!-- Status text -->
-                    <TextBlock Text="{Binding StatusText}"
-                              VerticalAlignment="Center"
-                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                              IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                    
-                    <!-- Loading indicator -->
-                    <ui:ProgressRing IsIndeterminate="True"
-                                    Width="20" Height="20"
-                                    IsVisible="{Binding IsLoading}"/>
-                    
-                    <!-- Toggle Switch (only for items without buttons) -->
-                    <ToggleSwitch IsChecked="{Binding IsEnabled}"
-                                 IsVisible="{Binding ShowToggle}"
-                                 IsEnabled="{Binding !IsLoading}"
-                                 OnContent="{x:Null}"
-                                 OffContent="{x:Null}"/>
-                    
-                    <!-- Run/Open Button -->
-                    <Button Content="{Binding ButtonText}"
-                           IsVisible="{Binding ShowRunButton}"
-                           IsEnabled="{Binding !IsLoading}"
-                           Command="{Binding ExecuteButtonCommand}"
-                           Classes="accent"/>
-                    
-                    <!-- Delete Button (for user tweaks) -->
-                    <Button Content="Delete"
-                           IsVisible="{Binding ShowDeleteButton}"
-                           IsEnabled="{Binding !IsLoading}"
-                           Command="{Binding DeleteCommand}"
-                           Foreground="#E74856"/>
-                </StackPanel>
-            </DataTemplate>
-
             <!-- Recursive Item Template -->
             <DataTemplate x:Key="RecursiveItemTemplate" x:DataType="vm:ItemViewModel">
                 <Panel>
@@ -62,18 +25,15 @@
                             <ui:SymbolIconSource Symbol="Folder"/>
                          </ui:SettingsExpander.IconSource>
                          <ui:SettingsExpander.Footer>
-                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SharedFooterTemplate}"/>
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemFooterTemplate}"/>
                          </ui:SettingsExpander.Footer>
                     </ui:SettingsExpander>
 
                     <!-- Leaf: Standard Item -->
-                    <ui:SettingsExpanderItem IsVisible="{Binding !HasSubItems}"
-                                             Content="{Binding Name}"
-                                             Description="{Binding Purpose}">
-                        <ui:SettingsExpanderItem.Footer>
-                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SharedFooterTemplate}"/>
-                        </ui:SettingsExpanderItem.Footer>
-                    </ui:SettingsExpanderItem>
+                    <!-- Replaced manual layout with shared template -->
+                    <ContentControl Content="{Binding}" 
+                                    ContentTemplate="{StaticResource ItemLeafTemplate}"
+                                    IsVisible="{Binding !HasSubItems}"/>
                 </Panel>
             </DataTemplate>
         </Grid.Resources>
@@ -96,7 +56,7 @@
                             Margin="0,4">
             
             <ui:SettingsExpander.Footer>
-                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SharedFooterTemplate}"/>
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemFooterTemplate}"/>
             </ui:SettingsExpander.Footer>
         </ui:SettingsExpander>
     </Grid>
