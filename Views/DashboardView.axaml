@@ -13,15 +13,15 @@
         <Grid Margin="24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="24"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
             <!-- Left Column - Hardware -->
-            <StackPanel Grid.Column="0" Spacing="8">
+            <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,6,0">
                 <!-- Motherboard -->
                 <ui:SettingsExpander Header="Motherboard"
-                                    IsExpanded="True">
+                                    IsExpanded="True"
+                                    Margin="0,4,0,8">
                     <ui:SettingsExpander.IconSource>
                         <ui:SymbolIconSource Symbol="Settings"/>
                     </ui:SettingsExpander.IconSource>
@@ -31,7 +31,8 @@
                 
                 <!-- CPU -->
                 <ui:SettingsExpander Header="Processor (CPU)"
-                                    IsExpanded="True">
+                                    IsExpanded="True"
+                                    Margin="0,4,0,8">
                     <ui:SettingsExpander.IconSource>
                         <ui:SymbolIconSource Symbol="Settings"/>
                     </ui:SettingsExpander.IconSource>
@@ -45,7 +46,8 @@
                 
                 <!-- RAM -->
                 <ui:SettingsExpander Header="Memory (RAM)"
-                                    IsExpanded="True">
+                                    IsExpanded="True"
+                                    Margin="0,4,0,8">
                     <ui:SettingsExpander.IconSource>
                         <ui:SymbolIconSource Symbol="Settings"/>
                     </ui:SettingsExpander.IconSource>
@@ -57,7 +59,8 @@
                 
                 <!-- GPU -->
                 <ui:SettingsExpander Header="Graphics (GPU)"
-                                    IsExpanded="True">
+                                    IsExpanded="True"
+                                    Margin="0,4,0,8">
                     <ui:SettingsExpander.IconSource>
                                                 <ui:SymbolIconSource Symbol="Image"/>
                     </ui:SettingsExpander.IconSource>
@@ -71,10 +74,11 @@
             </StackPanel>
             
             <!-- Right Column - System -->
-            <StackPanel Grid.Column="2" Spacing="8">
+            <StackPanel Grid.Column="1" Spacing="8" Margin="6,0,0,0">
                 <!-- OS Info -->
                 <ui:SettingsExpander Header="Operating System"
-                                    IsExpanded="True">
+                                    IsExpanded="True"
+                                    Margin="0,4,0,8">
                     <ui:SettingsExpander.IconSource>
                                                 <ui:SymbolIconSource Symbol="Globe"/>
                     </ui:SettingsExpander.IconSource>
@@ -92,7 +96,8 @@
                 
                 <!-- Security -->
                 <ui:SettingsExpander Header="Security"
-                                    IsExpanded="True">
+                                    IsExpanded="True"
+                                    Margin="0,4,0,8">
                     <ui:SettingsExpander.IconSource>
                         <ui:SymbolIconSource Symbol="Permissions"/>
                     </ui:SettingsExpander.IconSource>

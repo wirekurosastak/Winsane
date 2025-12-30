@@ -34,12 +34,9 @@ public class Item
     public bool IsHeader => !string.IsNullOrEmpty(Header);
     
     /// <summary>
-    /// Returns true if this item is irreversible (no false command or placeholder)
+    /// Returns true if this item is irreversible (no false command)
     /// </summary>
-    public bool IsIrreversible => 
-        string.IsNullOrEmpty(FalseCommand) || 
-        FalseCommand.Contains("Reinstall via Store") ||
-        FalseCommand.Contains("Write-Output");
+    public bool IsIrreversible => string.IsNullOrEmpty(FalseCommand);
     
     /// <summary>
     /// Flag for user-created tweaks (not serialized, set at runtime)

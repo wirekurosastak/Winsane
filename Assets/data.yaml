@@ -4,9 +4,7 @@ theme:
   accent_color: '#0581ff'
 features:
 - feature: Optimizer
-  categories:
-  - category: Tweaks
-    items:
+  items:
     - header: Performance
     - name: Ultimate Performance
       purpose: Enables the Ultimate Performance power plan for maximum speed.
@@ -90,7 +88,7 @@ features:
         -Name "Flags" -Type String -Value "510" -Force
       enabled: false
 
-    - header: Explorer
+    - header: Explorer & UI
     - name: Show File Extensions
       purpose: Forces Explorer to always show file extensions (e.g., .txt, .exe).
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
@@ -107,7 +105,6 @@ features:
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
       enabled: false
-    - header: UI
     - name: Align Taskbar to Left
       purpose: Moves the centered taskbar icons to the left side.
       true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
@@ -142,7 +139,35 @@ features:
         -Name "NoLockScreen" -Force -ErrorAction SilentlyContinue
       enabled: false
 
-    - header: Security
+    - name: Disable Windows Consumer Features
+      purpose: Disables 'Suggested' apps and ads (like Candy Crush or Disney+) in
+        the Start Menu.
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
+      enabled: false
+    - name: Disable Xbox Game Bar
+      purpose: Disables the Game Bar overlay (Win+G) to save resources.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
+        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
+        1 -Force
+      enabled: false
+    - name: Disable Widgets
+      purpose: Removes the Widgets button (Weather/News) from the taskbar.
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarDa" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "TaskbarDa" -Type DWord -Value 1 -Force
+      enabled: false
+
+    - header: Security & Privacy
     - name: Disable VBS
       purpose: Disables Virtualization-Based Security to potentially boost gaming
         FPS.
@@ -158,7 +183,6 @@ features:
       false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 1 -Type DWORD -Force
       enabled: false
-    - header: Privacy
     - name: Disable Telemetry
       purpose: Reduces background data collection and feedback requests.
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
@@ -212,124 +236,13 @@ features:
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"
         -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
       enabled: false
-  - category: User
-    items: []
 - feature: Cleaner
-  categories:
-  - category: System
-    items:
-    - header: System & UI Settings
-    - name: Disable Windows Consumer Features
-      purpose: Disables 'Suggested' apps and ads (like Candy Crush or Disney+) in
-        the Start Menu.
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-        -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-        -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-        -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
-      enabled: false
-    - name: Disable Xbox Game Bar
-      purpose: Disables the Game Bar overlay (Win+G) to save resources.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
-        -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path
-        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
-        0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
-        -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path
-        "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value
-        1 -Force
-      enabled: false
-    - name: Disable Widgets
-      purpose: Removes the Widgets button (Weather/News) from the taskbar.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarDa" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarDa" -Type DWord -Value 1 -Force
-      enabled: false
-    - name: Disable Chat / Teams
-      purpose: Removes the built-in Chat icon from the taskbar.
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarMn" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "TaskbarMn" -Type DWord -Value 1 -Force
-      enabled: false
-    - header: Remove Windows Apps
-    - name: Remove Copilot
-      purpose: 'Uninstalls the Copilot app and disables the Taskbar icon. (Warning:
-        Reinstall requires MS Store)'
-      true: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
-      false: Write-Output "Reinstall via Store or Settings"
-      enabled: false
-    - name: Remove Bing, News & Weather
-      purpose: 'Removes Bing Search, News, Weather, and Finance apps. (Warning: Reinstall
-        requires MS Store)'
-      true: Get-AppxPackage *Bing* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Get-AppxPackage *News* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Xbox Apps
-      purpose: 'Removes Xbox Gaming Overlay, Game Bar, and Identity Provider. (Warning:
-        Reinstall requires MS Store)'
-      true: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Get-AppxPackage *GamingApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Solitaire Collection
-      purpose: 'Removes the pre-installed Solitaire game. (Warning: Reinstall requires
-        MS Store)'
-      true: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Outlook (New)
-      purpose: 'Removes the new Outlook for Windows app. (Warning: Reinstall requires
-        MS Store)'
-      true: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Dev Home
-      purpose: 'Removes the Windows Dev Home app. (Warning: Reinstall requires MS
-        Store)'
-      true: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove YourPhone
-      purpose: 'Removes the ''Phone Link'' integration app. (Warning: Reinstall requires
-        MS Store)'
-      true: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Feedback Hub
-      purpose: 'Removes the Windows Feedback Hub. (Warning: Reinstall requires MS
-        Store)'
-      true: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove Maps
-      purpose: 'Removes the built-in Windows Maps application. (Warning: Reinstall
-        requires MS Store)'
-      true: Get-AppxPackage *Maps* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      false: Write-Output "Reinstall via Store"
-      enabled: false
-    - name: Remove WordPad
-      purpose: Uninstalls the legacy WordPad application.
-      true: Remove-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
-        -ErrorAction SilentlyContinue
-      false: Add-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
-      enabled: false
-    - name: Remove Steps Recorder
-      purpose: Uninstalls the legacy Steps Recorder tool.
-      true: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
-        -ErrorAction SilentlyContinue
-      false: Add-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
-      enabled: false
-    - header: File Maintenance
-    - name: File Cleaner
+  items:
+    - name: Files
       purpose: Automatically clean various system files at logon.
       enabled: false
       subitems:
-      - name: Temp Files
+      - name: Temp
         purpose: Deletes temporary files from User and Windows temp folders at logon.
         true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
           -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:USERPROFILE\AppData\Local\Temp\*\"
@@ -371,287 +284,332 @@ features:
         false: Unregister-ScheduledTask -TaskName "Winsane Clean Minidumps" -Confirm:$false
           -ErrorAction SilentlyContinue
         enabled: false
-
-  - category: Browsers
-    items:
-    - header: Google Chrome
-    - name: Chrome Cleanup
-      purpose: Automatically clean Google Chrome data at logon.
+    - name: Browsers
+      purpose: Automatically clean browser data at logon.
       enabled: false
       subitems:
-      - name: Cache
-        purpose: Removes Chrome cached images and files.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Google\Chrome\User
-          Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
-          -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
-          -TaskName "Winsane Chrome Cache" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cache" -Confirm:$false
-          -ErrorAction SilentlyContinue
+      - name: Chrome Cleanup
+        purpose: Automatically clean Google Chrome data at logon.
         enabled: false
-      - name: Cookies
-        purpose: Removes Chrome cookies (Will log you out).
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
-          Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome Cookies" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cookies" -Confirm:$false
-          -ErrorAction SilentlyContinue
+        subitems:
+        - name: Cache
+          purpose: Removes Chrome cached images and files.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Google\Chrome\User
+            Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
+            -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
+            -TaskName "Winsane Chrome Cache" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cache" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Cookies
+          purpose: Removes Chrome cookies (Will log you out).
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
+            Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome Cookies" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cookies" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: History
+          purpose: Removes Chrome browsing history.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
+            Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome History" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Chrome History" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Session
+          purpose: Removes Chrome session data (Open tabs/windows).
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
+            Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            Chrome Session" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Chrome Session" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+      - name: Edge Cleanup
+        purpose: Automatically clean Microsoft Edge data at logon.
         enabled: false
-      - name: History
-        purpose: Removes Chrome browsing history.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
-          Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome History" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Chrome History" -Confirm:$false
-          -ErrorAction SilentlyContinue
+        subitems:
+        - name: Cache
+          purpose: Removes Edge cached images and files.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Microsoft\Edge\User
+            Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
+            -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
+            -TaskName "Winsane Edge Cache" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Edge Cache" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Cookies
+          purpose: Removes Edge cookies (Will log you out).
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
+            Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge Cookies" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Edge Cookies" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: History
+          purpose: Removes Edge browsing history.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
+            Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge History" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Edge History" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Session
+          purpose: Removes Edge session data (Open tabs/windows).
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
+            Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            Edge Session" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Edge Session" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+      - name: Firefox Cleanup
+        purpose: Automatically clean Mozilla Firefox data at logon.
         enabled: false
-      - name: Session
-        purpose: Removes Chrome session data (Open tabs/windows).
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
-          Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-          = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
-          Chrome Session" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Chrome Session" -Confirm:$false
-          -ErrorAction SilentlyContinue
+        subitems:
+        - name: Cache
+          purpose: Removes Firefox cached files.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*\cache2\*\"
+            -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse
+            }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName
+            "Winsane Firefox Cache" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cache" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Cookies
+          purpose: Removes Firefox cookies (Will log you out).
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\cookies.sqlite\"
+            -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox Cookies" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cookies" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: History
+          purpose: Removes Firefox history and bookmarks backups.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\places.sqlite\"
+            -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox History" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Firefox History" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Session
+          purpose: Removes Firefox session restore data.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore-backups\*\"
+            -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse;
+            Remove-Item \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore.jsonlz4\"
+            -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+            Register-ScheduledTask -TaskName "Winsane Firefox Session" -Action $A -Trigger
+            $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Firefox Session" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+      - name: Brave Cleanup
+        purpose: Automatically clean Brave Browser data at logon.
         enabled: false
-    - header: Microsoft Edge
-    - name: Edge Cleanup
-      purpose: Automatically clean Microsoft Edge data at logon.
-      enabled: false
-      subitems:
-      - name: Cache
-        purpose: Removes Edge cached images and files.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Microsoft\Edge\User
-          Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
-          -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
-          -TaskName "Winsane Edge Cache" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Edge Cache" -Confirm:$false
-          -ErrorAction SilentlyContinue
+        subitems:
+        - name: Cache
+          purpose: Removes Brave cached images and files.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+            Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
+            -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
+            -TaskName "Winsane Brave Cache" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Brave Cache" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Cookies
+          purpose: Removes Brave cookies (Will log you out).
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+            Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave Cookies" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Brave Cookies" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: History
+          purpose: Removes Brave browsing history.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+            Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave History" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Brave History" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Session
+          purpose: Removes Brave session data.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
+            Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            Brave Session" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Brave Session" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+      - name: Opera Cleanup
+        purpose: Automatically clean Opera Browser data at logon.
         enabled: false
-      - name: Cookies
-        purpose: Removes Edge cookies (Will log you out).
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
-          Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge Cookies" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Edge Cookies" -Confirm:$false
-          -ErrorAction SilentlyContinue
+        subitems:
+        - name: Cache
+          purpose: Removes Opera cached files.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
+            Software\Opera Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
+            | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+            Register-ScheduledTask -TaskName "Winsane Opera Cache" -Action $A -Trigger
+            $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Opera Cache" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Cookies
+          purpose: Removes Opera cookies.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+            Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera Cookies" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Opera Cookies" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: History
+          purpose: Removes Opera history.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+            Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera History" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Opera History" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Session
+          purpose: Removes Opera session data.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+            Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            Opera Session" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane Opera Session" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+      - name: Opera GX Cleanup
+        purpose: Automatically clean Opera GX Browser data at logon.
         enabled: false
-      - name: History
-        purpose: Removes Edge browsing history.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
-          Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge History" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Edge History" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Session
-        purpose: Removes Edge session data (Open tabs/windows).
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
-          Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-          = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
-          Edge Session" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Edge Session" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-    - header: Mozilla Firefox
-    - name: Firefox Cleanup
-      purpose: Automatically clean Mozilla Firefox data at logon.
-      enabled: false
-      subitems:
-      - name: Cache
-        purpose: Removes Firefox cached files.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*\cache2\*\"
-          -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse
-          }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName
-          "Winsane Firefox Cache" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cache" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Cookies
-        purpose: Removes Firefox cookies (Will log you out).
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\cookies.sqlite\"
-          -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox Cookies" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cookies" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: History
-        purpose: Removes Firefox history and bookmarks backups.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\places.sqlite\"
-          -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox History" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Firefox History" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Session
-        purpose: Removes Firefox session restore data.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore-backups\*\"
-          -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse;
-          Remove-Item \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore.jsonlz4\"
-          -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-          Register-ScheduledTask -TaskName "Winsane Firefox Session" -Action $A -Trigger
-          $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Firefox Session" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-    - header: Brave Browser
-    - name: Brave Cleanup
-      purpose: Automatically clean Brave Browser data at logon.
-      enabled: false
-      subitems:
-      - name: Cache
-        purpose: Removes Brave cached images and files.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
-          Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
-          -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
-          -TaskName "Winsane Brave Cache" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Brave Cache" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Cookies
-        purpose: Removes Brave cookies (Will log you out).
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
-          Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave Cookies" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Brave Cookies" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: History
-        purpose: Removes Brave browsing history.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
-          Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave History" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Brave History" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Session
-        purpose: Removes Brave session data.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
-          Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-          = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
-          Brave Session" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Brave Session" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-    - header: Opera
-    - name: Opera Cleanup
-      purpose: Automatically clean Opera Browser data at logon.
-      enabled: false
-      subitems:
-      - name: Cache
-        purpose: Removes Opera cached files.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
-          Software\Opera Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
-          | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-          Register-ScheduledTask -TaskName "Winsane Opera Cache" -Action $A -Trigger
-          $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Opera Cache" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Cookies
-        purpose: Removes Opera cookies.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
-          Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera Cookies" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Opera Cookies" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: History
-        purpose: Removes Opera history.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
-          Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera History" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Opera History" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Session
-        purpose: Removes Opera session data.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
-          Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-          = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
-          Opera Session" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Opera Session" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-    - header: Opera GX
-    - name: Opera GX Cleanup
-      purpose: Automatically clean Opera GX Browser data at logon.
-      enabled: false
-      subitems:
-      - name: Cache
-        purpose: Removes Opera GX cached files.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
-          Software\Opera GX Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
-          | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-          Register-ScheduledTask -TaskName "Winsane OperaGX Cache" -Action $A -Trigger
-          $T
-        false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cache" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Cookies
-        purpose: Removes Opera GX cookies.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
-          GX Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T =
-          New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
-          OperaGX Cookies" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cookies" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: History
-        purpose: Removes Opera GX history.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
-          GX Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane OperaGX History" -Action
-          $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane OperaGX History" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
-      - name: Session
-        purpose: Removes Opera GX session data.
-        true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
-          -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
-          GX Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"';
-          $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
-          OperaGX Session" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Session" -Confirm:$false
-          -ErrorAction SilentlyContinue
-        enabled: false
+        subitems:
+        - name: Cache
+          purpose: Removes Opera GX cached files.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
+            Software\Opera GX Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
+            | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
+            Register-ScheduledTask -TaskName "Winsane OperaGX Cache" -Action $A -Trigger
+            $T
+          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cache" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Cookies
+          purpose: Removes Opera GX cookies.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+            GX Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T =
+            New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            OperaGX Cookies" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cookies" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: History
+          purpose: Removes Opera GX history.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+            GX Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
+            -AtLogon; Register-ScheduledTask -TaskName "Winsane OperaGX History" -Action
+            $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX History" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+        - name: Session
+          purpose: Removes Opera GX session data.
+          true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
+            -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
+            GX Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"';
+            $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            OperaGX Session" -Action $A -Trigger $T
+          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Session" -Confirm:$false
+            -ErrorAction SilentlyContinue
+          enabled: false
+    - header: Debloat
+    - name: Remove Copilot
+      purpose: 'Uninstalls the Copilot app. (Warning:
+        Reinstall requires MS Store)'
+      true: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue;
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
+    - name: Remove Bing, News & Weather
+      purpose: 'Removes Bing Search, News, Weather, and Finance apps. (Warning: Reinstall
+        requires MS Store)'
+      true: Get-AppxPackage *Bing* | Remove-AppxPackage -ErrorAction SilentlyContinue;
+        Get-AppxPackage *News* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Xbox Apps
+      purpose: 'Removes Xbox Gaming Overlay, Game Bar, and Identity Provider. (Warning:
+        Reinstall requires MS Store)'
+      true: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue;
+        Get-AppxPackage *GamingApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Solitaire Collection
+      purpose: 'Removes the pre-installed Solitaire game. (Warning: Reinstall requires
+        MS Store)'
+      true: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Outlook (New)
+      purpose: 'Removes the new Outlook for Windows app. (Warning: Reinstall requires
+        MS Store)'
+      true: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Dev Home
+      purpose: 'Removes the Windows Dev Home app. (Warning: Reinstall requires MS
+        Store)'
+      true: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove YourPhone
+      purpose: 'Removes the ''Phone Link'' integration app. (Warning: Reinstall requires
+        MS Store)'
+      true: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Feedback Hub
+      purpose: 'Removes the Windows Feedback Hub. (Warning: Reinstall requires MS
+        Store)'
+      true: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Maps
+      purpose: 'Removes the built-in Windows Maps application. (Warning: Reinstall
+        requires MS Store)'
+      true: Get-AppxPackage *Maps* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove WordPad
+      purpose: 'Uninstalls the legacy WordPad application. (Warning: Reinstall
+        requires MS Store)'
+      true: Remove-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
+        -ErrorAction SilentlyContinue
+    - name: Remove Steps Recorder
+      purpose: 'Uninstalls the legacy Steps Recorder tool. (Warning: Reinstall
+        requires MS Store)'
+      true: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
+        -ErrorAction SilentlyContinue
 - feature: Apps
-  categories:
-  - category: Browsers
-    items:
+  items:
+    - header: Browsers
     - name: Google Chrome
       purpose: Fast, secure, and customizable browser by Google.
       id: Google.Chrome
@@ -684,8 +642,7 @@ features:
       purpose: A fork of Firefox, focused on privacy, security and freedom.
       id: LibreWolf.LibreWolf
       enabled: false
-  - category: Communication
-    items:
+    - header: Communication
     - name: Discord
       purpose: Voice, video, and text chat app for communities.
       id: Discord.Discord
@@ -706,8 +663,28 @@ features:
       purpose: The hub for team collaboration in Microsoft 365.
       id: Microsoft.Teams
       enabled: false
-  - category: Development
-    items:
+    - header: Gaming
+    - name: Steam
+      purpose: Digital distribution platform for video games.
+      id: Valve.Steam
+      enabled: false
+    - name: Epic Games Launcher
+      purpose: Digital distribution platform and launcher for Epic Games titles.
+      id: EpicGames.EpicGamesLauncher
+      enabled: false
+    - name: GOG Galaxy
+      purpose: Launcher that allows to unite all your games and friends in one place.
+      id: GOG.Galaxy
+      enabled: false
+    - name: Ubisoft Connect
+      purpose: Digital distribution and services platform by Ubisoft.
+      id: Ubisoft.Connect
+      enabled: false
+    - name: EA App
+      purpose: Digital distribution platform for Electronic Arts games.
+      id: ElectronicArts.EADesktop
+      enabled: false
+    - header: Development
     - name: Visual Studio Code
       purpose: Lightweight but powerful source code editor.
       id: Microsoft.VisualStudioCode
@@ -756,8 +733,6 @@ features:
       purpose: Free, full-featured IDE for students and open-source developers.
       id: Microsoft.VisualStudio.2022.Community
       enabled: false
-  - category: Creative & Office
-    items:
     - header: Design & Editing
     - name: Blender
       purpose: Free and open-source 3D creation suite.
@@ -800,30 +775,7 @@ features:
       purpose: Remote desktop application for remote support and access.
       id: AnyDesk.AnyDesk
       enabled: false
-  - category: Entertainment
-    items:
-    - header: Gaming
-    - name: Steam
-      purpose: Digital distribution platform for video games.
-      id: Valve.Steam
-      enabled: false
-    - name: Epic Games Launcher
-      purpose: Digital distribution platform and launcher for Epic Games titles.
-      id: EpicGames.EpicGamesLauncher
-      enabled: false
-    - name: GOG Galaxy
-      purpose: Launcher that allows to unite all your games and friends in one place.
-      id: GOG.Galaxy
-      enabled: false
-    - name: Ubisoft Connect
-      purpose: Digital distribution and services platform by Ubisoft.
-      id: Ubisoft.Connect
-      enabled: false
-    - name: EA App
-      purpose: Digital distribution platform for Electronic Arts games.
-      id: ElectronicArts.EADesktop
-      enabled: false
-    - header: Media Players
+    - header: Media
     - name: VLC Media Player
       purpose: Free and open-source cross-platform multimedia player.
       id: VideoLAN.VLC
@@ -836,8 +788,7 @@ features:
       purpose: Free, open-source, cross-platform audio software.
       id: Audacity.Audacity
       enabled: false
-  - category: System Utilities
-    items:
+    - header: Utilities
     - name: Microsoft PowerToys
       purpose: A set of utilities for power users to tune their Windows experience.
       id: Microsoft.PowerToys
@@ -863,69 +814,66 @@ features:
       id: voidtools.Everything
       enabled: false
 - feature: Admin Tools
-  categories:
-  - category: Windows Tools
-    items:
-    - header: Management
-    - name: Computer Management (compmgmt.msc)
-      purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
-      true: Start-Process compmgmt.msc
-    - name: Services Manager (services.msc)
-      purpose: Manage background services (Stop, Start, Disable).
-      true: Start-Process services.msc
-    - name: Task Scheduler (taskschd.msc)
-      purpose: View and manage automated system tasks.
-      true: Start-Process taskschd.msc
-    - name: Event Viewer (eventvwr.msc)
-      purpose: View system logs, errors, and security audits.
-      true: Start-Process eventvwr.msc
-    - name: Registry Editor (regedit.exe)
-      purpose: View and edit the Windows Registry.
-      true: Start-Process regedit.exe -Verb RunAs
-    - header: System & Security
-      # Moved User Accounts here as it fits better with security/users
-    - name: User Accounts (netplwiz.exe)
-      purpose: Manage user passwords and auto-login settings.
-      true: Start-Process netplwiz.exe
-    - name: Group Policy Editor (gpedit.msc)
-      purpose: Advanced system configuration (Requires Pro/Enterprise).
-      true: Start-Process gpedit.msc
-    - name: Local Security Policy (secpol.msc)
-      purpose: Manage security settings and password policies.
-      true: Start-Process secpol.msc
-    - name: Firewall Rules (wf.msc)
-      purpose: Advanced Windows Firewall interface with inbound/outbound rules.
-      true: Start-Process wf.msc
-    - header: Hardware & Storage
-    - name: Device Manager (devmgmt.msc)
-      purpose: Manage hardware drivers and devices.
-      true: Start-Process devmgmt.msc
-    - name: Disk Management (diskmgmt.msc)
-      purpose: Create partitions and format drives.
-      true: Start-Process diskmgmt.msc
-    - header: Configuration
-    - name: System Configuration (msconfig.exe)
-      purpose: Manage boot options and startup services.
-      true: Start-Process msconfig.exe
-    - name: System Properties (sysdm.cpl)
-      purpose: Quick access to Computer Name, System Restore, and Env Variables.
-      true: Start-Process sysdm.cpl
-    - name: Programs and Features (appwiz.cpl)
-      purpose: The classic 'Add or Remove Programs' interface.
-      true: Start-Process appwiz.cpl
-    - name: Network Connections (ncpa.cpl)
-      purpose: Instant access to network adapters and IP settings.
-      true: Start-Process ncpa.cpl
-    - name: Power Options (powercfg.cpl)
-      purpose: Configure sleep settings and power plans.
-      true: Start-Process powercfg.cpl
-    - header: Diagnostics
-    - name: Resource Monitor (resmon.exe)
-      purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
-      true: Start-Process resmon.exe
-    - name: System Information (msinfo32.exe)
-      purpose: Detailed hardware, BIOS, and OS environment information.
-      true: Start-Process msinfo32.exe
+  items:
+  - header: Management
+  - name: Computer Management (compmgmt.msc)
+    purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
+    true: Start-Process compmgmt.msc
+  - name: Services Manager (services.msc)
+    purpose: Manage background services (Stop, Start, Disable).
+    true: Start-Process services.msc
+  - name: Task Scheduler (taskschd.msc)
+    purpose: View and manage automated system tasks.
+    true: Start-Process taskschd.msc
+  - name: Event Viewer (eventvwr.msc)
+    purpose: View system logs, errors, and security audits.
+    true: Start-Process eventvwr.msc
+  - name: Registry Editor (regedit.exe)
+    purpose: View and edit the Windows Registry.
+    true: Start-Process regedit.exe -Verb RunAs
+  - header: System & Security
+  - name: User Accounts (netplwiz.exe)
+    purpose: Manage user passwords and auto-login settings.
+    true: Start-Process netplwiz.exe
+  - name: Group Policy Editor (gpedit.msc)
+    purpose: Advanced system configuration (Requires Pro/Enterprise).
+    true: Start-Process gpedit.msc
+  - name: Local Security Policy (secpol.msc)
+    purpose: Manage security settings and password policies.
+    true: Start-Process secpol.msc
+  - name: Firewall Rules (wf.msc)
+    purpose: Advanced Windows Firewall interface with inbound/outbound rules.
+    true: Start-Process wf.msc
+  - header: Hardware & Storage
+  - name: Device Manager (devmgmt.msc)
+    purpose: Manage hardware drivers and devices.
+    true: Start-Process devmgmt.msc
+  - name: Disk Management (diskmgmt.msc)
+    purpose: Create partitions and format drives.
+    true: Start-Process diskmgmt.msc
+  - header: Configuration
+  - name: System Configuration (msconfig.exe)
+    purpose: Manage boot options and startup services.
+    true: Start-Process msconfig.exe
+  - name: System Properties (sysdm.cpl)
+    purpose: Quick access to Computer Name, System Restore, and Env Variables.
+    true: Start-Process sysdm.cpl
+  - name: Programs and Features (appwiz.cpl)
+    purpose: The classic 'Add or Remove Programs' interface.
+    true: Start-Process appwiz.cpl
+  - name: Network Connections (ncpa.cpl)
+    purpose: Instant access to network adapters and IP settings.
+    true: Start-Process ncpa.cpl
+  - name: Power Options (powercfg.cpl)
+    purpose: Configure sleep settings and power plans.
+    true: Start-Process powercfg.cpl
+  - header: Diagnostics
+  - name: Resource Monitor (resmon.exe)
+    purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
+    true: Start-Process resmon.exe
+  - name: System Information (msinfo32.exe)
+    purpose: Detailed hardware, BIOS, and OS environment information.
+    true: Start-Process msinfo32.exe
 - feature: Dashboard
   layout:
     left:

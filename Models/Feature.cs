@@ -10,7 +10,10 @@ public class Feature
     [YamlMember(Alias = "feature")]
     public string Name { get; set; } = string.Empty;
     
-    public List<Category> Categories { get; set; } = new();
+    /// <summary>
+    /// Optional: Items directly on the feature
+    /// </summary>
+    public List<Item> Items { get; set; } = new();
     
     // Dashboard-specific layout (optional)
     public DashboardLayout? Layout { get; set; }

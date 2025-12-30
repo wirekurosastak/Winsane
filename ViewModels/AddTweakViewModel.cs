@@ -13,9 +13,14 @@ public partial class AddTweakViewModel : ViewModelBase
 {
     private readonly ConfigService _configService;
     private readonly AppConfig _config;
-    private readonly ObservableCollection<ItemViewModel> _parentItems;
     private readonly PowerShellService _powerShellService;
     private readonly WingetService _wingetService;
+    
+    // The list that the SettingsExpander binds to.
+    // Contains [this (The Form), Tweak1, Tweak2, ...]
+    public ObservableCollection<object> CombinedItems { get; } = new();
+    
+    private readonly ObservableCollection<ItemViewModel> _userTweaks = new();
     
     [ObservableProperty]
     private string _name = string.Empty;
@@ -40,13 +45,50 @@ public partial class AddTweakViewModel : ViewModelBase
         ConfigService configService, 
         PowerShellService powerShellService,
         WingetService wingetService,
-        ObservableCollection<ItemViewModel> parentItems)
+        List<ItemViewModel> existingTweaks)
     {
         _config = config;
         _configService = configService;
         _powerShellService = powerShellService;
         _wingetService = wingetService;
-        _parentItems = parentItems;
+        
+        // 1. Add Self (The Form)
+        CombinedItems.Add(this);
+        
+        // 2. Add Existing Tweaks
+        foreach(var tweak in existingTweaks)
+        {
+            RegisterTweak(tweak);
+        }
+    }
+    
+    private void RegisterTweak(ItemViewModel tweak)
+    {
+        tweak.OnDeleted += OnTweakDeleted;
+        _userTweaks.Add(tweak);
+        CombinedItems.Add(tweak);
+    }
+    
+    private void OnTweakDeleted(ItemViewModel tweak)
+    {
+        tweak.OnDeleted -= OnTweakDeleted;
+        _userTweaks.Remove(tweak);
+        CombinedItems.Remove(tweak);
+        
+        // ConfigService handles file persistence via the ItemViewModel's Delete command calling ConfigService?
+        // Wait, ItemViewModel calls OnDeleted. FeatureViewModel usually handled the actual ConfigService delete call.
+        // We need to handle it here now, OR ensure ItemViewModel does it.
+        // ItemViewModel.Delete() calls OnDeleted.
+        // It does NOT call ConfigService directly for deletion logic usually?
+        // Let's check ItemViewModel.cs again.
+        // ItemViewModel.Delete() just invokes OnDeleted event.
+        // So WE must perform the deletion from config here.
+        DeleteTweakFromConfig(tweak);
+    }
+    
+    private async void DeleteTweakFromConfig(ItemViewModel tweak)
+    {
+         await _configService.DeleteUserTweakAsync(_config, tweak.Name);
     }
     
     [RelayCommand]
@@ -87,7 +129,7 @@ public partial class AddTweakViewModel : ViewModelBase
                     IsUserTweak = true
                 };
                 
-                _parentItems.Add(itemVm);
+                RegisterTweak(itemVm);
                 
                 // Clear form
                 Name = string.Empty;

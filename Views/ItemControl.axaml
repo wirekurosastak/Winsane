@@ -9,37 +9,11 @@
              x:DataType="vm:ItemViewModel">
     
     <Grid>
-        <!-- Header Separator -->
-        <Border IsVisible="{Binding IsHeader}"
-                Margin="0,16,0,8">
-            <TextBlock Text="{Binding Header}"
-                       Theme="{StaticResource SubtitleTextBlockStyle}"
-                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
-        </Border>
-        
-        <!-- Regular Item -->
-        <ui:SettingsExpander IsVisible="{Binding !IsHeader}"
-                            Header="{Binding Name}"
-                            Description="{Binding Purpose}"
-                            ItemsSource="{Binding SubItems}"
-                            IsExpanded="False"
-                            Margin="0,4">
-            
-            <ui:SettingsExpander.ItemTemplate>
-                <DataTemplate x:DataType="vm:ItemViewModel">
-                    <ui:SettingsExpanderItem Content="{Binding Name}"
-                                             Description="{Binding Purpose}">
-                        <ui:SettingsExpanderItem.Footer>
-                            <ToggleSwitch IsChecked="{Binding IsEnabled}"
-                                          OnContent="On" OffContent="Off"/>
-                        </ui:SettingsExpanderItem.Footer>
-                    </ui:SettingsExpanderItem>
-                </DataTemplate>
-            </ui:SettingsExpander.ItemTemplate>
-            
-            <ui:SettingsExpander.Footer>
+        <Grid.Resources>
+            <!-- Shared Footer Template to avoid duplication -->
+            <DataTemplate x:Key="SharedFooterTemplate" x:DataType="vm:ItemViewModel">
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <!-- Status text -->
+                     <!-- Status text -->
                     <TextBlock Text="{Binding StatusText}"
                               VerticalAlignment="Center"
                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
@@ -54,8 +28,8 @@
                     <ToggleSwitch IsChecked="{Binding IsEnabled}"
                                  IsVisible="{Binding ShowToggle}"
                                  IsEnabled="{Binding !IsLoading}"
-                                 OnContent="On"
-                                 OffContent="Off"/>
+                                 OnContent="{x:Null}"
+                                 OffContent="{x:Null}"/>
                     
                     <!-- Run/Open Button -->
                     <Button Content="{Binding ButtonText}"
@@ -71,6 +45,58 @@
                            Command="{Binding DeleteCommand}"
                            Foreground="#E74856"/>
                 </StackPanel>
+            </DataTemplate>
+
+            <!-- Recursive Item Template -->
+            <DataTemplate x:Key="RecursiveItemTemplate" x:DataType="vm:ItemViewModel">
+                <Panel>
+                    <!-- Branch: Nested Expander -->
+                    <ui:SettingsExpander IsVisible="{Binding HasSubItems}"
+                                         Header="{Binding Name}"
+                                         Description="{Binding Purpose}"
+                                         ItemsSource="{Binding SubItems}"
+                                         ItemTemplate="{DynamicResource RecursiveItemTemplate}"
+                                         IsExpanded="False"
+                                         Margin="0,4">
+                         <ui:SettingsExpander.IconSource>
+                            <ui:SymbolIconSource Symbol="Folder"/>
+                         </ui:SettingsExpander.IconSource>
+                         <ui:SettingsExpander.Footer>
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SharedFooterTemplate}"/>
+                         </ui:SettingsExpander.Footer>
+                    </ui:SettingsExpander>
+
+                    <!-- Leaf: Standard Item -->
+                    <ui:SettingsExpanderItem IsVisible="{Binding !HasSubItems}"
+                                             Content="{Binding Name}"
+                                             Description="{Binding Purpose}">
+                        <ui:SettingsExpanderItem.Footer>
+                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SharedFooterTemplate}"/>
+                        </ui:SettingsExpanderItem.Footer>
+                    </ui:SettingsExpanderItem>
+                </Panel>
+            </DataTemplate>
+        </Grid.Resources>
+
+        <!-- Header Separator -->
+        <Border IsVisible="{Binding IsHeader}"
+                Margin="0,16,0,8">
+            <TextBlock Text="{Binding Header}"
+                       Theme="{StaticResource SubtitleTextBlockStyle}"
+                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+        </Border>
+        
+        <!-- Regular Item (Root Expander) -->
+        <ui:SettingsExpander IsVisible="{Binding !IsHeader}"
+                            Header="{Binding Name}"
+                            Description="{Binding Purpose}"
+                            ItemsSource="{Binding SubItems}"
+                            ItemTemplate="{StaticResource RecursiveItemTemplate}"
+                            IsExpanded="False"
+                            Margin="0,4">
+            
+            <ui:SettingsExpander.Footer>
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SharedFooterTemplate}"/>
             </ui:SettingsExpander.Footer>
         </ui:SettingsExpander>
     </Grid>

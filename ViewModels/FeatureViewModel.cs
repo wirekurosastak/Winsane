@@ -18,11 +18,12 @@ public partial class FeatureViewModel : ViewModelBase
     [ObservableProperty]
     private string _icon = "Settings";
     
+    // Flattened items logic
     [ObservableProperty]
-    private ObservableCollection<CategoryViewModel> _categories = new();
+    private ObservableCollection<object> _leftColumnItems = new();
     
     [ObservableProperty]
-    private CategoryViewModel? _selectedCategory;
+    private ObservableCollection<object> _rightColumnItems = new();
     
     // Dashboard-specific properties
     [ObservableProperty]
@@ -30,6 +31,8 @@ public partial class FeatureViewModel : ViewModelBase
     
     [ObservableProperty]
     private DashboardViewModel? _dashboard;
+    
+    private readonly ObservableCollection<ItemViewModel> _allItems = new();
     
     public FeatureViewModel(Feature feature, PowerShellService powerShellService, WingetService wingetService, ConfigService configService, AppConfig? config = null)
     {
@@ -48,25 +51,102 @@ public partial class FeatureViewModel : ViewModelBase
         }
         else
         {
-            // Create category ViewModels
-            foreach (var category in feature.Categories)
-            {
-                var categoryVm = new CategoryViewModel(category, feature.Name, powerShellService, wingetService, configService, config);
-                Categories.Add(categoryVm);
-            }
-            
-            ShowCategories = Categories.Count > 1;
-            
-            // Select first category by default
-            if (Categories.Any())
-            {
-                SelectedCategory = Categories.First();
-            }
+            InitializeItems(feature, powerShellService, wingetService, configService, config);
         }
     }
+    
+    private void InitializeItems(Feature feature, PowerShellService powerShellService, WingetService wingetService, ConfigService configService, AppConfig? config)
+    {
+        bool isApps = feature.Name == "Apps";
+        bool isOptimizer = feature.Name == "Optimizer";
+        
+        // 1. Convert models to ViewModels
+        var visualItems = new List<object>();
+        var flatItemVms = new List<ItemViewModel>();
+        var userTweaks = new List<ItemViewModel>();
+
+        if (feature.Items != null)
+        {
+            foreach (var item in feature.Items)
+            {
+                var itemVm = new ItemViewModel(item, powerShellService, wingetService, configService)
+                {
+                    IsAppsFeature = isApps,
+                    IsUserTweak = item.IsUserTweak
+                };
+                
+                if (item.IsUserTweak)
+                {
+                    userTweaks.Add(itemVm);
+                }
+                else
+                {
+                    flatItemVms.Add(itemVm);
+                    _allItems.Add(itemVm);
+                }
+            }
+        }
+
+        // 2. Group items (Headers logic)
+        int i = 0;
+        while (i < flatItemVms.Count)
+        {
+            var item = flatItemVms[i];
+            
+            if (item.IsHeader)
+            {
+                // Look ahead for items belonging to this header
+                // We stop at the next header OR at a user tweak (unless we want user tweaks inside groups?)
+                // Actually, user tweaks are just items.
+                var futureItems = flatItemVms.Skip(i + 1).TakeWhile(x => !x.IsHeader).ToList();
+                
+                // If we have items and NONE of them have subitems (Complex subitems usually get their own row)
+                if (futureItems.Any() && futureItems.All(x => !x.HasSubItems))
+                {
+                    var group = new ItemGroupViewModel(item.Header ?? string.Empty);
+                    foreach(var f in futureItems) group.Items.Add(f);
+                    visualItems.Add(group);
+                    i += 1 + futureItems.Count; // Skip header + items
+                    continue;
+                }
+            }
+            
+            // Fallback: Add standalone
+            visualItems.Add(item);
+            i++;
+        }
+        
+        // 3. Add "Add Tweak" item if Optimizer
+        if (isOptimizer && config != null)
+        {
+             // Pass existing user tweaks
+             var addTweakVm = new AddTweakViewModel(config, configService, powerShellService, wingetService, userTweaks);
+             visualItems.Add(addTweakVm);
+        }
+
+        // 4. Split into Columns
+        DistributeItems(visualItems);
+    }
+    
+
+    
+    private void DistributeItems(List<object> items)
+    {
+        int splitIndex = (int)Math.Ceiling(items.Count / 2.0);
+        
+        for (int j = 0; j < items.Count; j++)
+        {
+            if (j < splitIndex)
+                LeftColumnItems.Add(items[j]);
+            else
+                RightColumnItems.Add(items[j]);
+        }
+    }
+    
+
 
     [ObservableProperty]
-    private bool _showCategories;
+    private bool _showCategories; // Unused now, but kept to avoid binding errors until View is updated
     
     public void RefreshDashboard(SystemInfoService systemInfoService)
     {
@@ -82,7 +162,6 @@ public partial class FeatureViewModel : ViewModelBase
             "Apps" => "AllApps",
             "Admin Tools" => "Admin",
             "Dashboard" => "Home",
-            "Display" => "TVMonitor",
             _ => "Settings"
         };
     }

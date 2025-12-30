@@ -8,6 +8,16 @@
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
+
+    <Application.Resources>
+        <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="{DynamicResource SystemAccentColor}" />
+        <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="{DynamicResource SystemAccentColor}" />
+        <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="{DynamicResource SystemAccentColor}" />
+        
+        <SolidColorBrush x:Key="AccentButtonBackground" Color="{DynamicResource SystemAccentColor}" />
+        <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="{DynamicResource SystemAccentColor}" />
+        <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="{DynamicResource SystemAccentColor}" />
+    </Application.Resources>
   
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferSystemTheme="True" />

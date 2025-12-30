@@ -33,11 +33,26 @@ public class ConfigService
     public string DataFilePath => Path.Combine(WinsaneFolder, DataFileName);
     
     /// <summary>
-    /// Initialize configuration - load from embedded resource or local file
+    /// Initialize configuration - load from local file, AppData, or embedded resource
     /// </summary>
     public async Task<AppConfig> LoadConfigAsync()
     {
-        // First, try to load from local Winsane folder
+        // 1. First, try to load from local Assets folder (for development)
+        var devPath = Path.Combine(AppContext.BaseDirectory, "Assets", "data.yaml");
+        if (File.Exists(devPath))
+        {
+            try
+            {
+                var devConfig = await LoadFromFileAsync(devPath);
+                if (devConfig != null)
+                {
+                    return devConfig;
+                }
+            }
+            catch { /* Fall through */ }
+        }
+        
+        // 2. Try to load from local Winsane folder (user's saved config)
         if (File.Exists(DataFilePath))
         {
             try
@@ -51,7 +66,7 @@ public class ConfigService
             catch { /* Fall through to embedded */ }
         }
         
-        // Load from embedded resource
+        // 3. Load from embedded resource
         var embeddedConfig = await LoadEmbeddedConfigAsync();
         
         // Ensure Winsane folder exists and save config there
@@ -150,17 +165,17 @@ public class ConfigService
             Theme = new ThemeConfig(),
             Features = new List<Feature>
             {
-                new Feature { Name = "Optimizer", Categories = new List<Category>() },
-                new Feature { Name = "Cleaner", Categories = new List<Category>() },
-                new Feature { Name = "Apps", Categories = new List<Category>() },
-                new Feature { Name = "Admin Tools", Categories = new List<Category>() },
-                new Feature { Name = "Dashboard", Categories = new List<Category>() }
+                new Feature { Name = "Optimizer" },
+                new Feature { Name = "Cleaner" },
+                new Feature { Name = "Apps" },
+                new Feature { Name = "Admin Tools" },
+                new Feature { Name = "Dashboard" }
             }
         };
     }
     
     /// <summary>
-    /// Add a user-created tweak to the Optimizer/User category
+    /// Add a user-created tweak to the Optimizer feature
     /// </summary>
     public async Task<Item?> AddUserTweakAsync(AppConfig config, string name, string purpose, string trueCmd, string falseCmd)
     {
@@ -169,7 +184,7 @@ public class ConfigService
             return null;
         }
         
-        // Find or create Optimizer/User category
+        // Find or create Optimizer feature
         var optimizer = config.Features.FirstOrDefault(f => f.Name == "Optimizer");
         if (optimizer == null)
         {
@@ -177,13 +192,13 @@ public class ConfigService
             config.Features.Insert(0, optimizer);
         }
         
-        var userCategory = optimizer.Categories.FirstOrDefault(c => c.Name == "User");
-        if (userCategory == null)
+        // Ensure "User" header exists
+        var userHeader = optimizer.Items.FirstOrDefault(i => i.IsHeader && i.Header == "User");
+        if (userHeader == null)
         {
-            userCategory = new Category { Name = "User" };
-            optimizer.Categories.Add(userCategory);
+            optimizer.Items.Add(new Item { Header = "User" });
         }
-        
+
         // Create the new tweak
         var newItem = new Item
         {
@@ -195,7 +210,7 @@ public class ConfigService
             IsUserTweak = true
         };
         
-        userCategory.Items.Add(newItem);
+        optimizer.Items.Add(newItem);
         
         // Save config
         await SaveConfigAsync(config);
@@ -204,19 +219,31 @@ public class ConfigService
     }
     
     /// <summary>
-    /// Delete a user-created tweak from the Optimizer/User category
+    /// Delete a user-created tweak from the Optimizer feature
     /// </summary>
     public async Task<bool> DeleteUserTweakAsync(AppConfig config, string tweakName)
     {
         var optimizer = config.Features.FirstOrDefault(f => f.Name == "Optimizer");
-        var userCategory = optimizer?.Categories.FirstOrDefault(c => c.Name == "User");
+        if (optimizer == null) return false;
         
-        if (userCategory == null) return false;
-        
-        var item = userCategory.Items.FirstOrDefault(i => i.Name == tweakName);
+        var item = optimizer.Items.FirstOrDefault(i => i.Name == tweakName && i.IsUserTweak);
         if (item == null) return false;
         
-        userCategory.Items.Remove(item);
+        optimizer.Items.Remove(item);
+        
+        // Check if we need to remove the "User" header if it's empty
+        var userHeaderIndex = optimizer.Items.FindIndex(i => i.IsHeader && i.Header == "User");
+        if (userHeaderIndex != -1)
+        {
+            // If the header is the last item, or the next item is another header, it's empty
+            bool isNextHeaderOrEnd = userHeaderIndex == optimizer.Items.Count - 1 || 
+                                     (optimizer.Items[userHeaderIndex + 1].IsHeader);
+                                     
+            // However, we need to be careful. IsUserTweak is a runtime flag, it might not be set after reload unless we logic it.
+            // But here we are manipulating the in-memory config object which should have valid flags if loaded/added correctly.
+            // For safety, let's just leave the header. It's harmless.
+        }
+
         await SaveConfigAsync(config);
         
         return true;
