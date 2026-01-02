@@ -14,8 +14,10 @@ public class ConfigService : IConfigService
 {
     private static readonly string WinsaneFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Winsane");
     private const string PrefsFileName = "user_prefs.json";
+    private const string RemoteConfigUrl = "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/WinsaneC%23/Assets/data.yaml";
     
     private readonly IDeserializer _yamlDeserializer;
+    private readonly HttpClient _httpClient;
 
     public ConfigService()
     {
@@ -23,6 +25,8 @@ public class ConfigService : IConfigService
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .IgnoreUnmatchedProperties()
             .Build();
+        
+        _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
     }
     
     private string PrefsFilePath => Path.Combine(WinsaneFolder, PrefsFileName);
@@ -165,6 +169,25 @@ public class ConfigService : IConfigService
 
     private async Task<AppConfig> LoadEmbeddedConfigAsync()
     {
+        // 1. Try fetching from GitHub (allows live updates without app release)
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("Fetching config from GitHub...");
+            var response = await _httpClient.GetAsync(RemoteConfigUrl);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var yaml = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine("Successfully loaded config from GitHub.");
+                return ParseConfig(yaml);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"GitHub fetch failed: {ex.Message}. Using fallback...");
+        }
+        
+        // 2. Fallback: Embedded resource (offline/error case)
         var assembly = typeof(ConfigService).Assembly;
         var resourceNames = assembly.GetManifestResourceNames();
         var actualResource = resourceNames.FirstOrDefault(r => r.EndsWith("data.yaml"));
@@ -176,18 +199,21 @@ public class ConfigService : IConfigService
             {
                 using var reader = new StreamReader(stream);
                 var yaml = await reader.ReadToEndAsync();
+                System.Diagnostics.Debug.WriteLine("Loaded config from embedded resource.");
                 return ParseConfig(yaml);
             }
         }
         
-        // Fallback for dev
+        // 3. Fallback: Local file (dev environment)
         var devPath = Path.Combine(AppContext.BaseDirectory, "Assets", "data.yaml");
         if (File.Exists(devPath))
         {
             var yaml = await File.ReadAllTextAsync(devPath);
+            System.Diagnostics.Debug.WriteLine("Loaded config from local file.");
             return ParseConfig(yaml);
         }
         
+        System.Diagnostics.Debug.WriteLine("No config source available!");
         return new AppConfig();
     }
 
