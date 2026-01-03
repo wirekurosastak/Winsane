@@ -53,6 +53,28 @@ features:
       true: powercfg /h off
       false: powercfg /h on
       enabled: false
+    - name: Disable Last Access Timestamp
+      purpose: Improves performance by stopping the OS from updating the 'Last Access' date for every file.
+      true: fsutil behavior set disablelastaccess 1
+    - name: Disable Fast Startup
+      purpose: Ensures a full shutdown every time to prevent system state issues.
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled").HiberbootEnabled -eq 0
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 1 -Force
+    - name: Disable Edge Background Mode
+      purpose: Prevents Microsoft Edge from running background processes when closed.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "BackgroundModeEnabled" -ErrorAction SilentlyContinue).BackgroundModeEnabled -eq 0
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "BackgroundModeEnabled" -Type DWord -Value 0 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "BackgroundModeEnabled" -Force
+    - name: Disable Edge Startup Boost
+      purpose: Stops Edge from running background processes when closed.
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -ErrorAction SilentlyContinue).StartupBoostEnabled -eq 0
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Force | Out-Null;
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled"
+        -Type DWord -Value 0 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name
+        "StartupBoostEnabled" -Force -ErrorAction SilentlyContinue
+      enabled: false
     - header: Gaming
     - name: Enable Gaming Mode
       purpose: Prioritizes system resources for gaming applications.
@@ -113,6 +135,11 @@ features:
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
       enabled: false
+    - name: Enable Long Paths
+      purpose: Removes the 260 character limit for file paths.
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -ErrorAction SilentlyContinue).LongPathsEnabled -eq 1
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
     - name: Align Taskbar to Left
       purpose: Moves taskbar icons to the left.
       check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -ErrorAction SilentlyContinue).TaskbarAl -eq 0
@@ -139,6 +166,9 @@ features:
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation"
         -Name "DisableStartupSound" -Type DWord -Value 0 -Force
       enabled: false
+    - name: Turn Off System Sounds
+      purpose: Sets the sound scheme to 'No Sounds'.
+      true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None'
     - name: Disable Lock Screen
       purpose: Skips the 'slide up' lock screen and goes straight to login.
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue).NoLockScreen -eq 1
@@ -179,6 +209,32 @@ features:
         -Name "TaskbarDa" -Type DWord -Value 1 -Force
       enabled: false
 
+    - name: Open File Explorer to This PC
+      purpose: Sets File Explorer to open 'This PC' by default instead of 'Home/Quick Access'.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -ErrorAction SilentlyContinue).LaunchTo -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 2 -Force
+    - name: Show End Task in Taskbar
+      purpose: Enables the 'End Task' option when right-clicking an app on the taskbar.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -ErrorAction SilentlyContinue).TaskbarEndTask -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Type DWord -Value 0 -Force
+    - name: Hide Search Box
+      purpose: Removes the search box/icon from the taskbar.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -ErrorAction SilentlyContinue).SearchboxTaskbarMode -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -Force
+    - name: Hide Task View Button
+      purpose: Removes the 'Task View' button from the taskbar.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -ErrorAction SilentlyContinue).ShowTaskViewButton -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1 -Force
+    - name: Show Protected OS Files
+      purpose: Reveals hidden system files (SuperHidden) in File Explorer.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -ErrorAction SilentlyContinue).ShowSuperHidden -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+
     - header: Security & Privacy
     - name: Disable VBS
       purpose: Disables Virtualization-Based Security to potentially boost gaming FPS.
@@ -189,7 +245,7 @@ features:
         -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
       enabled: false
     - name: Disable UAC
-      purpose: Disables Security Prompts (Breaks Store Apps).
+      purpose: Disables Security Prompts.
       check: (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -ErrorAction SilentlyContinue).EnableLUA -eq 0
       true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         -Name 'EnableLUA' -Value 0 -Type DWORD -Force
@@ -224,15 +280,32 @@ features:
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
         -Name "Enabled" -Type DWord -Value 1 -Force
       enabled: false
-    - name: Disable Edge Startup Boost
-      purpose: Stops Edge from running background processes when closed.
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -ErrorAction SilentlyContinue).StartupBoostEnabled -eq 0
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Force | Out-Null;
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled"
-        -Type DWord -Value 0 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name
-        "StartupBoostEnabled" -Force -ErrorAction SilentlyContinue
-      enabled: false
+
+    - name: Disable Bing Search Results
+      purpose: Prevents web results from Bing appearing in the Start menu search.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue).BingSearchEnabled -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 1 -Force
+    - name: Set Passwords to Never Expire
+      purpose: Disables the mandatory password expiration for all local user accounts.
+      true: Get-LocalUser | Set-LocalUser -PasswordNeverExpires $true
+    - name: Disable Account Lockout Policy
+      purpose: Sets the account lockout threshold to 0 (disabled).
+      true: net accounts /lockoutthreshold:0
+
+    - name: Prevent Device Encryption
+      purpose: Prevents Windows from automatically enabling BitLocker/Device encryption.
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -ErrorAction SilentlyContinue).PreventDeviceEncryption -eq 1
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Force
+    - name: Disable Smart App Control
+      purpose: Permanently turns off Smart App Control in Windows 11.
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "VerifiedAndReputablePolicyState" -Type DWord -Value 0 -Force
+    - name: Enable Remote Desktop (RDP)
+      purpose: Enables Remote Desktop services and opens firewall ports.
+      check: (Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections").fDenyTSConnections -eq 0
+      true: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0; Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      false: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1; Disable-NetFirewallRule -DisplayGroup "Remote Desktop"
     - header: Windows Update
     - name: Exclude Drivers from Updates
       purpose: Prevents Windows Update from installing drivers.
@@ -576,46 +649,144 @@ features:
             -ErrorAction SilentlyContinue
           enabled: false
     - header: Debloat
+    # --- Appx Packages (Microsoft Store Apps) ---
+    - name: Remove Bing Search
+      purpose: Uninstalls the Bing Search integration.
+      true: Get-AppxPackage *BingSearch* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Calculator
+      purpose: Uninstalls the default Windows Calculator app.
+      true: Get-AppxPackage *WindowsCalculator* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Camera
+      purpose: Uninstalls the default Windows Camera app.
+      true: Get-AppxPackage *WindowsCamera* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Clipchamp
+      purpose: Uninstalls the Clipchamp video editor.
+      true: Get-AppxPackage *Clipchamp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Clock
+      purpose: Uninstalls the Alarms & Clock application.
+      true: Get-AppxPackage *WindowsAlarms* | Remove-AppxPackage -ErrorAction SilentlyContinue
     - name: Remove Copilot
-      purpose: Uninstalls the Copilot app.
-      true: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
-    - name: Remove Bing, News & Weather
-      purpose: Removes Bing Search, News, Weather, and Finance apps.
-      true: Get-AppxPackage *Bing* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Get-AppxPackage *News* | Remove-AppxPackage -ErrorAction SilentlyContinue
-    - name: Remove Xbox Apps
-      purpose: Removes Xbox Gaming Overlay, Game Bar, and Identity Provider.
-      true: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue;
-        Get-AppxPackage *GamingApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
-    - name: Remove Solitaire Collection
-      purpose: Removes the pre-installed Solitaire game.
-      true: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
-    - name: Remove Outlook (New)
-      purpose: Removes the new Outlook for Windows app.
-      true: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      purpose: Uninstalls the Copilot app and hides the taskbar button.
+      true: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
     - name: Remove Dev Home
-      purpose: Removes the Windows Dev Home app.
+      purpose: Uninstalls the Windows Dev Home app.
       true: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
-    - name: Remove YourPhone
-      purpose: Removes the 'Phone Link' integration app.
-      true: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Family
+      purpose: Uninstalls the Microsoft Family Safety application.
+      true: Get-AppxPackage *MicrosoftFamily* | Remove-AppxPackage -ErrorAction SilentlyContinue
     - name: Remove Feedback Hub
-      purpose: Removes the Windows Feedback Hub.
+      purpose: Uninstalls the Windows Feedback Hub.
       true: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Get Help
+      purpose: Uninstalls the Get Help application.
+      true: Get-AppxPackage *GetHelp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Microsoft Tips
+      purpose: Uninstalls the Windows Tips (Get Started) app.
+      true: Get-AppxPackage *Getstarted* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Mail and Calendar
+      purpose: Uninstalls the legacy Mail and Calendar apps.
+      true: Get-AppxPackage *windowscommunicationsapps* | Remove-AppxPackage -ErrorAction SilentlyContinue
     - name: Remove Maps
-      purpose: Removes the built-in Windows Maps application.
-      true: Get-AppxPackage *Maps* | Remove-AppxPackage -ErrorAction SilentlyContinue
-    - name: Remove WordPad
-      purpose: Uninstalls the legacy WordPad application.
-      true: Remove-WindowsCapability -Online -Name "Microsoft.Windows.WordPad~~~~0.0.1.0"
-        -ErrorAction SilentlyContinue
-    - name: Remove Steps Recorder
-      purpose: Uninstalls the legacy Steps Recorder tool.
+      purpose: Uninstalls the Windows Maps application.
+      true: Get-AppxPackage *WindowsMaps* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove News
+      purpose: Uninstalls the MSN News application.
+      true: Get-AppxPackage *BingNews* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Notepad (Modern)
+      purpose: Uninstalls the modern Notepad application.
+      true: Get-AppxPackage *WindowsNotepad* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Office Hub
+      purpose: Uninstalls the Microsoft 365 (Office) app.
+      true: Get-AppxPackage *MicrosoftOfficeHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove OneNote
+      purpose: Uninstalls the OneNote for Windows app.
+      true: Get-AppxPackage *OneNote* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Outlook (New)
+      purpose: Uninstalls the new Outlook for Windows application.
+      true: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Paint
+      purpose: Uninstalls the modern Paint application.
+      true: Get-AppxPackage *Paint* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove People
+      purpose: Uninstalls the Windows People application.
+      true: Get-AppxPackage *People* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Photos
+      purpose: Uninstalls the Microsoft Photos application.
+      true: Get-AppxPackage *Windows.Photos* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Power Automate
+      purpose: Uninstalls the Power Automate Desktop component.
+      true: Get-AppxPackage *PowerAutomateDesktop* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Quick Assist
+      purpose: Uninstalls the Quick Assist remote support tool.
+      true: Get-AppxPackage *QuickAssist* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Snipping Tool
+      purpose: Uninstalls the Snipping Tool / Screen Sketch application.
+      true: Get-AppxPackage *ScreenSketch* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Solitaire Collection
+      purpose: Uninstalls the pre-installed Solitaire game.
+      true: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Sticky Notes
+      purpose: Uninstalls the Microsoft Sticky Notes application.
+      true: Get-AppxPackage *MicrosoftStickyNotes* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Teams (Personal)
+      purpose: Uninstalls the personal version of Microsoft Teams.
+      true: Get-AppxPackage *MicrosoftTeams* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Teams (Work)
+      purpose: Uninstalls the work/school version of Microsoft Teams.
+      true: Get-AppxPackage *MSTeams* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove To Do
+      purpose: Uninstalls the Microsoft To Do application.
+      true: Get-AppxPackage *Todos* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Voice Recorder
+      purpose: Uninstalls the Sound Recorder application.
+      true: Get-AppxPackage *WindowsSoundRecorder* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Wallet
+      purpose: Uninstalls the Windows Wallet application.
+      true: Get-AppxPackage *Wallet* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Weather
+      purpose: Uninstalls the MSN Weather application.
+      true: Get-AppxPackage *BingWeather* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Media Player
+      purpose: Uninstalls the modern Windows Media Player.
+      true: Get-AppxPackage *ZuneMusic* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Movies & TV
+      purpose: Uninstalls the Movies & TV (Zune Video) application.
+      true: Get-AppxPackage *ZuneVideo* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Phone Link
+      purpose: Uninstalls the Your Phone / Phone Link application.
+      true: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Xbox App
+      purpose: Uninstalls the main Xbox application.
+      true: Get-AppxPackage *XboxApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove Xbox Game Bar
+      purpose: Uninstalls the Xbox Game Bar and overlays.
+      true: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue
+    - name: Remove OneDrive
+      purpose: Uninstalls the OneDrive cloud storage client.
+      true: taskkill /f /im OneDrive.exe; %SystemRoot%\SysWOW64\OneDriveSetup.exe /uninstall
+    # --- Windows Capabilities & Features (System components) ---
+    - name: Disable Windows Recall
+      purpose: Disables the AI-powered Recall snapshots feature.
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "DisableAIDataAnalysis" -Type DWord -Value 1 -Force
+    - name: Remove Facial Recognition
+      purpose: Removes the Windows Hello Facial Recognition capability.
+      true: Get-WindowsCapability -Online | Where-Object Name -like 'Hello.Face*' | Remove-WindowsCapability -Online
+    - name: Remove Handwriting Recognition
+      purpose: Removes handwriting recognition components.
+      true: Get-WindowsCapability -Online | Where-Object Name -like 'Language.Handwriting*' | Remove-WindowsCapability -Online
+    - name: Remove OpenSSH Client
+      purpose: Uninstalls the built-in OpenSSH client.
+      true: Remove-WindowsCapability -Online -Name "OpenSSH.Client~~~~0.0.1.0"
+    - name: Remove PowerShell ISE
+      purpose: Uninstalls the legacy PowerShell Integrated Scripting Environment.
+      true: Remove-WindowsCapability -Online -Name "Microsoft.Windows.PowerShell.ISE~~~~0.0.1.0"
+    - name: Remove Windows Fax and Scan
+      purpose: Uninstalls the legacy Fax and Scan application.
+      true: Remove-WindowsCapability -Online -Name "Print.Fax.Scan~~~~0.0.1.0"
+    - name: Remove Remote Desktop Client
+      purpose: Uninstalls the built-in Remote Desktop Connection client.
       true: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
-        -ErrorAction SilentlyContinue
-- feature: Apps
+- feature: Installer
   icon: AllApps
   type: apps
   items:
@@ -827,65 +998,112 @@ features:
   icon: Admin
   type: standard
   items:
-  - header: Management
-  - name: Computer Management (compmgmt.msc)
-    purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
-    true: Start-Process compmgmt.msc
-  - name: Services Manager (services.msc)
-    purpose: Manage background services (Stop, Start, Disable).
-    true: Start-Process services.msc
-  - name: Task Scheduler (taskschd.msc)
-    purpose: View and manage automated system tasks.
-    true: Start-Process taskschd.msc
-  - name: Event Viewer (eventvwr.msc)
-    purpose: View system logs, errors, and security audits.
-    true: Start-Process eventvwr.msc
-  - name: Registry Editor (regedit.exe)
-    purpose: View and edit the Windows Registry.
-    true: Start-Process regedit.exe -Verb RunAs
-  - header: System & Security
-  - name: User Accounts (netplwiz.exe)
-    purpose: Manage user passwords and auto-login settings.
-    true: Start-Process netplwiz.exe
-  - name: Group Policy Editor (gpedit.msc)
-    purpose: Advanced system configuration (Requires Pro/Enterprise).
-    true: Start-Process gpedit.msc
-  - name: Local Security Policy (secpol.msc)
-    purpose: Manage security settings and password policies.
-    true: Start-Process secpol.msc
-  - name: Firewall Rules (wf.msc)
-    purpose: Advanced Windows Firewall interface with inbound/outbound rules.
-    true: Start-Process wf.msc
-  - header: Hardware & Storage
-  - name: Device Manager (devmgmt.msc)
-    purpose: Manage hardware drivers and devices.
-    true: Start-Process devmgmt.msc
-  - name: Disk Management (diskmgmt.msc)
-    purpose: Create partitions and format drives.
-    true: Start-Process diskmgmt.msc
-  - header: Configuration
-  - name: System Configuration (msconfig.exe)
-    purpose: Manage boot options and startup services.
-    true: Start-Process msconfig.exe
-  - name: System Properties (sysdm.cpl)
-    purpose: Quick access to Computer Name, System Restore, and Env Variables.
-    true: Start-Process sysdm.cpl
-  - name: Programs and Features (appwiz.cpl)
-    purpose: The classic 'Add or Remove Programs' interface.
-    true: Start-Process appwiz.cpl
-  - name: Network Connections (ncpa.cpl)
-    purpose: Instant access to network adapters and IP settings.
-    true: Start-Process ncpa.cpl
-  - name: Power Options (powercfg.cpl)
-    purpose: Configure sleep settings and power plans.
-    true: Start-Process powercfg.cpl
-  - header: Diagnostics
-  - name: Resource Monitor (resmon.exe)
-    purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
-    true: Start-Process resmon.exe
-  - name: System Information (msinfo32.exe)
-    purpose: Detailed hardware, BIOS, and OS environment information.
-    true: Start-Process msinfo32.exe
+    - header: Management
+    - name: Computer Management (compmgmt.msc)
+      purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
+      true: Start-Process compmgmt.msc
+    - name: Services Manager (services.msc)
+      purpose: Manage background services (Stop, Start, Disable).
+      true: Start-Process services.msc
+    - name: Task Scheduler (taskschd.msc)
+      purpose: View and manage automated system tasks.
+      true: Start-Process taskschd.msc
+    - name: Event Viewer (eventvwr.msc)
+      purpose: View system logs, errors, and security audits.
+      true: Start-Process eventvwr.msc
+    - name: Registry Editor (regedit.exe)
+      purpose: View and edit the Windows Registry.
+      true: Start-Process regedit.exe -Verb RunAs
+    - name: Local Users and Groups (lusrmgr.msc)
+      purpose: Manage local users and groups (Pro/Enterprise only).
+      true: Start-Process lusrmgr.msc
+    - name: Shared Folders (fsmgmt.msc)
+      purpose: View and manage shared folders, sessions, and open files.
+      true: Start-Process fsmgmt.msc
+
+    - header: System & Security
+    - name: User Accounts (netplwiz.exe)
+      purpose: Manage user passwords and auto-login settings.
+      true: Start-Process netplwiz.exe
+    - name: Group Policy Editor (gpedit.msc)
+      purpose: Advanced system configuration (Requires Pro/Enterprise).
+      true: Start-Process gpedit.msc
+    - name: Local Security Policy (secpol.msc)
+      purpose: Manage security settings and password policies.
+      true: Start-Process secpol.msc
+    - name: Firewall Rules (wf.msc)
+      purpose: Advanced Windows Firewall interface with inbound/outbound rules.
+      true: Start-Process wf.msc
+    - name: Certificate Manager (Machine) (certlm.msc)
+      purpose: Manage digital certificates for the local computer.
+      true: Start-Process certlm.msc
+    - name: Certificate Manager (User) (certmgr.msc)
+      purpose: Manage digital certificates for the current user.
+      true: Start-Process certmgr.msc
+
+    - header: Hardware & Storage
+    - name: Device Manager (devmgmt.msc)
+      purpose: Manage hardware drivers and devices.
+      true: Start-Process devmgmt.msc
+    - name: Disk Management (diskmgmt.msc)
+      purpose: Create partitions and format drives.
+      true: Start-Process diskmgmt.msc
+    - name: Print Management (printmanagement.msc)
+      purpose: Manage printers and print servers.
+      true: Start-Process printmanagement.msc
+
+    - header: Configuration
+    - name: System Configuration (msconfig.exe)
+      purpose: Manage boot options and startup services.
+      true: Start-Process msconfig.exe
+    - name: System Properties (sysdm.cpl)
+      purpose: Quick access to Computer Name, System Restore, and Env Variables.
+      true: Start-Process sysdm.cpl
+    - name: Programs and Features (appwiz.cpl)
+      purpose: The classic 'Add or Remove Programs' interface.
+      true: Start-Process appwiz.cpl
+    - name: Network Connections (ncpa.cpl)
+      purpose: Instant access to network adapters and IP settings.
+      true: Start-Process ncpa.cpl
+    - name: Power Options (powercfg.cpl)
+      purpose: Configure sleep settings and power plans.
+      true: Start-Process powercfg.cpl
+
+    - header: System Utilities
+    - name: God Mode (All Tasks)
+      purpose: Opens a folder containing all available control panel settings.
+      true: Start-Process "explorer.exe" -ArgumentList "shell:::{ED7BA470-8E54-465E-825C-99712043E01C}"
+    - name: Disk Cleanup (cleanmgr.exe)
+      purpose: Free up disk space by removing unnecessary files.
+      true: Start-Process cleanmgr.exe
+      
+    - header: Shell & Terminal
+    - name: Command Prompt (Admin)
+      purpose: Open an elevated Command Prompt window.
+      true: Start-Process cmd.exe -Verb RunAs
+    - name: PowerShell (Admin)
+      purpose: Open an elevated Windows PowerShell window.
+      true: Start-Process powershell.exe -Verb RunAs
+    - name: Windows Terminal (Admin)
+      purpose: Open the modern terminal with administrative privileges.
+      true: Start-Process wt.exe -Verb RunAs
+
+    - header: Diagnostics
+    - name: Resource Monitor (resmon.exe)
+      purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
+      true: Start-Process resmon.exe
+    - name: System Information (msinfo32.exe)
+      purpose: Detailed hardware, BIOS, and OS environment information.
+      true: Start-Process msinfo32.exe
+    - name: DirectX Diagnostic Tool (dxdiag.exe)
+      purpose: Reports detailed information about DirectX components and drivers.
+      true: Start-Process dxdiag.exe
+    - name: Performance Monitor (perfmon.msc)
+      purpose: Advanced system monitoring and performance data analysis.
+      true: Start-Process perfmon.msc
+    - name: Windows Memory Diagnostic (mdsched.exe)
+      purpose: Checks the computer's RAM for hardware problems.
+      true: Start-Process mdsched.exe
 - feature: Dashboard
   icon: Home
   type: dashboard
