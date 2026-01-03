@@ -1,11 +1,10 @@
 using System.Diagnostics;
 using System.Management;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
 
 namespace Winsane.Infrastructure.Services;
 
-public sealed class SystemInfoService : ISystemInfoService
+public sealed class SystemInfoService : IDisposable
 {
     // Registry Constants
     private const string RegSecureBoot = @"SYSTEM\CurrentControlSet\Control\SecureBoot\State";
@@ -57,10 +56,7 @@ public sealed class SystemInfoService : ISystemInfoService
                 GetOsInfo(info);
                 GetSecurityInfo(info);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error getting system info: {ex.Message}");
-            }
+            catch { }
             
             return info;
         });
@@ -68,68 +64,65 @@ public sealed class SystemInfoService : ISystemInfoService
 
     private void GetHardwareInfo(SystemInfo info)
     {
-        // Motherboard
         try
         {
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard");
-            foreach (var obj in searcher.Get())
+            // Motherboard
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard"))
             {
-                info.MotherboardName = $"{obj["Manufacturer"]} {obj["Product"]}";
-                break;
-            }
-        }
-        catch { }
-
-        // CPU
-        try
-        {
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
-            foreach (var obj in searcher.Get())
-            {
-                info.CpuName = obj["Name"]?.ToString()?.Trim() ?? "N/A";
-                var cores = obj["NumberOfCores"]?.ToString() ?? "0";
-                var threads = obj["NumberOfLogicalProcessors"]?.ToString() ?? "0";
-                info.CpuCores = $"{cores} Cores / {threads} Threads";
-                break;
-            }
-        }
-        catch { }
-
-         // RAM
-        try
-        {
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
-            long totalRam = 0;
-            int speed = 0;
-            foreach (ManagementObject obj in searcher.Get())
-            {
-                totalRam += Convert.ToInt64(obj["Capacity"]);
-                speed = Convert.ToInt32(obj["Speed"]);
-            }
-            info.RamSpeed = $"{speed} MHz";
-        }
-        catch { }
-
-         // GPU
-         try
-         {
-            using var searcher = new ManagementObjectSearcher("SELECT Name, AdapterRAM FROM Win32_VideoController");
-            foreach (var obj in searcher.Get())
-            {
-                info.GpuName = obj["Name"]?.ToString() ?? "N/A";
-                
-                var vramBytes = GetGpuVramFromRegistry();
-                if (vramBytes <= 0)
+                foreach (var obj in searcher.Get())
                 {
-                    vramBytes = Convert.ToInt64(obj["AdapterRAM"] ?? 0);
+                    info.MotherboardName = $"{obj["Manufacturer"]} {obj["Product"]}";
+                    break;
                 }
-                
-                if (vramBytes > 0)
+            }
+    
+            // CPU
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor"))
+            {
+                foreach (var obj in searcher.Get())
                 {
-                    var vramGb = vramBytes / 1024.0 / 1024.0 / 1024.0;
-                    info.GpuMemory = vramGb >= 1 ? $"{vramGb:F0} GB" : $"{vramBytes / 1024 / 1024} MB";
+                    info.CpuName = obj["Name"]?.ToString()?.Trim() ?? "N/A";
+                    var cores = obj["NumberOfCores"]?.ToString() ?? "0";
+                    var threads = obj["NumberOfLogicalProcessors"]?.ToString() ?? "0";
+                    info.CpuCores = $"{cores} Cores / {threads} Threads";
+                    break;
                 }
-                break;
+            }
+    
+            // RAM
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory"))
+            {
+                long totalRam = 0;
+                int speed = 0;
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    totalRam += Convert.ToInt64(obj["Capacity"]);
+                    speed = Convert.ToInt32(obj["Speed"]);
+                }
+                info.RamSpeed = $"{speed} MHz";
+            }
+    
+            // GPU
+            using (var searcher = new ManagementObjectSearcher("SELECT Name, AdapterRAM FROM Win32_VideoController"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    info.GpuName = obj["Name"]?.ToString() ?? "N/A";
+                    
+                    var vramBytes = GetGpuVramFromRegistry();
+                    if (vramBytes <= 0)
+                    {
+                        if (obj["AdapterRAM"] != null)
+                             vramBytes = Convert.ToInt64(obj["AdapterRAM"]);
+                    }
+                    
+                    if (vramBytes > 0)
+                    {
+                        var vramGb = vramBytes / 1024.0 / 1024.0 / 1024.0;
+                        info.GpuMemory = vramGb >= 1 ? $"{vramGb:F0} GB" : $"{vramBytes / 1024 / 1024} MB";
+                    }
+                    break;
+                }
             }
         }
         catch { }
@@ -176,45 +169,34 @@ public sealed class SystemInfoService : ISystemInfoService
 
     private void GetSecurityInfo(SystemInfo info)
     {
-         // Secure Boot
         try
         {
-            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegSecureBoot);
-            var value = key?.GetValue("UEFISecureBootEnabled");
-            info.SecureBootStatus = value?.ToString() == "1" ? "Enabled" : "Disabled";
-        }
-        catch
-        {
-            info.SecureBootStatus = "Unknown";
-        }
-        
-        // TPM
-        try
-        {
-            using var searcher = new ManagementObjectSearcher(WmiTpmNamespace, WmiTpmQuery);
-            foreach (var obj in searcher.Get())
+            // Secure Boot
+            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegSecureBoot))
             {
-                var activated = obj["IsActivated_InitialValue"]?.ToString() == "True";
-                var enabled = obj["IsEnabled_InitialValue"]?.ToString() == "True";
-                info.TpmStatus = enabled && activated ? "Enabled" : "Disabled";
-                break;
+                var value = key?.GetValue("UEFISecureBootEnabled");
+                info.SecureBootStatus = value?.ToString() == "1" ? "Enabled" : "Disabled";
+            }
+            
+            // TPM
+            using (var searcher = new ManagementObjectSearcher(WmiTpmNamespace, WmiTpmQuery))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    var activated = obj["IsActivated_InitialValue"]?.ToString() == "True";
+                    var enabled = obj["IsEnabled_InitialValue"]?.ToString() == "True";
+                    info.TpmStatus = enabled && activated ? "Enabled" : "Disabled";
+                    break;
+                }
+            }
+            
+            // Hyper-V
+            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegHyperV))
+            {
+                info.HyperVStatus = key != null ? "Enabled" : "Disabled";
             }
         }
-        catch
-        {
-            info.TpmStatus = "Not Found";
-        }
-        
-        // Hyper-V
-        try
-        {
-            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegHyperV);
-            info.HyperVStatus = key != null ? "Enabled" : "Disabled";
-        }
-        catch
-        {
-            info.HyperVStatus = "Unknown";
-        }
+        catch { }
     }
     
     // --- Performance Counters ---
@@ -317,7 +299,7 @@ public sealed class SystemInfoService : ISystemInfoService
         catch { return -1f; }
     }
 
-    // InitializeRamCounter removed as it was empty and unused
+
 
 
     public (float UsedGb, float TotalGb, float Percentage) GetRamUsage()

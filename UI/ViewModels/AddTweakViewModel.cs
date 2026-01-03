@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
+using Winsane.Infrastructure.Services;
 
 namespace Winsane.UI.ViewModels;
 
@@ -11,9 +11,9 @@ namespace Winsane.UI.ViewModels;
 /// </summary>
 public partial class AddTweakViewModel : ViewModelBase
 {
-    private readonly IConfigService _configService;
+    private readonly ConfigService _configService;
     private readonly AppConfig _config;
-    private readonly ICoreService _coreService;
+    private readonly CoreService _coreService;
     
     // The list that the SettingsExpander binds to.
     public ObservableCollection<object> CombinedItems { get; } = new();
@@ -40,8 +40,8 @@ public partial class AddTweakViewModel : ViewModelBase
     
     public AddTweakViewModel(
         AppConfig config, 
-        IConfigService configService, 
-        ICoreService coreService,
+        ConfigService configService, 
+        CoreService coreService,
         List<ItemViewModel> existingTweaks)
     {
         _config = config;

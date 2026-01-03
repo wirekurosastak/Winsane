@@ -4,8 +4,8 @@ using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.Styling;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
+using Winsane.Infrastructure.Services;
 
 namespace Winsane.UI.ViewModels;
 
@@ -45,11 +45,11 @@ public partial class SettingsViewModel : ViewModelBase
         Color.Parse("#767676"),  // Gray
     };
     
-    private IConfigService? _configService;
-    private ICoreService? _coreService;
+    private ConfigService? _configService;
+    private CoreService? _coreService;
     private AppConfig? _config;
 
-    public void Initialize(IConfigService configService, AppConfig config, ICoreService? coreService = null)
+    public void Initialize(ConfigService configService, AppConfig config, CoreService? coreService = null)
     {
         _configService = configService;
         _config = config;

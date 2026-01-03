@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Winsane.Core.Interfaces;
 using Winsane.Infrastructure.Services; // Ensure using concrete service if passing concrete, BUT should use Interface.
 // Wait, I should use interface in Reset.
 using Winsane.Core.Models;
@@ -66,9 +65,9 @@ public partial class DashboardViewModel : ViewModelBase
     private string _hyperVStatus = "N/A";
     
     private Avalonia.Threading.DispatcherTimer? _refreshTimer;
-    private ISystemInfoService? _systemInfoService;
+    private SystemInfoService? _systemInfoService;
     
-    public void Refresh(ISystemInfoService systemInfoService)
+    public void Refresh(SystemInfoService systemInfoService)
     {
         _systemInfoService = systemInfoService;
         
@@ -111,10 +110,7 @@ public partial class DashboardViewModel : ViewModelBase
             TpmStatus = info.TpmStatus;
             HyperVStatus = info.HyperVStatus;
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error loading system info: {ex.Message}");
-        }
+        catch { }
     }
     
     private void RefreshDynamicValues()
@@ -135,10 +131,7 @@ public partial class DashboardViewModel : ViewModelBase
             var gpuUsage = _systemInfoService.GetGpuUsage();
             GpuUsage = gpuUsage >= 0 ? $"{gpuUsage:F1}%" : "N/A";
         }
-        catch (Exception ex)
-        {
-             System.Diagnostics.Debug.WriteLine($"Error refreshing stats: {ex.Message}");
-        }
+        catch { }
     }
     
     public void StopRefresh()

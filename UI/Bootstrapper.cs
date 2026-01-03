@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Winsane.Core.Interfaces;
 using Winsane.Infrastructure.Services;
 using Winsane.UI.ViewModels;
 
@@ -14,9 +13,10 @@ public static class Bootstrapper
         var services = new ServiceCollection();
 
         // Register Services (Infrastructure)
-        services.AddSingleton<IConfigService, ConfigService>();
-        services.AddSingleton<ICoreService, CoreService>();
-        services.AddSingleton<ISystemInfoService, SystemInfoService>();
+        // Register Services (Infrastructure)
+        services.AddSingleton<ConfigService>();
+        services.AddSingleton<CoreService>();
+        services.AddSingleton<SystemInfoService>();
         
         // Register ViewModels (UI)
         services.AddTransient<MainWindowViewModel>();

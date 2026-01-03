@@ -65,7 +65,7 @@ Reclaim storage space by safely removing temporary files, caches, and system log
 
 2. **Publish (Standalone Single File)**
    ```bash
-   dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+   dotnet publish -r win-x64 -c Release --self-contained true -p:PublishSingleFile=true
    ```
 
 3. **Run the application**

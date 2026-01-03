@@ -1,14 +1,14 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
+using Winsane.Infrastructure.Services;
 
 namespace Winsane.UI.ViewModels;
 
 public partial class FeatureViewModel : ViewModelBase
 {
-    private readonly ICoreService _coreService;
-    private readonly IConfigService _configService;
+    private readonly CoreService _coreService;
+    private readonly ConfigService _configService;
     private readonly AppConfig? _config;
     
     [ObservableProperty]
@@ -33,8 +33,8 @@ public partial class FeatureViewModel : ViewModelBase
     
     public FeatureViewModel(
         Feature feature, 
-        ICoreService coreService, 
-        IConfigService configService, 
+        CoreService coreService, 
+        ConfigService configService, 
         AppConfig? config = null)
     {
         _coreService = coreService;
@@ -57,8 +57,8 @@ public partial class FeatureViewModel : ViewModelBase
     
     private void InitializeItems(
         Feature feature, 
-        ICoreService coreService, 
-        IConfigService configService, 
+        CoreService coreService, 
+        ConfigService configService, 
         AppConfig? config)
     {
         bool isApps = feature.Type?.Equals("apps", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -149,7 +149,7 @@ public partial class FeatureViewModel : ViewModelBase
         RightColumnItems = new ObservableCollection<object>(right);
     }
 
-    public void RefreshDashboard(ISystemInfoService systemInfoService)
+    public void RefreshDashboard(SystemInfoService systemInfoService)
     {
         Dashboard?.Refresh(systemInfoService);
     }

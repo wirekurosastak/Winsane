@@ -1,21 +1,21 @@
 using System.Text.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
 
 namespace Winsane.Infrastructure.Services;
 
 /// <summary>
-/// Service for managing application configuration.
-/// Loads definitions from readonly embedded resources and applies persistent user preferences.
+/// Simplified ConfigService.
+/// Sources: GitHub (Primary) -> Embedded (Fallback).
+/// Persistence: user_prefs.json (Theme, Enabled States, Custom Tweaks).
 /// </summary>
-public class ConfigService : IConfigService
+public class ConfigService
 {
     private static readonly string WinsaneFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Winsane");
     private const string PrefsFileName = "user_prefs.json";
     private const string RemoteConfigUrl = "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/WinsaneC%23/Assets/data.yaml";
-    
+
     private readonly IDeserializer _yamlDeserializer;
     private readonly HttpClient _httpClient;
 
@@ -25,73 +25,71 @@ public class ConfigService : IConfigService
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .IgnoreUnmatchedProperties()
             .Build();
-        
-        _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+
+        _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Winsane-Dev");
     }
-    
+
     private string PrefsFilePath => Path.Combine(WinsaneFolder, PrefsFileName);
 
-    /// <summary>
-    /// Load full application configuration.
-    /// </summary>
     public async Task<AppConfig> LoadConfigAsync()
     {
-        // 1. Load Immutable Definitions
-        var config = await LoadEmbeddedConfigAsync();
-        
-        // 2. Apply User Preferences (Mutable State)
+        // 1. Fetch Base Config (GitHub -> Embedded)
+        var config = await FetchBaseConfigAsync();
+
+        // 2. Apply Mutable User Preferences
         await ApplyUserPrefsAsync(config);
-        
+
         return config;
     }
 
-    /// <summary>
-    /// Save current user preferences (Enabled items and Custom Tweaks).
-    /// </summary>
     public async Task SaveConfigAsync(AppConfig config)
     {
-        EnsureWinsaneFolder();
-        
+        if (!Directory.Exists(WinsaneFolder)) Directory.CreateDirectory(WinsaneFolder);
+
         var prefs = new UserPrefs
         {
             Theme = config.Theme,
-            EnabledItems = new Dictionary<string, bool>()
+            // Efficiently collect enabled states
+            // Exclude items with explicit CheckCommand (auto-detected)
+            EnabledItems = FlattenItems(config.Features)
+                .Where(i => i.Enabled && !string.IsNullOrEmpty(i.Name) && string.IsNullOrEmpty(i.CheckCommand))
+                .ToDictionary(i => i.Name!, i => true),
+            // Collect User Tweaks
+            CustomTweaks = FlattenItems(config.Features)
+                .Where(i => i.IsUserTweak)
+                .ToList()
         };
-
-        // Collect state
-        foreach (var feature in config.Features)
-        {
-            if (feature.Items == null) continue;
-            
-            foreach (var item in feature.Items)
-            {
-                // Only save if explicitly Enabled and has a name
-                if (item.Enabled && !string.IsNullOrEmpty(item.Name))
-                {
-                    prefs.EnabledItems[item.Name] = true;
-                }
-                
-                // Collect sub-items
-                if (item.SubItems != null)
-                {
-                    foreach (var sub in item.SubItems)
-                    {
-                        if (sub.Enabled && !string.IsNullOrEmpty(sub.Name)) prefs.EnabledItems[sub.Name] = true;
-                    }
-                }
-
-                // Collect Custom Tweaks
-                if (item.IsUserTweak)
-                {
-                    prefs.CustomTweaks.Add(item);
-                }
-            }
-        }
 
         var json = JsonSerializer.Serialize(prefs, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(PrefsFilePath, json);
     }
-    
+
+    private async Task<AppConfig> FetchBaseConfigAsync()
+    {
+        // Try GitHub first
+        try
+        {
+            var response = await _httpClient.GetAsync(RemoteConfigUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                return _yamlDeserializer.Deserialize<AppConfig>(await response.Content.ReadAsStringAsync());
+            }
+        }
+        catch 
+        { 
+            // Silent fallback, as requested
+        }
+
+        // Fallback: Embedded Resource (Winsane.Assets.data.yaml)
+        var resourceName = "Winsane.Assets.data.yaml";
+        using var stream = typeof(ConfigService).Assembly.GetManifestResourceStream(resourceName)
+                           ?? throw new InvalidOperationException("Critical: Embedded config not found.");
+
+        using var reader = new StreamReader(stream);
+        return _yamlDeserializer.Deserialize<AppConfig>(await reader.ReadToEndAsync());
+    }
+
     private async Task ApplyUserPrefsAsync(AppConfig config)
     {
         if (!File.Exists(PrefsFilePath)) return;
@@ -100,136 +98,69 @@ public class ConfigService : IConfigService
         {
             var json = await File.ReadAllTextAsync(PrefsFilePath);
             var prefs = JsonSerializer.Deserialize<UserPrefs>(json);
-            
             if (prefs == null) return;
-            
-            // 1. Restore Theme
+
+            // 1. Theme
             if (prefs.Theme != null) config.Theme = prefs.Theme;
-            
-            // 2. Restore Enabled States
-            if (prefs.EnabledItems != null)
+
+            // 2. Enabled States
+            if (prefs.EnabledItems?.Count > 0)
             {
-                foreach (var feature in config.Features)
+                foreach (var item in FlattenItems(config.Features))
                 {
-                    if (feature.Items == null) continue;
-                    
-                    foreach (var item in feature.Items)
+                    if (!string.IsNullOrEmpty(item.Name) && prefs.EnabledItems.ContainsKey(item.Name))
                     {
-                        if (!string.IsNullOrEmpty(item.Name) && prefs.EnabledItems.ContainsKey(item.Name))
-                        {
-                            item.Enabled = prefs.EnabledItems[item.Name];
-                        }
-                        
-                        // SubItems
-                        if (item.SubItems != null)
-                        {
-                            foreach (var sub in item.SubItems)
-                            {
-                                if (!string.IsNullOrEmpty(sub.Name) && prefs.EnabledItems.ContainsKey(sub.Name))
-                                {
-                                    sub.Enabled = prefs.EnabledItems[sub.Name];
-                                }
-                            }
-                        }
+                        item.Enabled = true;
                     }
                 }
             }
-            
-            // 3. Restore Custom Tweaks
-            if (prefs.CustomTweaks != null && prefs.CustomTweaks.Any())
+
+            // 3. Custom Tweaks
+            if (prefs.CustomTweaks?.Any() == true)
             {
                 var targetFeature = config.Features.FirstOrDefault(f => !string.IsNullOrEmpty(f.UserTweaksSection));
                 if (targetFeature != null)
                 {
-                     // Ensure config-defined header exists
+                    // Ensure header exists
                     if (!targetFeature.Items.Any(i => i.Category == targetFeature.UserTweaksSection))
-                    {
                         targetFeature.Items.Add(new Item { Category = targetFeature.UserTweaksSection });
-                    }
-                
+
                     foreach (var tweak in prefs.CustomTweaks)
                     {
-                        // Avoid duplicates
                         if (!targetFeature.Items.Any(i => i.Name == tweak.Name))
                         {
-                            tweak.IsUserTweak = true; // Ensure flag is set
+                            tweak.IsUserTweak = true;
                             targetFeature.Items.Add(tweak);
                         }
                     }
                 }
             }
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error loading prefs: {ex.Message}");
+        catch 
+        { 
+            // Ignore corrupt prefs, start fresh
         }
-    }
-    
-    // --- Helper Methods ---
-
-    private async Task<AppConfig> LoadEmbeddedConfigAsync()
-    {
-        // 1. Try fetching from GitHub (allows live updates without app release)
-        try
-        {
-            System.Diagnostics.Debug.WriteLine("Fetching config from GitHub...");
-            var response = await _httpClient.GetAsync(RemoteConfigUrl);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var yaml = await response.Content.ReadAsStringAsync();
-                System.Diagnostics.Debug.WriteLine("Successfully loaded config from GitHub.");
-                return ParseConfig(yaml);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"GitHub fetch failed: {ex.Message}. Using fallback...");
-        }
-        
-        // 2. Fallback: Embedded resource (offline/error case)
-        var assembly = typeof(ConfigService).Assembly;
-        var resourceNames = assembly.GetManifestResourceNames();
-        var actualResource = resourceNames.FirstOrDefault(r => r.EndsWith("data.yaml"));
-        
-        if (actualResource != null)
-        {
-            using var stream = assembly.GetManifestResourceStream(actualResource);
-            if (stream != null)
-            {
-                using var reader = new StreamReader(stream);
-                var yaml = await reader.ReadToEndAsync();
-                System.Diagnostics.Debug.WriteLine("Loaded config from embedded resource.");
-                return ParseConfig(yaml);
-            }
-        }
-        
-        // 3. Fallback: Local file (dev environment)
-        var devPath = Path.Combine(AppContext.BaseDirectory, "Assets", "data.yaml");
-        if (File.Exists(devPath))
-        {
-            var yaml = await File.ReadAllTextAsync(devPath);
-            System.Diagnostics.Debug.WriteLine("Loaded config from local file.");
-            return ParseConfig(yaml);
-        }
-        
-        System.Diagnostics.Debug.WriteLine("No config source available!");
-        return new AppConfig();
     }
 
-    private AppConfig ParseConfig(string yaml)
+    // Helper to flatten hierarchy (Features -> Items -> SubItems)
+    private IEnumerable<Item> FlattenItems(List<Feature> features)
     {
-        return _yamlDeserializer.Deserialize<AppConfig>(yaml);
-    }
-    
-    private void EnsureWinsaneFolder()
-    {
-        if (!Directory.Exists(WinsaneFolder))
+        if (features == null) yield break;
+        
+        foreach (var f in features)
         {
-            Directory.CreateDirectory(WinsaneFolder);
+            if (f.Items == null) continue;
+            foreach (var i in f.Items)
+            {
+                yield return i;
+                if (i.SubItems != null)
+                {
+                    foreach (var s in i.SubItems) yield return s;
+                }
+            }
         }
     }
-    
+
     public async Task<Item?> AddUserTweakAsync(AppConfig config, string name, string purpose, string trueCmd, string falseCmd)
     {
         var targetFeature = config.Features.FirstOrDefault(f => !string.IsNullOrEmpty(f.UserTweaksSection));
@@ -237,16 +168,12 @@ public class ConfigService : IConfigService
 
         var newItem = new Item
         {
-            Name = name,
-            Purpose = purpose,
-            TrueCommand = trueCmd,
-            FalseCommand = falseCmd,
-            Enabled = false,
-            IsUserTweak = true
+            Name = name, Purpose = purpose, TrueCommand = trueCmd, FalseCommand = falseCmd,
+            Enabled = false, IsUserTweak = true
         };
         
         targetFeature.Items.Add(newItem);
-        await SaveConfigAsync(config); // Auto-save on add
+        await SaveConfigAsync(config);
         return newItem;
     }
     

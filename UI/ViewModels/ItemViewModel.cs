@@ -1,16 +1,16 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
+using Winsane.Infrastructure.Services;
 
 namespace Winsane.UI.ViewModels;
 
 public partial class ItemViewModel : ViewModelBase
 {
     private readonly Item _item;
-    private readonly ICoreService _coreService;
-    private readonly IConfigService _configService;
+    private readonly CoreService _coreService;
+    private readonly ConfigService _configService;
     
     [ObservableProperty]
     private string _name = string.Empty;
@@ -61,8 +61,8 @@ public partial class ItemViewModel : ViewModelBase
     
     public ItemViewModel(
         Item item, 
-        ICoreService coreService, 
-        IConfigService configService)
+        CoreService coreService, 
+        ConfigService configService)
     {
         _item = item;
         _coreService = coreService;

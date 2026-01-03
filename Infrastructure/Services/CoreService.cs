@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
 
 namespace Winsane.Infrastructure.Services;
@@ -9,7 +8,7 @@ namespace Winsane.Infrastructure.Services;
 /// <summary>
 /// Unified Core Service handling System operations, Winget management, and Backup functionality.
 /// </summary>
-public class CoreService : ICoreService
+public class CoreService
 {
     // --- Winget Queue ---
     private readonly ConcurrentQueue<(WingetTask Task, TaskCompletionSource<bool> Tcs)> _taskQueue = new();
@@ -73,7 +72,7 @@ public class CoreService : ICoreService
         });
     }
 
-    // StartProcess removed (redundant/fragile). Use ExecutePowerShellAsync or System.Diagnostics.Process directly.
+
 
     private ProcessStartInfo CreateStartInfo(string command, bool asAdmin)
     {
@@ -149,9 +148,8 @@ public class CoreService : ICoreService
                     
                     tcs.SetResult(success);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Debug.WriteLine($"Winget task error: {ex.Message}");
                     tcs.SetResult(false);
                 }
             }
@@ -237,5 +235,42 @@ public class CoreService : ICoreService
     {
         string cmd = $"Checkpoint-Computer -Description \"{description}\" -RestorePointType \"MODIFY_SETTINGS\"";
         return await ExecutePowerShellAsAdminAsync(cmd);
+    }
+    // --- UAC Suppression Logic ---
+    
+    private const string UacKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System";
+    private int? _originalUacValue;
+    
+    public void SuppressUac()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(UacKey, true);
+            if (key == null) return;
+            
+            var current = key.GetValue("ConsentPromptBehaviorAdmin");
+            if (current is int val)
+            {
+                _originalUacValue = val;
+            }
+            
+            // Set to 0: Elevate without prompting
+            key.SetValue("ConsentPromptBehaviorAdmin", 0, Microsoft.Win32.RegistryValueKind.DWord);
+        }
+        catch { }
+    }
+    
+    public void RestoreUac()
+    {
+        if (_originalUacValue == null) return;
+        
+        try
+        {
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(UacKey, true);
+            if (key == null) return;
+            
+            key.SetValue("ConsentPromptBehaviorAdmin", _originalUacValue.Value, Microsoft.Win32.RegistryValueKind.DWord);
+        }
+        catch { }
     }
 }

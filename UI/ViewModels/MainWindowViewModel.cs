@@ -1,14 +1,14 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Winsane.Core.Interfaces;
 using Winsane.Core.Models;
+using Winsane.Infrastructure.Services;
 
 namespace Winsane.UI.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly IConfigService _configService;
-    private readonly ICoreService _coreService;
+    private readonly ConfigService _configService;
+    private readonly CoreService _coreService;
     
     [ObservableProperty]
     private ObservableCollection<FeatureViewModel> _features = new();
@@ -23,8 +23,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private SettingsViewModel _settingsViewModel;
     
     public MainWindowViewModel(
-        IConfigService configService, 
-        ICoreService coreService)
+        ConfigService configService, 
+        CoreService coreService)
     {
         _configService = configService;
         _coreService = coreService;
@@ -68,10 +68,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 SelectedFeature = Features[0];
             }
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error loading config: {ex.Message}");
-        }
+        catch { }
     }
 
     private async Task CreateBackupOnFirstRun()
