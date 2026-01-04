@@ -23,6 +23,7 @@ features:
       false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
     - name: Windows/Office Activation
       purpose: Activate Windows and Office using massgrave.dev.
+      check: (Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.LicenseStatus -eq 1 }) -ne $null
       true: irm https://get.activated.win | iex
       false: slmgr.vbs /upk
     - name: Disable Superfetch
