@@ -50,13 +50,9 @@ public sealed class SystemInfoService : IDisposable
         {
             var info = new SystemInfo();
             
-            try
-            {
-                GetHardwareInfo(info);
-                GetOsInfo(info);
-                GetSecurityInfo(info);
-            }
-            catch { }
+            GetHardwareInfo(info);
+            GetOsInfo(info);
+            GetSecurityInfo(info);
             
             return info;
         });
