@@ -19,7 +19,7 @@ public partial class ItemViewModel : ViewModelBase
     private string _purpose = string.Empty;
     
     [ObservableProperty]
-    private string? _header;
+    private string _categoryName = string.Empty;
     
     [ObservableProperty]
     private bool _isHeader;
@@ -70,9 +70,9 @@ public partial class ItemViewModel : ViewModelBase
         
         Name = item.Name ?? string.Empty;
         Purpose = item.Purpose ?? string.Empty;
-        Header = item.Header;
         IsHeader = item.IsCategory;
-        IsEnabled = item.Enabled;
+        CategoryName = item.Category ?? string.Empty;  // Expose category text for headers
+        // IsEnabled is strictly determined by CheckStateAsync
         
         // Load subitems
         if (item.SubItems != null && item.SubItems.Any())
@@ -115,7 +115,7 @@ public partial class ItemViewModel : ViewModelBase
     {
         if (_item == null) return;
         
-        _item.Enabled = value;
+        // _item.Enabled property removed. State is transient or managed by system.
         
         if (!_isInitialized || _suppressCommand) return;
         
@@ -141,7 +141,7 @@ public partial class ItemViewModel : ViewModelBase
     public async Task CheckStateAsync()
     {
         // 1. Check Winget App
-        if (!string.IsNullOrEmpty(_item.PackageId))
+        if (_item.PackageId != null)
         {
             try
             {
@@ -158,8 +158,6 @@ public partial class ItemViewModel : ViewModelBase
         }
 
         // 2. Check PowerShell Tweak
-        if (string.IsNullOrEmpty(_item.CheckCommand)) return;
-        
         // Run check silently
         try 
         {
@@ -199,7 +197,7 @@ public partial class ItemViewModel : ViewModelBase
     {
         if (IsLoading) return;
         
-        if (!string.IsNullOrEmpty(_item.PackageId))
+        if (_item.PackageId != null)
         {
             IsLoading = true;
             StatusText = isOn ? "Installing..." : "Uninstalling...";
@@ -221,7 +219,6 @@ public partial class ItemViewModel : ViewModelBase
         }
         
         var command = isOn ? _item.TrueCommand : _item.FalseCommand;
-        if (string.IsNullOrEmpty(command)) return;
         
         IsLoading = true;
         StatusText = isOn ? "Enabling..." : "Disabling...";
@@ -248,7 +245,6 @@ public partial class ItemViewModel : ViewModelBase
         if (IsLoading) return;
         
         var command = _item.TrueCommand;
-        if (string.IsNullOrEmpty(command)) return;
         
         IsLoading = true;
         StatusText = "Running...";

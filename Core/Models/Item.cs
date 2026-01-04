@@ -10,19 +10,6 @@ public class Item
     [YamlMember(Alias = "category")]
     public string? Category { get; set; }
     
-    /// <summary>
-    /// Legacy support: YAML files may use 'header' instead of 'category'
-    /// </summary>
-    [YamlMember(Alias = "header")]
-    public string? Header 
-    { 
-        get => Category;
-        set => Category = value; 
-    }
-    
-    [YamlMember(Alias = "note")]
-    public string? Note { get; set; }
-    
     // Regular items
     public string? Name { get; set; }
     public string? Purpose { get; set; }
@@ -42,7 +29,6 @@ public class Item
     [YamlMember(Alias = "subitems")]
     public List<Item> SubItems { get; set; } = new();
 
-    public bool Enabled { get; set; } = false;
     
     /// <summary>
     /// Returns true if this is a category/header separator, not an actual item

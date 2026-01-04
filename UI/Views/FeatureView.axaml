@@ -10,7 +10,7 @@
              x:DataType="vm:FeatureViewModel">
     
     <UserControl.Resources>
-        <!-- Group Template -->
+        <!-- Category Group Template (Dropdown) -->
         <DataTemplate x:Key="GroupTemplate" x:DataType="vm:ItemGroupViewModel">
             <ui:SettingsExpander Header="{Binding Header}"
                                  IsExpanded="True"

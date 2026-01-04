@@ -22,13 +22,6 @@ public static class Bootstrapper
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<DashboardViewModel>(); 
         
-        // Note: FeatureViewModel and others might need registration or factory if they are created dynamically.
-        // Currently FeatureViewModel is created manually in MainWindowViewModel, which is fine if dependencies are passed.
-        // But better if we use a factory or DI.
-        // For now, keeping existing pattern where MainWindowViewModel constructs them, 
-        // OR we can rely on DI if we change MainWindowViewModel to use DI for features.
-        // Existing code passed services manually. We will see in MainWindowViewModel.
-
         _serviceProvider = services.BuildServiceProvider();
     }
 

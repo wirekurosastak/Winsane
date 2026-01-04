@@ -50,9 +50,13 @@ public sealed class SystemInfoService : IDisposable
         {
             var info = new SystemInfo();
             
-            GetHardwareInfo(info);
-            GetOsInfo(info);
-            GetSecurityInfo(info);
+            try
+            {
+                GetHardwareInfo(info);
+                GetOsInfo(info);
+                GetSecurityInfo(info);
+            }
+            catch { }
             
             return info;
         });
@@ -295,9 +299,6 @@ public sealed class SystemInfoService : IDisposable
         catch { return -1f; }
     }
 
-
-
-
     public (float UsedGb, float TotalGb, float Percentage) GetRamUsage()
     {
         EnsureCountersInitialized();
@@ -367,4 +368,3 @@ public sealed class SystemInfoService : IDisposable
         return 0;
     }
 }
-

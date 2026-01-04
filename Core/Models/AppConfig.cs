@@ -11,6 +11,6 @@ public class AppConfig
 
 public class ThemeConfig
 {
-    public string Mode { get; set; } = "system";
-    public string AccentColor { get; set; } = "#0581ff";
+    public string? Mode { get; set; }
+    public string? AccentColor { get; set; }
 }

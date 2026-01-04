@@ -38,10 +38,10 @@
             </DataTemplate>
         </Grid.Resources>
 
-        <!-- Header Separator -->
+        <!-- Category Separator -->
         <Border IsVisible="{Binding IsHeader}"
                 Margin="0,16,0,8">
-            <TextBlock Text="{Binding Header}"
+            <TextBlock Text="{Binding CategoryName}"
                        Theme="{StaticResource SubtitleTextBlockStyle}"
                        Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
         </Border>

@@ -24,9 +24,6 @@ public class CoreService
     /// </summary>
     public async Task<(bool Success, string Output, string Error)> ExecutePowerShellAsync(string command)
     {
-        if (string.IsNullOrWhiteSpace(command))
-            return (false, string.Empty, "Command is empty.");
-
         return await Task.Run(() =>
         {
             try
@@ -54,8 +51,6 @@ public class CoreService
     /// </summary>
     public async Task<bool> ExecutePowerShellAsAdminAsync(string command)
     {
-        if (string.IsNullOrWhiteSpace(command)) return false;
-
         return await Task.Run(() =>
         {
             try
@@ -65,14 +60,12 @@ public class CoreService
                 process?.WaitForExit();
                 return process?.ExitCode == 0;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }
         });
     }
-
-
 
     private ProcessStartInfo CreateStartInfo(string command, bool asAdmin)
     {
@@ -148,7 +141,7 @@ public class CoreService
                     
                     tcs.SetResult(success);
                 }
-                catch
+                catch (Exception ex)
                 {
                     tcs.SetResult(false);
                 }
@@ -185,7 +178,7 @@ public class CoreService
                 
                 if (!process.WaitForExit((int)TimeSpan.FromMinutes(15).TotalMilliseconds))
                 {
-                    try { process.Kill(); } catch {}
+                    try { process.Kill(); } catch { /* Process already terminated */ }
                     return false;
                 }
                 
@@ -200,8 +193,6 @@ public class CoreService
 
     public async Task<bool> IsWingetInstalledAsync(string packageId)
     {
-        if (string.IsNullOrWhiteSpace(packageId)) return false;
-
         return await Task.Run(() =>
         {
             try
@@ -222,7 +213,7 @@ public class CoreService
                 
                 return process.ExitCode == 0;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }
@@ -257,7 +248,10 @@ public class CoreService
             // Set to 0: Elevate without prompting
             key.SetValue("ConsentPromptBehaviorAdmin", 0, Microsoft.Win32.RegistryValueKind.DWord);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // Silent fail - UAC might already be disabled or insufficient permissions
+        }
     }
     
     public void RestoreUac()
@@ -271,6 +265,9 @@ public class CoreService
             
             key.SetValue("ConsentPromptBehaviorAdmin", _originalUacValue.Value, Microsoft.Win32.RegistryValueKind.DWord);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // Silent fail - UAC restoration is best-effort
+        }
     }
 }

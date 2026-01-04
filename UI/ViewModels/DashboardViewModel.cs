@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Winsane.Infrastructure.Services; // Ensure using concrete service if passing concrete, BUT should use Interface.
-// Wait, I should use interface in Reset.
+using Winsane.Infrastructure.Services;
 using Winsane.Core.Models;
 
 namespace Winsane.UI.ViewModels;

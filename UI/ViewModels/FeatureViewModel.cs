@@ -88,7 +88,7 @@ public partial class FeatureViewModel : ViewModelBase
             }
         }
 
-        // 2. Group items (Headers logic)
+        // 2. Group items (Category headers logic)
         var groupedItems = new List<object>();
         
         int i = 0;
@@ -98,27 +98,24 @@ public partial class FeatureViewModel : ViewModelBase
             
             if (item.IsHeader)
             {
-                // Look ahead for items belonging to this header
+                // Look ahead for items belonging to this category
                 var futureItems = flatItemVms.Skip(i + 1).TakeWhile(x => !x.IsHeader).ToList();
                 
-                // If we have items and NONE of them have subitems (Complex subitems usually get their own row)
-                if (futureItems.Any() && futureItems.All(x => !x.HasSubItems))
-                {
-                    var group = new ItemGroupViewModel(item.Header ?? string.Empty);
-                    foreach(var f in futureItems) group.Items.Add(f);
-                    groupedItems.Add(group);
-                    i += 1 + futureItems.Count; // Skip header + items
-                    continue;
-                }
+                // Always create a group for every category (dropdown)
+                var group = new ItemGroupViewModel(item.CategoryName ?? string.Empty);
+                foreach(var f in futureItems) group.Items.Add(f);
+                groupedItems.Add(group);
+                i += 1 + futureItems.Count; // Skip header + all items in this category
+                continue;
             }
             
-            // Fallback: Add standalone
+            // Fallback: Add standalone item (non-header)
             groupedItems.Add(item);
             i++;
         }
         
         // 3. Add "Add Tweak" item if Allowed
-        if (!string.IsNullOrEmpty(feature.UserTweaksSection) && config != null)
+        if (feature.UserTweaksSection != null && config != null)
         {
              // Pass existing user tweaks
              var addTweakVm = new AddTweakViewModel(config, configService, _coreService, userTweaks);

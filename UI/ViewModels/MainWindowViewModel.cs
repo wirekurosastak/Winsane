@@ -33,11 +33,6 @@ public partial class MainWindowViewModel : ViewModelBase
         
         LoadConfigAsync();
     }
-
-    /// <summary>
-    /// Design-time constructor
-    /// </summary>
-
     
     private void LoadConfigAsync()
     {
@@ -47,28 +42,24 @@ public partial class MainWindowViewModel : ViewModelBase
     
     private async Task LoadConfigCoreAsync()
     {
-        try
-        {
-            await CreateBackupOnFirstRun();
+        await CreateBackupOnFirstRun();
 
-            var config = await _configService.LoadConfigAsync();
-            
-            foreach (var feature in config.Features)
-            {
-                var featureVm = new FeatureViewModel(feature, _coreService, _configService, config);
-                Features.Add(featureVm);
-            }
-            
-            // Initialize Settings with config
-            SettingsViewModel.Initialize(_configService, config, _coreService);
-            
-            // Select first feature by default
-            if (Features.Count > 0)
-            {
-                SelectedFeature = Features[0];
-            }
+        var config = await _configService.LoadConfigAsync();
+        
+        foreach (var feature in config.Features)
+        {
+            var featureVm = new FeatureViewModel(feature, _coreService, _configService, config);
+            Features.Add(featureVm);
         }
-        catch { }
+        
+        // Initialize Settings with config
+        SettingsViewModel.Initialize(_configService, config, _coreService);
+        
+        // Select first feature by default
+        if (Features.Count > 0)
+        {
+            SelectedFeature = Features[0];
+        }
     }
 
     private async Task CreateBackupOnFirstRun()

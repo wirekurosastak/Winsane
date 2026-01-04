@@ -50,11 +50,6 @@ public class ConfigService
         var prefs = new UserPrefs
         {
             Theme = config.Theme,
-            // Efficiently collect enabled states
-            // Exclude items with explicit CheckCommand (auto-detected)
-            EnabledItems = FlattenItems(config.Features)
-                .Where(i => i.Enabled && !string.IsNullOrEmpty(i.Name) && string.IsNullOrEmpty(i.CheckCommand))
-                .ToDictionary(i => i.Name!, i => true),
             // Collect User Tweaks
             CustomTweaks = FlattenItems(config.Features)
                 .Where(i => i.IsUserTweak)
@@ -78,7 +73,7 @@ public class ConfigService
         }
         catch 
         { 
-            // Silent fallback, as requested
+            // Silent fallback to embedded - network failures expected
         }
 
         // Fallback: Embedded Resource (Winsane.Assets.data.yaml)
@@ -103,22 +98,11 @@ public class ConfigService
             // 1. Theme
             if (prefs.Theme != null) config.Theme = prefs.Theme;
 
-            // 2. Enabled States
-            if (prefs.EnabledItems?.Count > 0)
-            {
-                foreach (var item in FlattenItems(config.Features))
-                {
-                    if (!string.IsNullOrEmpty(item.Name) && prefs.EnabledItems.ContainsKey(item.Name))
-                    {
-                        item.Enabled = true;
-                    }
-                }
-            }
 
-            // 3. Custom Tweaks
+            // 2. Custom Tweaks
             if (prefs.CustomTweaks?.Any() == true)
             {
-                var targetFeature = config.Features.FirstOrDefault(f => !string.IsNullOrEmpty(f.UserTweaksSection));
+                var targetFeature = config.Features.FirstOrDefault(f => f.UserTweaksSection != null);
                 if (targetFeature != null)
                 {
                     // Ensure header exists
@@ -138,7 +122,7 @@ public class ConfigService
         }
         catch 
         { 
-            // Ignore corrupt prefs, start fresh
+            // Ignore corrupt prefs - start fresh
         }
     }
 
@@ -163,13 +147,13 @@ public class ConfigService
 
     public async Task<Item?> AddUserTweakAsync(AppConfig config, string name, string purpose, string trueCmd, string falseCmd)
     {
-        var targetFeature = config.Features.FirstOrDefault(f => !string.IsNullOrEmpty(f.UserTweaksSection));
+        var targetFeature = config.Features.FirstOrDefault(f => f.UserTweaksSection != null);
         if (targetFeature == null) return null;
 
         var newItem = new Item
         {
             Name = name, Purpose = purpose, TrueCommand = trueCmd, FalseCommand = falseCmd,
-            Enabled = false, IsUserTweak = true
+            IsUserTweak = true
         };
         
         targetFeature.Items.Add(newItem);
@@ -179,7 +163,7 @@ public class ConfigService
     
     public async Task DeleteUserTweakAsync(AppConfig config, string name)
     {
-        var targetFeature = config.Features.FirstOrDefault(f => !string.IsNullOrEmpty(f.UserTweaksSection));
+        var targetFeature = config.Features.FirstOrDefault(f => f.UserTweaksSection != null);
         if (targetFeature == null) return;
         
         var item = targetFeature.Items.FirstOrDefault(i => i.Name == name && i.IsUserTweak);
@@ -194,6 +178,5 @@ public class ConfigService
 public class UserPrefs
 {
     public ThemeConfig? Theme { get; set; }
-    public Dictionary<string, bool> EnabledItems { get; set; } = new();
     public List<Item> CustomTweaks { get; set; } = new();
 }
