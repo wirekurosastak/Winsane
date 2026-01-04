@@ -49,7 +49,8 @@
                                            IsEnabled="{Binding !IsLoading}"
                                            Command="{Binding ExecuteButtonCommand}"
                                            Classes="accent"
-                                           Foreground="White"/>
+                                           Foreground="White"
+                                           Margin="0,0,7,0"/>
                                     
                                     <!-- Delete Button -->
                                     <Button Content="Delete"

@@ -1,6 +1,6 @@
 
 features:
-- feature: Optimizer
+- feature: Tweaks
   icon: Settings
   type: standard
   user_tweaks_section: User

@@ -46,7 +46,8 @@
                        IsVisible="{Binding ShowRunButton}"
                        IsEnabled="{Binding !IsLoading}"
                        Command="{Binding ExecuteButtonCommand}"
-                       Classes="accent"/>
+                       Classes="accent"
+                       Margin="0,0,7,0"/>
                 
                 <!-- Delete Button (for user tweaks) -->
                 <Button Content="Delete"
