@@ -24,12 +24,9 @@ namespace Winsane
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
 
-                // Resolve CoreService to suppress UAC
                 var coreService = Bootstrapper.GetService<Winsane.Infrastructure.Services.CoreService>();
-                coreService.SuppressUac();
                 
-                // Restore UAC on exit
-                desktop.Exit += (s, e) => coreService.RestoreUac();
+
 
                 desktop.MainWindow = new MainWindow
                 {

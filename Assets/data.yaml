@@ -309,42 +309,42 @@ features:
           -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:USERPROFILE\AppData\Local\Temp\*\"
           -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Temp\*\"
           -Recurse -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Clean Temp" -Action $A
+          -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Temp" -Action $A
           -Trigger $T -User "NT AUTHORITY\SYSTEM" -RunLevel Highest
-        false: Unregister-ScheduledTask -TaskName "Winsane Clean Temp" -Confirm:$false
+        false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Temp" -Confirm:$false
           -ErrorAction SilentlyContinue
-        check: (Get-ScheduledTask -TaskName "Winsane Clean Temp" -ErrorAction SilentlyContinue) -ne $null
+        check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Temp" -ErrorAction SilentlyContinue) -ne $null
       - name: Prefetch
         purpose: Clears the Windows Prefetch folder.
         true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
           -ExecutionPolicy Bypass -Command "& { Remove-Item \"C:\Windows\Prefetch\*\"
           -Recurse -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-          -AtLogon; Register-ScheduledTask -TaskName "Winsane Clean Prefetch" -Action
+          -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Prefetch" -Action
           $A -Trigger $T -User "NT AUTHORITY\SYSTEM" -RunLevel Highest
-        false: Unregister-ScheduledTask -TaskName "Winsane Clean Prefetch" -Confirm:$false
+        false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Prefetch" -Confirm:$false
           -ErrorAction SilentlyContinue
-        check: (Get-ScheduledTask -TaskName "Winsane Clean Prefetch" -ErrorAction SilentlyContinue) -ne $null
+        check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Prefetch" -ErrorAction SilentlyContinue) -ne $null
       - name: Recycle Bin
         purpose: Automatically empties the Recycle Bin.
         true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
           -ExecutionPolicy Bypass -Command "& { (New-Object -ComObject Shell.Application).Namespace(0xA).Items()
           | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue
-          } }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName
+          } }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName
           "Winsane Clean RecycleBin" -Action $A -Trigger $T
-        false: Unregister-ScheduledTask -TaskName "Winsane Clean RecycleBin" -Confirm:$false
+        false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean RecycleBin" -Confirm:$false
           -ErrorAction SilentlyContinue
-        check: (Get-ScheduledTask -TaskName "Winsane Clean RecycleBin" -ErrorAction SilentlyContinue) -ne $null
+        check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean RecycleBin" -ErrorAction SilentlyContinue) -ne $null
       - name: BSOD Minidumps
         purpose: Deletes Windows crash dump files (Memory.dmp / Minidump).
         true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
           -ExecutionPolicy Bypass -Command "& { Remove-Item \"C:\Windows\Minidump\*\"
           -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"C:\Windows\Memory.dmp\"
           -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-          Register-ScheduledTask -TaskName "Winsane Clean Minidumps" -Action $A -Trigger
+          Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Minidumps" -Action $A -Trigger
           $T -User "NT AUTHORITY\SYSTEM" -RunLevel Highest
-        false: Unregister-ScheduledTask -TaskName "Winsane Clean Minidumps" -Confirm:$false
+        false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Minidumps" -Confirm:$false
           -ErrorAction SilentlyContinue
-        check: (Get-ScheduledTask -TaskName "Winsane Clean Minidumps" -ErrorAction SilentlyContinue) -ne $null
+        check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Clean Minidumps" -ErrorAction SilentlyContinue) -ne $null
     - name: Browsers
       purpose: Automatically clean browser data at logon.
       subitems:
@@ -358,39 +358,39 @@ features:
             Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
             -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
             -TaskName "Winsane Chrome Cache" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cache" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Cache" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Chrome Cache" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Cache" -ErrorAction SilentlyContinue) -ne $null
         - name: Cookies
           purpose: Removes cookies (Will log you out).
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
             Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome Cookies" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Cookies" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Chrome Cookies" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Cookies" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Chrome Cookies" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Cookies" -ErrorAction SilentlyContinue) -ne $null
         - name: History
           purpose: Removes browsing history.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
             Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Chrome History" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome History" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Chrome History" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome History" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Chrome History" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome History" -ErrorAction SilentlyContinue) -ne $null
         - name: Session
           purpose: Removes session data (Open tabs/windows).
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Google\Chrome\User
             Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName "
             Chrome Session" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Chrome Session" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Session" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Chrome Session" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Chrome Session" -ErrorAction SilentlyContinue) -ne $null
       - name: Microsoft Edge
         purpose: Automatically clean Microsoft Edge data.
         subitems:
@@ -401,39 +401,39 @@ features:
             Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
             -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
             -TaskName "Winsane Edge Cache" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Edge Cache" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Cache" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Edge Cache" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Cache" -ErrorAction SilentlyContinue) -ne $null
         - name: Cookies
           purpose: Removes cookies (Will log you out).
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
             Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge Cookies" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Cookies" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Edge Cookies" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Cookies" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Edge Cookies" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Cookies" -ErrorAction SilentlyContinue) -ne $null
         - name: History
           purpose: Removes browsing history.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
             Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Edge History" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge History" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Edge History" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge History" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Edge History" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge History" -ErrorAction SilentlyContinue) -ne $null
         - name: Session
           purpose: Removes session data (Open tabs/windows).
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\Microsoft\Edge\User
             Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName "
             Edge Session" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Edge Session" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Session" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Edge Session" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Edge Session" -ErrorAction SilentlyContinue) -ne $null
       - name: Mozilla Firefox
         purpose: Automatically clean Mozilla Firefox data.
         subitems:
@@ -442,31 +442,31 @@ features:
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*\cache2\*\"
             -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse
-            }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName
+            }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName
             "Winsane Firefox Cache" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cache" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Cache" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Firefox Cache" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Cache" -ErrorAction SilentlyContinue) -ne $null
         - name: Cookies
           purpose: Removes cookies (Will log you out).
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\cookies.sqlite\"
             -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox Cookies" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Cookies" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Firefox Cookies" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Cookies" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Firefox Cookies" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Cookies" -ErrorAction SilentlyContinue) -ne $null
         - name: History
           purpose: Removes history and bookmarks backups.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:APPDATA\Mozilla\Firefox\Profiles\*\places.sqlite\"
             -Force -ErrorAction SilentlyContinue | Remove-Item -Force }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Firefox History" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox History" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Firefox History" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox History" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Firefox History" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox History" -ErrorAction SilentlyContinue) -ne $null
         - name: Session
           purpose: Removes session restore data.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
@@ -474,11 +474,11 @@ features:
             -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse;
             Remove-Item \"$env:APPDATA\Mozilla\Firefox\Profiles\*\sessionstore.jsonlz4\"
             -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-            Register-ScheduledTask -TaskName "Winsane Firefox Session" -Action $A -Trigger
+            Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Session" -Action $A -Trigger
             $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Firefox Session" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Session" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Firefox Session" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Firefox Session" -ErrorAction SilentlyContinue) -ne $null
       - name: Brave
         purpose: Automatically clean Brave Browser data at logon.
         subitems:
@@ -489,39 +489,39 @@ features:
             Data\*\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item
             -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask
             -TaskName "Winsane Brave Cache" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Brave Cache" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Cache" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Brave Cache" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Cache" -ErrorAction SilentlyContinue) -ne $null
         - name: Cookies
           purpose: Removes cookies (Will log you out).
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
             Data\*\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave Cookies" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Cookies" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Brave Cookies" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Cookies" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Brave Cookies" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Cookies" -ErrorAction SilentlyContinue) -ne $null
         - name: History
           purpose: Removes browsing history.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
             Data\*\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Brave History" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave History" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Brave History" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave History" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Brave History" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave History" -ErrorAction SilentlyContinue) -ne $null
         - name: Session
           purpose: Removes session data.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User
             Data\*\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName "
             Brave Session" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Brave Session" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Session" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Brave Session" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Brave Session" -ErrorAction SilentlyContinue) -ne $null
       - name: Opera
         purpose: Automatically clean Opera Browser data at logon.
         subitems:
@@ -531,41 +531,41 @@ features:
             -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
             Software\Opera Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
             | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-            Register-ScheduledTask -TaskName "Winsane Opera Cache" -Action $A -Trigger
+            Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Cache" -Action $A -Trigger
             $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Opera Cache" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Cache" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Opera Cache" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Cache" -ErrorAction SilentlyContinue) -ne $null
         - name: Cookies
           purpose: Removes cookies.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
             Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera Cookies" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Cookies" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Opera Cookies" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Cookies" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Opera Cookies" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Cookies" -ErrorAction SilentlyContinue) -ne $null
         - name: History
           purpose: Removes history.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
             Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane Opera History" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera History" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Opera History" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera History" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Opera History" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera History" -ErrorAction SilentlyContinue) -ne $null
         - name: Session
           purpose: Removes session data.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
             Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"'; $T
-            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName "
             Opera Session" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane Opera Session" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Session" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane Opera Session" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " Opera Session" -ErrorAction SilentlyContinue) -ne $null
       - name: Opera GX
         purpose: Automatically clean Opera GX Browser data at logon.
         subitems:
@@ -575,41 +575,41 @@ features:
             -ExecutionPolicy Bypass -Command "& { Get-ChildItem \"$env:LOCALAPPDATA\Opera
             Software\Opera GX Stable\Cache\*\" -Recurse -Force -ErrorAction SilentlyContinue
             | Remove-Item -Force -Recurse }"'; $T = New-ScheduledTaskTrigger -AtLogon;
-            Register-ScheduledTask -TaskName "Winsane OperaGX Cache" -Action $A -Trigger
+            Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Cache" -Action $A -Trigger
             $T
-          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cache" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Cache" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane OperaGX Cache" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Cache" -ErrorAction SilentlyContinue) -ne $null
         - name: Cookies
           purpose: Removes cookies.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
             GX Stable\Network\Cookies\" -Force -ErrorAction SilentlyContinue }"'; $T =
-            New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName "
             OperaGX Cookies" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Cookies" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Cookies" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane OperaGX Cookies" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Cookies" -ErrorAction SilentlyContinue) -ne $null
         - name: History
           purpose: Removes history.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
             GX Stable\History\" -Force -ErrorAction SilentlyContinue }"'; $T = New-ScheduledTaskTrigger
-            -AtLogon; Register-ScheduledTask -TaskName "Winsane OperaGX History" -Action
+            -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX History" -Action
             $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX History" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX History" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane OperaGX History" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX History" -ErrorAction SilentlyContinue) -ne $null
         - name: Session
           purpose: Removes session data.
           true: $A = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument '-NoProfile
             -ExecutionPolicy Bypass -Command "& { Remove-Item \"$env:APPDATA\Opera Software\Opera
             GX Stable\Sessions\*\" -Recurse -Force -ErrorAction SilentlyContinue }"';
-            $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskName "Winsane
+            $T = New-ScheduledTaskTrigger -AtLogon; Register-ScheduledTask -TaskPath "\Winsane\" -TaskName "
             OperaGX Session" -Action $A -Trigger $T
-          false: Unregister-ScheduledTask -TaskName "Winsane OperaGX Session" -Confirm:$false
+          false: Unregister-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Session" -Confirm:$false
             -ErrorAction SilentlyContinue
-          check: (Get-ScheduledTask -TaskName "Winsane OperaGX Session" -ErrorAction SilentlyContinue) -ne $null
+          check: (Get-ScheduledTask -TaskPath "\Winsane\" -TaskName " OperaGX Session" -ErrorAction SilentlyContinue) -ne $null
     - category: Debloat
     # --- Appx Packages (Microsoft Store Apps) ---
     - name: Remove Bing Search

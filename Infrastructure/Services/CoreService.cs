@@ -49,22 +49,13 @@ public class CoreService
     /// <summary>
     /// Execute a PowerShell command as administrator (elevated).
     /// </summary>
+    /// <summary>
+    /// Execute a PowerShell command as administrator (elevated).
+    /// </summary>
     public async Task<bool> ExecutePowerShellAsAdminAsync(string command)
     {
-        return await Task.Run(() =>
-        {
-            try
-            {
-                var startInfo = CreateStartInfo(command, asAdmin: true);
-                using var process = Process.Start(startInfo);
-                process?.WaitForExit();
-                return process?.ExitCode == 0;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        });
+        var (success, _, _) = await ExecutePowerShellAsync(command);
+        return success;
     }
 
     private ProcessStartInfo CreateStartInfo(string command, bool asAdmin)
@@ -227,47 +218,5 @@ public class CoreService
         string cmd = $"Checkpoint-Computer -Description \"{description}\" -RestorePointType \"MODIFY_SETTINGS\"";
         return await ExecutePowerShellAsAdminAsync(cmd);
     }
-    // --- UAC Suppression Logic ---
-    
-    private const string UacKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System";
-    private int? _originalUacValue;
-    
-    public void SuppressUac()
-    {
-        try
-        {
-            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(UacKey, true);
-            if (key == null) return;
-            
-            var current = key.GetValue("ConsentPromptBehaviorAdmin");
-            if (current is int val)
-            {
-                _originalUacValue = val;
-            }
-            
-            // Set to 0: Elevate without prompting
-            key.SetValue("ConsentPromptBehaviorAdmin", 0, Microsoft.Win32.RegistryValueKind.DWord);
-        }
-        catch (Exception ex)
-        {
-            // Silent fail - UAC might already be disabled or insufficient permissions
-        }
-    }
-    
-    public void RestoreUac()
-    {
-        if (_originalUacValue == null) return;
-        
-        try
-        {
-            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(UacKey, true);
-            if (key == null) return;
-            
-            key.SetValue("ConsentPromptBehaviorAdmin", _originalUacValue.Value, Microsoft.Win32.RegistryValueKind.DWord);
-        }
-        catch (Exception ex)
-        {
-            // Silent fail - UAC restoration is best-effort
-        }
-    }
+
 }
