@@ -37,7 +37,7 @@ Winsane operates on a **Trust as a Service** model. While the source code is pub
 
 ## 🛡️ Trademark & Anti-Rebrand Policy
 
-The name **Winsane**, its logo, and all associated branding are trademarks of the author. [cite_start]While the source code is open under the Apache 2.0 License, **rebranding, reselling, or redistributing** this software under the name "Winsane" is strictly prohibited. Any fork must use different branding and clearly state it is not an official Winsane release.
+The name **Winsane**, its logo, and all associated branding are trademarks of the author. While the source code is open under the Apache 2.0 License, **rebranding, reselling, or redistributing** this software under the name "Winsane" is strictly prohibited. Any fork must use different branding and clearly state it is not an official Winsane release.
 
 ## 🛠 Tech Stack
 
