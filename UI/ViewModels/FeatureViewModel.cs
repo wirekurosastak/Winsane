@@ -9,22 +9,19 @@ public partial class FeatureViewModel : ViewModelBase
 {
     private readonly CoreService _coreService;
     private readonly ConfigService _configService;
-    private readonly AppConfig? _config;
     
     [ObservableProperty]
-    private string _name = string.Empty;
+    private string _name;
     
     [ObservableProperty]
-    private string _icon = "Settings";
+    private string _icon;
     
-    // Flattened items logic
     [ObservableProperty]
     private ObservableCollection<object> _leftColumnItems = new();
     
     [ObservableProperty]
     private ObservableCollection<object> _rightColumnItems = new();
     
-    // Dashboard-specific properties
     [ObservableProperty]
     private bool _isDashboard;
     
@@ -39,108 +36,92 @@ public partial class FeatureViewModel : ViewModelBase
     {
         _coreService = coreService;
         _configService = configService;
-        _config = config;
         
-        Name = feature.Name;
-        Icon = feature.Icon ?? "Settings";
-        IsDashboard = feature.Type?.Equals("dashboard", StringComparison.OrdinalIgnoreCase) ?? false;
+        _name = feature.Name;
+        _icon = feature.Icon ?? "Settings";
+        _isDashboard = feature.Type?.Equals("dashboard", StringComparison.OrdinalIgnoreCase) ?? false;
         
-        if (IsDashboard)
+        if (_isDashboard)
         {
             Dashboard = new DashboardViewModel();
         }
         else
         {
-            InitializeItems(feature, coreService, configService, config);
+            InitializeItems(feature, config);
         }
     }
     
-    private void InitializeItems(
-        Feature feature, 
-        CoreService coreService, 
-        ConfigService configService, 
-        AppConfig? config)
+    private void InitializeItems(Feature feature, AppConfig? config)
     {
-        bool isApps = feature.Type?.Equals("apps", StringComparison.OrdinalIgnoreCase) ?? false;
-        
-        // 1. Convert models to ViewModels
-        var flatItemVms = new List<ItemViewModel>();
-        var userTweaks = new List<ItemViewModel>();
+        var rawItems = new List<object>();
 
+        // 1. Process standard items
         if (feature.Items != null)
         {
-            foreach (var item in feature.Items)
+            // Grouping logic: Iterate and look for Header (Category) items
+            // Assuming the YAML structure is flat: Category -> Item -> Item -> Category -> Item
+            
+            int i = 0;
+            while (i < feature.Items.Count)
             {
-                var itemVm = new ItemViewModel(item, coreService, configService)
-                {
-                    IsAppsFeature = isApps,
-                    IsUserTweak = item.IsUserTweak
-                };
+                var item = feature.Items[i];
+                var itemVm = new ItemViewModel(item, _coreService, _configService);
                 
-                if (item.IsUserTweak)
+                // Initialize checks asynchronously
+                _ = itemVm.InitializeAsync();
+
+                if (item.IsCategory)
                 {
-                    userTweaks.Add(itemVm);
+                    // Create a Group
+                    var group = new ItemGroupViewModel(item.Category);
+                    
+                    // Look ahead for items belonging to this category
+                    i++; 
+                    while(i < feature.Items.Count && !feature.Items[i].IsCategory)
+                    {
+                        var subItem = feature.Items[i];
+                        var subItemVm = new ItemViewModel(subItem, _coreService, _configService);
+                        _ = subItemVm.InitializeAsync();
+                        
+                        group.Items.Add(subItemVm);
+                        i++;
+                    }
+                    
+                    rawItems.Add(group);
+                    // Loop continues, 'i' is now at the next Category or End
                 }
                 else
                 {
-                    flatItemVms.Add(itemVm);
+                    // Orphaned item (no category header above it), just add it directly
+                    rawItems.Add(itemVm);
+                    i++;
                 }
             }
         }
+        
+        // 2. Add "Add Tweak" control if this feature supports it
+        if (!string.IsNullOrEmpty(feature.UserTweaksSection) && config != null)
+        {
+             // We need to gather existing user tweaks to pass to the VM
+             var existingUserTweaks = feature.Items?
+                 .Where(x => x.IsUserTweak)
+                 .Select(x => new ItemViewModel(x, _coreService, _configService))
+                 .ToList() ?? new List<ItemViewModel>();
 
-        // 2. Group items (Category headers logic)
-        var groupedItems = new List<object>();
-        
-        int i = 0;
-        while (i < flatItemVms.Count)
-        {
-            var item = flatItemVms[i];
-            
-            if (item.IsHeader)
-            {
-                // Look ahead for items belonging to this category
-                var futureItems = flatItemVms.Skip(i + 1).TakeWhile(x => !x.IsHeader).ToList();
-                
-                // Always create a group for every category (dropdown)
-                var group = new ItemGroupViewModel(item.CategoryName ?? string.Empty);
-                foreach(var f in futureItems) group.Items.Add(f);
-                groupedItems.Add(group);
-                i += 1 + futureItems.Count; // Skip header + all items in this category
-                continue;
-            }
-            
-            // Fallback: Add standalone item (non-header)
-            groupedItems.Add(item);
-            i++;
-        }
-        
-        // 3. Add "Add Tweak" item if Allowed
-        if (feature.UserTweaksSection != null && config != null)
-        {
-             // Pass existing user tweaks
-             var addTweakVm = new AddTweakViewModel(config, configService, _coreService, userTweaks);
-             groupedItems.Add(addTweakVm);
+             var addTweakVm = new AddTweakViewModel(config, _configService, _coreService, existingUserTweaks);
+             rawItems.Add(addTweakVm);
         }
 
-        // 4. Split into Columns
-        DistributeItems(groupedItems);
+        DistributeItems(rawItems);
     }
     
     private void DistributeItems(List<object> items)
     {
-        // Simple even split
+        // Even split for 2-column layout
         int splitIndex = (int)Math.Ceiling(items.Count / 2.0);
         
-        var left = new List<object>();
-        var right = new List<object>();
-
-        for (int j = 0; j < items.Count; j++)
-        {
-            if (j < splitIndex)
-                left.Add(items[j]);
-            else
-                right.Add(items[j]);
-        }
+        var left = items.Take(splitIndex);
+        var right = items.Skip(splitIndex);
         
         LeftColumnItems = new ObservableCollection<object>(left);
         RightColumnItems = new ObservableCollection<object>(right);

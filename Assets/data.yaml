@@ -43,7 +43,7 @@ features:
       purpose: Disables system hibernation and frees storage.
       check: (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' -Name 'HibernateEnabled' -ErrorAction SilentlyContinue).HibernateEnabled -eq 0
       true: powercfg /h off
-      false: powercfg /h on #🟡 To be tested outside vm.
+      false: powercfg /h on
       
     - name: Disable Fast Startup #🟢
       purpose: Ensures a full shutdown every time to prevent system state issues.
@@ -608,179 +608,278 @@ features:
     
     - name: Google Chrome
       purpose: Fast, secure, and customizable browser by Google.
-      id: Google.Chrome
+      check: winget list --id Google.Chrome --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Google.Chrome -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Google.Chrome -e --accept-source-agreements --silent
     - name: Mozilla Firefox
       purpose: Privacy-focused, open-source browser.
-      id: Mozilla.Firefox
+      check: winget list --id Mozilla.Firefox --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Mozilla.Firefox -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Mozilla.Firefox -e --accept-source-agreements --silent
     - name: Brave Browser
       purpose: Privacy-first browser with built-in ad and tracker blocking.
-      id: Brave.Brave
+      check: winget list --id Brave.Brave --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Brave.Brave -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Brave.Brave -e --accept-source-agreements --silent
     - name: Opera
       purpose: Browser with built-in VPN, Ad Blocker, and social messengers.
-      id: Opera.Opera
+      check: winget list --id Opera.Opera --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Opera.Opera -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Opera.Opera -e --accept-source-agreements --silent
     - name: Opera GX
       purpose: Browser built specifically for gamers, with resource limiters.
-      id: Opera.OperaGX
+      check: winget list --id Opera.OperaGX --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Opera.OperaGX -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Opera.OperaGX -e --accept-source-agreements --silent
     - name: Vivaldi
       purpose: Highly customizable browser built for power users.
-      id: Vivaldi.Vivaldi
+      check: winget list --id Vivaldi.Vivaldi --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Vivaldi.Vivaldi -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Vivaldi.Vivaldi -e --accept-source-agreements --silent
     - name: Tor Browser
       purpose: Browse with enhanced privacy and anonymity.
-      id: TorProject.TorBrowser
+      check: winget list --id TorProject.TorBrowser --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id TorProject.TorBrowser -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id TorProject.TorBrowser -e --accept-source-agreements --silent
     - name: LibreWolf
       purpose: A fork of Firefox, focused on privacy, security and freedom.
-      id: LibreWolf.LibreWolf
+      check: winget list --id LibreWolf.LibreWolf --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id LibreWolf.LibreWolf -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id LibreWolf.LibreWolf -e --accept-source-agreements --silent
       
     #CATEGORY
     - category: Communication
     
     - name: Discord
       purpose: Voice, video, and text chat app for communities.
-      id: Discord.Discord
+      check: winget list --id Discord.Discord --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Discord.Discord -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Discord.Discord -e --accept-source-agreements --silent
     - name: Slack
       purpose: Team-based communication and collaboration platform.
-      id: SlackTechnologies.Slack
+      check: winget list --id SlackTechnologies.Slack --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id SlackTechnologies.Slack -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id SlackTechnologies.Slack -e --accept-source-agreements --silent
     - name: Zoom
       purpose: Video conferencing and online meetings client.
-      id: Zoom.Zoom
+      check: winget list --id Zoom.Zoom --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Zoom.Zoom -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Zoom.Zoom -e --accept-source-agreements --silent
     - name: Telegram Desktop
       purpose: Fast and secure desktop app for messaging.
-      id: Telegram.TelegramDesktop
+      check: winget list --id Telegram.TelegramDesktop --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Telegram.TelegramDesktop -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Telegram.TelegramDesktop -e --accept-source-agreements --silent
     - name: Microsoft Teams
       purpose: The hub for team collaboration in Microsoft 365.
-      id: Microsoft.Teams
+      check: winget list --id Microsoft.Teams --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Microsoft.Teams -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Microsoft.Teams -e --accept-source-agreements --silent
       
     #CATEGORY
     - category: Gaming
     
     - name: Steam
       purpose: Digital distribution platform for video games.
-      id: Valve.Steam
+      check: winget list --id Valve.Steam --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Valve.Steam -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Valve.Steam -e --accept-source-agreements --silent
     - name: Epic Games Launcher
       purpose: Digital distribution platform and launcher for Epic Games titles.
-      id: EpicGames.EpicGamesLauncher
+      check: winget list --id EpicGames.EpicGamesLauncher --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id EpicGames.EpicGamesLauncher -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id EpicGames.EpicGamesLauncher -e --accept-source-agreements --silent
     - name: GOG Galaxy
       purpose: Launcher that allows to unite all your games and friends in one place.
-      id: GOG.Galaxy
+      check: winget list --id GOG.Galaxy --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id GOG.Galaxy -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id GOG.Galaxy -e --accept-source-agreements --silent
     - name: Ubisoft Connect
       purpose: Digital distribution and services platform by Ubisoft.
-      id: Ubisoft.Connect
+      check: winget list --id Ubisoft.Connect --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Ubisoft.Connect -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Ubisoft.Connect -e --accept-source-agreements --silent
     - name: EA App
       purpose: Digital distribution platform for Electronic Arts games.
-      id: ElectronicArts.EADesktop
+      check: winget list --id ElectronicArts.EADesktop --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id ElectronicArts.EADesktop -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id ElectronicArts.EADesktop -e --accept-source-agreements --silent
     
     #CATEGORY
     - category: Development
     
     - name: Visual Studio Code
       purpose: Lightweight but powerful source code editor.
-      id: Microsoft.VisualStudioCode
+      check: winget list --id Microsoft.VisualStudioCode --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Microsoft.VisualStudioCode -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Microsoft.VisualStudioCode -e --accept-source-agreements --silent
     - name: Git
       purpose: Distributed version control system for tracking changes in source code.
-      id: Git.Git
+      check: winget list --id Git.Git --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Git.Git -e --accept-source-agreements --silent
     - name: OpenJDK 17 (Microsoft)
       purpose: Free, open-source Java Development Kit (LTS).
-      id: Microsoft.OpenJDK.17
+      check: winget list --id Microsoft.OpenJDK.17 --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Microsoft.OpenJDK.17 -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Microsoft.OpenJDK.17 -e --accept-source-agreements --silent
     - name: Python 3.11
       purpose: Popular programming language (installs version 3.11).
-      id: Python.Python.3.11
+      check: winget list --id Python.Python.3.11 --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Python.Python.3.11 -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Python.Python.3.11 -e --accept-source-agreements --silent
     - name: Node.js (LTS)
       purpose: Installs the Long-Term Support version of Node.js.
-      id: OpenJS.NodeJS.LTS
+      check: winget list --id OpenJS.NodeJS.LTS --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id OpenJS.NodeJS.LTS -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id OpenJS.NodeJS.LTS -e --accept-source-agreements --silent
     - name: Docker Desktop
       purpose: Build, share, and run containers on your desktop.
-      id: Docker.DockerDesktop
+      check: winget list --id Docker.DockerDesktop --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Docker.DockerDesktop -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Docker.DockerDesktop -e --accept-source-agreements --silent
     - name: XAMPP
       purpose: Apache + MariaDB + PHP + Perl development environment.
-      id: ApacheFriends.Xampp.8.2
+      check: winget list --id ApacheFriends.Xampp.8.2 --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id ApacheFriends.Xampp.8.2 -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id ApacheFriends.Xampp.8.2 -e --accept-source-agreements --silent
     - name: Postman
       purpose: The collaboration platform for API development.
-      id: Postman.Postman
+      check: winget list --id Postman.Postman --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Postman.Postman -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Postman.Postman -e --accept-source-agreements --silent
     - name: IntelliJ IDEA (Community)
       purpose: Free and open-source Java IDE from JetBrains.
-      id: JetBrains.IntelliJIDEA.Community
+      check: winget list --id JetBrains.IntelliJIDEA.Community --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id JetBrains.IntelliJIDEA.Community -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id JetBrains.IntelliJIDEA.Community -e --accept-source-agreements --silent
     - name: PyCharm (Community)
       purpose: Free and open-source Python IDE from JetBrains.
-      id: JetBrains.PyCharm.Community
+      check: winget list --id JetBrains.PyCharm.Community --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id JetBrains.PyCharm.Community -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id JetBrains.PyCharm.Community -e --accept-source-agreements --silent
     - name: GitKraken
       purpose: Git GUI client for Windows, Mac, and Linux.
-      id: Axosoft.GitKraken
+      check: winget list --id Axosoft.GitKraken --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Axosoft.GitKraken -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Axosoft.GitKraken -e --accept-source-agreements --silent
     - name: VS 2022 Community
       purpose: Free, full-featured IDE for students and open-source developers.
-      id: Microsoft.VisualStudio.2022.Community
+      check: winget list --id Microsoft.VisualStudio.2022.Community --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Microsoft.VisualStudio.2022.Community -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Microsoft.VisualStudio.2022.Community -e --accept-source-agreements --silent
       
     #CATEGORY
     - category: Design & Editing
     
     - name: Blender
       purpose: Free and open-source 3D creation suite.
-      id: BlenderFoundation.Blender
+      check: winget list --id BlenderFoundation.Blender --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id BlenderFoundation.Blender -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id BlenderFoundation.Blender -e --accept-source-agreements --silent
     - name: Inkscape
       purpose: Free and open-source vector graphics editor.
-      id: Inkscape.Inkscape
+      check: winget list --id Inkscape.Inkscape --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Inkscape.Inkscape -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Inkscape.Inkscape -e --accept-source-agreements --silent
     - name: Paint.NET
       purpose: Free image and photo editing software for Windows.
-      id: dotPDN.PaintDotNet
+      check: winget list --id dotPDN.PaintDotNet --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id dotPDN.PaintDotNet -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id dotPDN.PaintDotNet -e --accept-source-agreements --silent
     - name: Figma
       purpose: Collaborative interface design tool for teams.
-      id: Figma.Figma
+      check: winget list --id Figma.Figma --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Figma.Figma -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Figma.Figma -e --accept-source-agreements --silent
     - name: ShareX
       purpose: Advanced screenshot, screen recorder, and productivity tool.
-      id: ShareX.ShareX
+      check: winget list --id ShareX.ShareX --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id ShareX.ShareX -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id ShareX.ShareX -e --accept-source-agreements --silent
     
     #CATEGORY
     - category: Productivity
     
     - name: LibreOffice
       purpose: Free and open-source office productivity software suite.
-      id: TheDocumentFoundation.LibreOffice
+      check: winget list --id TheDocumentFoundation.LibreOffice --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id TheDocumentFoundation.LibreOffice -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id TheDocumentFoundation.LibreOffice -e --accept-source-agreements --silent
     - name: Notion
       purpose: All-in-one workspace for notes, tasks, wikis, and databases.
-      id: Notion.Notion
+      check: winget list --id Notion.Notion --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Notion.Notion -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Notion.Notion -e --accept-source-agreements --silent
     - name: Obsidian
       purpose: A powerful knowledge base that works on top of local Markdown files.
-      id: Obsidian.Obsidian
+      check: winget list --id Obsidian.Obsidian --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Obsidian.Obsidian -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Obsidian.Obsidian -e --accept-source-agreements --silent
     - name: Mozilla Thunderbird
       purpose: Free email application that's easy to set up and customize.
-      id: Mozilla.Thunderbird
+      check: winget list --id Mozilla.Thunderbird --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Mozilla.Thunderbird -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Mozilla.Thunderbird -e --accept-source-agreements --silent
     - name: AnyDesk
       purpose: Remote desktop application for remote support and access.
-      id: AnyDesk.AnyDesk
+      check: winget list --id AnyDesk.AnyDesk --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id AnyDesk.AnyDesk -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id AnyDesk.AnyDesk -e --accept-source-agreements --silent
     
     #CATEGORY
     - category: Media
     
     - name: VLC Media Player
       purpose: Free and open-source cross-platform multimedia player.
-      id: VideoLAN.VLC
+      check: winget list --id VideoLAN.VLC --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id VideoLAN.VLC -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id VideoLAN.VLC -e --accept-source-agreements --silent
     - name: Spotify
       purpose: Digital music, podcast, and video streaming service.
-      id: Spotify.Spotify
+      check: winget list --id Spotify.Spotify --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Spotify.Spotify -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Spotify.Spotify -e --accept-source-agreements --silent
     - name: Audacity
       purpose: Free, open-source, cross-platform audio software.
-      id: Audacity.Audacity
+      check: winget list --id Audacity.Audacity --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Audacity.Audacity -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Audacity.Audacity -e --accept-source-agreements --silent
       
     #CATEGORY
     - category: Utilities
     
     - name: Microsoft PowerToys
       purpose: A set of utilities for power users to tune their Windows experience.
-      id: Microsoft.PowerToys
+      check: winget list --id Microsoft.PowerToys --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Microsoft.PowerToys -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Microsoft.PowerToys -e --accept-source-agreements --silent
     - name: CPU-Z
       purpose: Freeware that gathers information on some of the main devices of your system.
-      id: CPUID.CPU-Z
+      check: winget list --id CPUID.CPU-Z --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id CPUID.CPU-Z -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id CPUID.CPU-Z -e --accept-source-agreements --silent
     - name: GPU-Z
       purpose: Lightweight utility designed to give you all information about your video card.
-      id: TechPowerUp.GPU-Z
+      check: winget list --id TechPowerUp.GPU-Z --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id TechPowerUp.GPU-Z -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id TechPowerUp.GPU-Z -e --accept-source-agreements --silent
     - name: Rufus
       purpose: Utility that helps format and create bootable USB flash drives.
-      id: Rufus.Rufus
+      check: winget list --id Rufus.Rufus --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id Rufus.Rufus -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id Rufus.Rufus -e --accept-source-agreements --silent
     - name: 7-Zip
       purpose: Free and open-source file archiver with a high compression ratio.
-      id: 7zip.7zip
+      check: winget list --id 7zip.7zip --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id 7zip.7zip -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id 7zip.7zip -e --accept-source-agreements --silent
     - name: Everything
       purpose: Lightning-fast file search utility for Windows.
-      id: voidtools.Everything
+      check: winget list --id voidtools.Everything --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+      true: winget install --id voidtools.Everything -e --accept-source-agreements --accept-package-agreements --silent --force
+      false: winget uninstall --id voidtools.Everything -e --accept-source-agreements --silent
+
       
 #FEATURE
 - feature: Admin Tools

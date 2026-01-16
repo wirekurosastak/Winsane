@@ -1,222 +1,76 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Text;
 using Winsane.Core.Models;
 
 namespace Winsane.Infrastructure.Services;
 
 /// <summary>
-/// Unified Core Service handling System operations, Winget management, and Backup functionality.
+/// Unified Core Service handling System operations.
+/// Uses a pool of PowerShell sessions to execute commands efficiently.
 /// </summary>
-public class CoreService
+public class CoreService : IDisposable
 {
-    // --- Winget Queue ---
-    private readonly ConcurrentQueue<(WingetTask Task, TaskCompletionSource<bool> Tcs)> _taskQueue = new();
-    private readonly SemaphoreSlim _semaphore = new(1, 1);
-    
-    public event EventHandler<WingetProgressEventArgs>? WingetProgressChanged;
-    public event EventHandler<WingetCompletedEventArgs>? WingetTaskCompleted;
+    // Pool Configuration
+    private const int MaxPoolSize = 3; // Limit to 3 concurrent PowerShell processes
+    private readonly ConcurrentQueue<PowerShellSession> _sessionPool = new();
+    private readonly SemaphoreSlim _poolSemaphore;
 
-    // --- PowerShell / Process Execution ---
-    
+    public CoreService()
+    {
+        _poolSemaphore = new SemaphoreSlim(MaxPoolSize, MaxPoolSize);
+        
+        // Pre-warm the pool
+        for (int i = 0; i < MaxPoolSize; i++)
+        {
+            _sessionPool.Enqueue(new PowerShellSession());
+        }
+    }
+
     /// <summary>
-    /// Execute a PowerShell command asynchronously.
+    /// Executes a PowerShell command using a session from the pool.
+    /// Thread-safe and limits concurrent processes.
     /// </summary>
     public async Task<(bool Success, string Output, string Error)> ExecutePowerShellAsync(string command)
     {
-        return await Task.Run(() =>
-        {
-            try
-            {
-                var startInfo = CreateStartInfo(command, asAdmin: false);
-
-                using var process = new Process { StartInfo = startInfo };
-                process.Start();
-
-                var output = process.StandardOutput.ReadToEnd();
-                var error = process.StandardError.ReadToEnd();
-                process.WaitForExit();
-
-                return (process.ExitCode == 0, output, error);
-            }
-            catch (Exception ex)
-            {
-                return (false, string.Empty, ex.Message);
-            }
-        });
-    }
-
-    /// <summary>
-    /// Execute a PowerShell command as administrator (elevated).
-    /// </summary>
-    /// <summary>
-    /// Execute a PowerShell command as administrator (elevated).
-    /// </summary>
-    public async Task<bool> ExecutePowerShellAsAdminAsync(string command)
-    {
-        var (success, _, _) = await ExecutePowerShellAsync(command);
-        return success;
-    }
-
-    private ProcessStartInfo CreateStartInfo(string command, bool asAdmin)
-    {
-        var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(command));
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "powershell.exe",
-            Arguments = $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encoded}",
-            UseShellExecute = asAdmin, 
-            CreateNoWindow = true
-        };
-
-        if (asAdmin)
-        {
-            startInfo.Verb = "runas";
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-        }
-        else
-        {
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-        }
-
-        return startInfo;
-    }
-
-    // --- Winget Logic ---
-
-    public Task<bool> QueueWingetTaskAsync(string packageId, bool install, string displayName)
-    {
-        var task = new WingetTask
-        {
-            PackageId = packageId,
-            Install = install,
-            DisplayName = displayName
-        };
+        PowerShellSession? session = null;
         
-        var tcs = new TaskCompletionSource<bool>();
-        _taskQueue.Enqueue((task, tcs));
+        // Wait for an available slot in the pool
+        await _poolSemaphore.WaitAsync();
         
-        _ = ProcessWingetQueueAsync();
-        
-        return tcs.Task;
-    }
-    
-    private async Task ProcessWingetQueueAsync()
-    {
-        if (!await _semaphore.WaitAsync(0)) return;
-
         try
         {
-            while (_taskQueue.TryDequeue(out var item))
+            // Try to get a session
+            if (!_sessionPool.TryDequeue(out session))
             {
-                var (task, tcs) = item;
-                try
-                {
-                     WingetProgressChanged?.Invoke(this, new WingetProgressEventArgs
-                    {
-                        PackageId = task.PackageId,
-                        DisplayName = task.DisplayName,
-                        Status = task.Install ? "Installing..." : "Uninstalling..."
-                    });
-                    
-                    bool success = await RunWingetCommandAsync(task);
-                    
-                    WingetTaskCompleted?.Invoke(this, new WingetCompletedEventArgs
-                    {
-                        PackageId = task.PackageId,
-                        DisplayName = task.DisplayName,
-                        Success = success,
-                        WasInstall = task.Install
-                    });
-                    
-                    tcs.SetResult(success);
-                }
-                catch (Exception ex)
-                {
-                    tcs.SetResult(false);
-                }
+                // Should not happen due to semaphore, but safety fallback
+                session = new PowerShellSession();
             }
+            
+            return await session.ExecuteCommandAsync(command);
         }
         finally
         {
-            _semaphore.Release();
+            if (session != null)
+            {
+                // Return session to pool
+                _sessionPool.Enqueue(session);
+            }
+            _poolSemaphore.Release();
         }
     }
-    
-    private async Task<bool> RunWingetCommandAsync(WingetTask task)
-    {
-        return await Task.Run(() =>
-        {
-            try
-            {
-                var args = task.Install
-                    ? $"install --id {task.PackageId} -e --accept-source-agreements --accept-package-agreements --silent --force"
-                    : $"uninstall --id {task.PackageId} -e --accept-source-agreements --silent";
-                
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "winget",
-                    Arguments = args,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-                
-                using var process = new Process { StartInfo = startInfo };
-                process.Start();
-                
-                if (!process.WaitForExit((int)TimeSpan.FromMinutes(15).TotalMilliseconds))
-                {
-                    try { process.Kill(); } catch { /* Process already terminated */ }
-                    return false;
-                }
-                
-                return process.ExitCode == 0;
-            }
-            catch
-            {
-                return false;
-            }
-        });
-    }
-
-    public async Task<bool> IsWingetInstalledAsync(string packageId)
-    {
-        return await Task.Run(() =>
-        {
-            try
-            {
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "winget",
-                    Arguments = $"list --id {packageId} --exact --accept-source-agreements",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-
-                using var process = new Process { StartInfo = startInfo };
-                process.Start();
-                process.WaitForExit(5000); 
-                
-                return process.ExitCode == 0;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        });
-    }
-
-    // --- Backup Logic ---
 
     public async Task<bool> CreateSystemRestorePointAsync(string description)
     {
         string cmd = $"Checkpoint-Computer -Description \"{description}\" -RestorePointType \"MODIFY_SETTINGS\"";
-        return await ExecutePowerShellAsAdminAsync(cmd);
+        var (success, _, _) = await ExecutePowerShellAsync(cmd);
+        return success;
     }
-
+    
+    public void Dispose()
+    {
+        while (_sessionPool.TryDequeue(out var session))
+        {
+            session.Dispose();
+        }
+        _poolSemaphore.Dispose();
+    }
 }

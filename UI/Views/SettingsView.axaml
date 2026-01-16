@@ -53,9 +53,6 @@
                                          Description="Windows 11 Optimizer"/>
                 <ui:SettingsExpanderItem Content="Version"
                                          Description="1.0.0"/>
-                <ui:SettingsExpanderItem Content="Framework"
-                                         Description="Avalonia UI with FluentAvalonia"/>
-                
                 <ui:SettingsExpanderItem Content="GitHub Repository"
                                          Description="https://github.com/wirekurosastak/Winsane"
                                          ActionIconSource="Link">

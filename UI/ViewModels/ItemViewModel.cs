@@ -13,13 +13,13 @@ public partial class ItemViewModel : ViewModelBase
     private readonly ConfigService _configService;
     
     [ObservableProperty]
-    private string _name = string.Empty;
+    private string _name;
     
     [ObservableProperty]
-    private string _purpose = string.Empty;
+    private string _purpose;
     
     [ObservableProperty]
-    private string _categoryName = string.Empty;
+    private string _categoryName;
     
     [ObservableProperty]
     private bool _isHeader;
@@ -33,20 +33,8 @@ public partial class ItemViewModel : ViewModelBase
     [ObservableProperty]
     private string _buttonText = "Run";
     
-    // Computed: show toggle only when run button is not shown
-    public bool ShowToggle => !ShowRunButton;
-    
-    // Computed: show run button for irreversible items (unless it's an app)
-    public bool ShowRunButton => !IsAppsFeature && !HasSubItems && _item.IsIrreversible;
-    
-    [ObservableProperty]
-    private bool _isAppsFeature;
-    
     [ObservableProperty]
     private bool _isUserTweak;
-    
-    // Computed: show delete button only for user tweaks
-    public bool ShowDeleteButton => IsUserTweak;
     
     [ObservableProperty]
     private string _statusText = string.Empty;
@@ -56,26 +44,30 @@ public partial class ItemViewModel : ViewModelBase
     
     [ObservableProperty]
     private bool _hasSubItems;
+
+    // UI Logic:
+    // If it's reversible (has FalseCommand), show toggle.
+    // If it's one-way (App install or Script), show Run button.
+    public bool ShowToggle => !ShowRunButton;
+    public bool ShowRunButton => !_item.IsIrreversible == false && !HasSubItems;
+    public bool ShowDeleteButton => IsUserTweak;
     
     public event Action<ItemViewModel>? OnDeleted;
     
-    public ItemViewModel(
-        Item item, 
-        CoreService coreService, 
-        ConfigService configService)
+    public ItemViewModel(Item item, CoreService coreService, ConfigService configService)
     {
         _item = item;
         _coreService = coreService;
         _configService = configService;
         
-        Name = item.Name ?? string.Empty;
-        Purpose = item.Purpose ?? string.Empty;
-        IsHeader = item.IsCategory;
-        CategoryName = item.Category ?? string.Empty;  // Expose category text for headers
-        // IsEnabled is strictly determined by CheckStateAsync
-        
-        // Load subitems
-        if (item.SubItems != null && item.SubItems.Any())
+        _name = item.Name;
+        _purpose = item.Purpose;
+        _isHeader = item.IsCategory;
+        _categoryName = item.Category;
+        _isUserTweak = item.IsUserTweak;
+
+        // Recursively load subitems
+        if (item.SubItems.Any())
         {
             HasSubItems = true;
             foreach(var subItem in item.SubItems)
@@ -85,87 +77,60 @@ public partial class ItemViewModel : ViewModelBase
                 SubItems.Add(subVm);
             }
         }
-        
-        _isInitialized = true;
-        _ = CheckStateAsync();
     }
     
     private bool _suppressPropagation;
-    private bool _isMassUpdating;
     private bool _isInitialized;
     private bool _suppressCommand;
-    
+
     private void SubItem_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (_isMassUpdating) return;
-
-        if (e.PropertyName == nameof(IsEnabled))
+        if (e.PropertyName == nameof(IsEnabled) && !_suppressPropagation)
         {
-            bool anyEnabled = SubItems.Any(x => x.IsEnabled);
-            if (IsEnabled != anyEnabled)
-            {
-                _suppressPropagation = true;
-                IsEnabled = anyEnabled;
-                _suppressPropagation = false;
-            }
+            // Simple logic: if any child is on, parent status reflects that (visual only)
+            _suppressPropagation = true;
+            IsEnabled = SubItems.Any(x => x.IsEnabled);
+            _suppressPropagation = false;
         }
     }
     
     partial void OnIsEnabledChanged(bool value)
     {
-        if (_item == null) return;
+        if (!_isInitialized || _suppressCommand || _suppressPropagation) return;
         
-        // _item.Enabled property removed. State is transient or managed by system.
-        
-        if (!_isInitialized || _suppressCommand) return;
-        
-        if (_suppressPropagation) return;
-        
+        // Propagate to children for "Batch" operations
         if (HasSubItems && !IsLoading)
         {
-            _isMassUpdating = true;
+            _suppressPropagation = true;
             foreach(var sub in SubItems)
             {
-                if (sub.IsEnabled != value)
-                {
-                    sub.IsEnabled = value;
-                }
+                if (sub.IsEnabled != value) sub.IsEnabled = value;
             }
-            _isMassUpdating = false;
+            _suppressPropagation = false;
             return;
         }
 
         ExecuteToggleAsync(value);
     }
 
+    public async Task InitializeAsync()
+    {
+        if (_isInitialized) return;
+        _isInitialized = true;
+        await CheckStateAsync();
+    }
+
     public async Task CheckStateAsync()
     {
-        // 1. Check Winget App
-        if (_item.PackageId != null)
-        {
-            try
-            {
-                bool installed = await _coreService.IsWingetInstalledAsync(_item.PackageId);
-                if (IsEnabled != installed)
-                {
-                    _suppressCommand = true;
-                    IsEnabled = installed;
-                    _suppressCommand = false;
-                }
-            }
-            catch {}
-            return;
-        }
+        if (IsHeader || string.IsNullOrEmpty(_item.CheckCommand)) return;
 
-        // 2. Check PowerShell Tweak
-        // Run check silently
         try 
         {
+            // We don't need FeatureName anymore, the pool handles it
             var (success, output, _) = await _coreService.ExecutePowerShellAsync(_item.CheckCommand);
-            // PowerShell returns "True" or "False" with newlines usually
-            var cleanOutput = output?.Trim();
             
-            if (success && bool.TryParse(cleanOutput, out bool result))
+            // PowerShell typically returns "True" or "False" string for boolean checks
+            if (success && bool.TryParse(output.Trim(), out bool result))
             {
                 if (IsEnabled != result)
                 {
@@ -177,60 +142,37 @@ public partial class ItemViewModel : ViewModelBase
         }
         catch 
         { 
-            // Check failed, keep existing state
+            // Silent fail on checks is acceptable
         }
     }
-
-    partial void OnIsAppsFeatureChanged(bool value)
-    {
-        OnPropertyChanged(nameof(ShowRunButton));
-        OnPropertyChanged(nameof(ShowToggle));
-    }
     
-    private void ExecuteToggleAsync(bool isOn)
+    private async Task ExecuteToggleAsync(bool isOn)
     {
-        // Fire and forget with proper exception handling
-        _ = ExecuteToggleCoreAsync(isOn);
-    }
-    
-    private async Task ExecuteToggleCoreAsync(bool isOn)
-    {
-        if (IsLoading) return;
-        
-        if (_item.PackageId != null)
-        {
-            IsLoading = true;
-            StatusText = isOn ? "Installing..." : "Uninstalling...";
-            
-            try
-            {
-                await _coreService.QueueWingetTaskAsync(_item.PackageId, isOn, Name);
-            }
-            catch (Exception ex)
-            {
-                StatusText = $"Error: {ex.Message}";
-            }
-            finally
-            {
-                IsLoading = false;
-                _ = ClearStatusAfterDelay();
-            }
-            return;
-        }
-        
         var command = isOn ? _item.TrueCommand : _item.FalseCommand;
-        
+        if (string.IsNullOrEmpty(command)) return;
+
         IsLoading = true;
-        StatusText = isOn ? "Enabling..." : "Disabling...";
+        StatusText = isOn ? "Working..." : "Reverting...";
         
         try
         {
             var (success, output, error) = await _coreService.ExecutePowerShellAsync(command);
-            StatusText = success ? "Done" : $"Error: {error}";
+            StatusText = success ? "Done" : "Failed";
+            
+            if (!success)
+            {
+                // Revert toggle visually if failed
+                _suppressCommand = true;
+                IsEnabled = !isOn;
+                _suppressCommand = false;
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            StatusText = $"Error: {ex.Message}";
+            StatusText = "Error";
+            _suppressCommand = true;
+            IsEnabled = !isOn;
+            _suppressCommand = false;
         }
         finally
         {
@@ -242,22 +184,22 @@ public partial class ItemViewModel : ViewModelBase
     [RelayCommand]
     private async Task ExecuteButton()
     {
-        if (IsLoading) return;
-        
-        var command = _item.TrueCommand;
+        if (IsLoading || string.IsNullOrEmpty(_item.TrueCommand)) return;
         
         IsLoading = true;
-        StatusText = "Running...";
+        StatusText = "Executing...";
         
         try
         {
-            // Simplified: All commands, including Start-Process, are run via PowerShell.
-            var (success, output, error) = await _coreService.ExecutePowerShellAsync(command);
-            StatusText = success ? "Done" : $"Error: {error}";
+            var (success, _, error) = await _coreService.ExecutePowerShellAsync(_item.TrueCommand);
+            StatusText = success ? "Done" : "Failed";
+            
+            // Trigger a re-check if we just ran an installation
+            if (success) await CheckStateAsync();
         }
-        catch (Exception ex)
+        catch
         {
-            StatusText = $"Error: {ex.Message}";
+            StatusText = "Error";
         }
         finally
         {
@@ -266,33 +208,19 @@ public partial class ItemViewModel : ViewModelBase
         }
     }
 
-    private async Task ClearStatusAfterDelay()
-    {
-        await Task.Delay(2000);
-        StatusText = string.Empty;
-    }
-    
     [RelayCommand]
     private async Task Delete()
     {
         if (IsLoading || !IsUserTweak) return;
         
         IsLoading = true;
-        StatusText = "Deleting...";
-        
-        try
-        {
-            OnDeleted?.Invoke(this);
-            StatusText = "Deleted";
-        }
-        catch (Exception ex)
-        {
-            StatusText = $"Error: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-            _ = ClearStatusAfterDelay();
-        }
+        OnDeleted?.Invoke(this);
+        IsLoading = false;
+    }
+
+    private async Task ClearStatusAfterDelay()
+    {
+        await Task.Delay(2000);
+        StatusText = string.Empty;
     }
 }
