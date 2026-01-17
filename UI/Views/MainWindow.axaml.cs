@@ -13,14 +13,14 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         
-        // Select first item after loading
+        
         Loaded += (s, e) =>
         {
             if (DataContext is MainWindowViewModel vm && vm.Features.Count > 0)
             {
                 vm.SelectedFeature = vm.Features[0];
                 
-                // Refresh dashboard if first feature is Dashboard
+                
                 if (vm.SelectedFeature.IsDashboard)
                 {
                     vm.SelectedFeature.RefreshDashboard(_systemInfoService);

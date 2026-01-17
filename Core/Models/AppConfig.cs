@@ -1,8 +1,5 @@
 namespace Winsane.Core.Models;
 
-/// <summary>
-/// Root configuration loaded from data.yaml
-/// </summary>
 public class AppConfig
 {
     public ThemeConfig? Theme { get; set; }
