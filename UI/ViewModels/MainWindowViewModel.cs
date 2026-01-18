@@ -59,20 +59,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task CreateBackupOnFirstRun()
     {
-        string flagPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Winsane",
-            ".setup_complete"
-        );
-        if (!File.Exists(flagPath))
+        try
         {
-            try
+            const string backupName = "Winsane First Run Backup";
+            if (await _coreService.RestorePointExistsAsync(backupName))
             {
-                await _coreService.CreateSystemRestorePointAsync("Winsane First Run Backup");
-
-                File.WriteAllText(flagPath, DateTime.Now.ToString());
+                return;
             }
-            catch { }
+
+            await _coreService.CreateSystemRestorePointAsync(backupName);
         }
+        catch { }
     }
 }

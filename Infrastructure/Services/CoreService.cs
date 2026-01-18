@@ -61,6 +61,14 @@ public class CoreService : IDisposable
         return success;
     }
 
+    public async Task<bool> RestorePointExistsAsync(string description)
+    {
+        string cmd =
+            $"Get-ComputerRestorePoint | Where-Object {{ $_.Description -eq '{description}' }}";
+        var (success, output, _) = await ExecutePowerShellAsync(cmd);
+        return success && !string.IsNullOrWhiteSpace(output);
+    }
+
     public void Dispose()
     {
         _generalSession?.Dispose();
