@@ -127,7 +127,15 @@ public partial class ItemViewModel : ViewModelBase
         if (_isInitialized)
             return;
         _isInitialized = true;
-        await CheckStateAsync();
+
+        var tasks = new List<Task> { CheckStateAsync() };
+
+        if (HasSubItems)
+        {
+            tasks.AddRange(SubItems.Select(x => x.InitializeAsync()));
+        }
+
+        await Task.WhenAll(tasks);
     }
 
     public async Task CheckStateAsync()
