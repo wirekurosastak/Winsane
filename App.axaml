@@ -81,7 +81,7 @@
     </Application.Resources>
   
     <Application.Styles>
-        <sty:FluentAvaloniaTheme PreferSystemTheme="True" />
+        <sty:FluentAvaloniaTheme PreferSystemTheme="True" PreferUserAccentColor="True" />
         
         <!-- Force White text on Accent buttons (User Request) -->
         <Style Selector="Button.accent">

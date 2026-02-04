@@ -75,7 +75,8 @@
                         Spacing="20">
                 <ui:ProgressRing IsIndeterminate="True" 
                                  Width="60" Height="60"
-                                 BorderThickness="6"/>
+                                 BorderThickness="6"
+                                 Foreground="{DynamicResource SystemAccentColor}"/>
                 <TextBlock Text="{Binding BusyMessage}"
                            FontSize="24"
                            FontWeight="SemiBold"
