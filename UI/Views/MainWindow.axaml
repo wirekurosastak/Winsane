@@ -21,48 +21,67 @@
         <cv:IconSourceConverter x:Key="IconSourceConverter"/>
     </Window.Resources>
 
-    <ui:NavigationView x:Name="NavView"
-                       PaneDisplayMode="Left"
-                       IsBackButtonVisible="False"
-                       IsPaneToggleButtonVisible="True"
-                       IsSettingsVisible="True"
-                       OpenPaneLength="200"
-                       ItemInvoked="NavView_ItemInvoked"
-                       SelectionChanged="NavView_SelectionChanged"
-                       MenuItemsSource="{Binding Features}">
-        
-        <ui:NavigationView.MenuItemTemplate>
-            <DataTemplate x:DataType="vm:FeatureViewModel">
-                <ui:NavigationViewItem Content="{Binding Name}"
-                                       Tag="{Binding}"
-                                       IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}"/>
-            </DataTemplate>
-        </ui:NavigationView.MenuItemTemplate>
+    <Grid>
+        <ui:NavigationView x:Name="NavView"
+                           PaneDisplayMode="Left"
+                           IsBackButtonVisible="False"
+                           IsPaneToggleButtonVisible="True"
+                           IsSettingsVisible="True"
+                           OpenPaneLength="200"
+                           ItemInvoked="NavView_ItemInvoked"
+                           SelectionChanged="NavView_SelectionChanged"
+                           MenuItemsSource="{Binding Features}">
+            
+            <ui:NavigationView.MenuItemTemplate>
+                <DataTemplate x:DataType="vm:FeatureViewModel">
+                    <ui:NavigationViewItem Content="{Binding Name}"
+                                           Tag="{Binding}"
+                                           IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}"/>
+                </DataTemplate>
+            </ui:NavigationView.MenuItemTemplate>
 
-        <ui:NavigationView.Content>
-            <Grid>
-                <!-- Feature Content -->
-                <ContentControl Content="{Binding SelectedFeature}"
-                                IsVisible="{Binding !IsSettingsVisible}">
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate x:DataType="vm:FeatureViewModel">
-                            <Grid>
-                                <!-- Dashboard View - only visible when IsDashboard is true -->
-                                <views:DashboardView DataContext="{Binding Dashboard}"
-                                                     IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
-                                
-                                <!-- Feature View - only visible when IsDashboard is false -->
-                                <views:FeatureView DataContext="{Binding}"
-                                                   IsVisible="{Binding !IsDashboard}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
-                
-                <!-- Settings View -->
-                <views:SettingsView DataContext="{Binding SettingsViewModel}"
-                                    IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsVisible}"/>
-            </Grid>
-        </ui:NavigationView.Content>
-</ui:NavigationView>
+            <ui:NavigationView.Content>
+                <Grid>
+                    <!-- Feature Content -->
+                    <ContentControl Content="{Binding SelectedFeature}"
+                                    IsVisible="{Binding !IsSettingsVisible}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate x:DataType="vm:FeatureViewModel">
+                                <Grid>
+                                    <!-- Dashboard View - only visible when IsDashboard is true -->
+                                    <views:DashboardView DataContext="{Binding Dashboard}"
+                                                         IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
+                                    
+                                    <!-- Feature View - only visible when IsDashboard is false -->
+                                    <views:FeatureView DataContext="{Binding}"
+                                                       IsVisible="{Binding !IsDashboard}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    
+                    <!-- Settings View -->
+                    <views:SettingsView DataContext="{Binding SettingsViewModel}"
+                                        IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsVisible}"/>
+                </Grid>
+            </ui:NavigationView.Content>
+        </ui:NavigationView>
+
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsBusy}" 
+              Background="#AA000000">
+            <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center" 
+                        Spacing="20">
+                <ui:ProgressRing IsIndeterminate="True" 
+                                 Width="60" Height="60"
+                                 BorderThickness="6"/>
+                <TextBlock Text="{Binding BusyMessage}"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Foreground="White"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Window>

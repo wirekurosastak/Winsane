@@ -22,6 +22,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private SettingsViewModel _settingsViewModel;
 
+    [ObservableProperty]
+    private bool _isBusy;
+
+    [ObservableProperty]
+    private string _busyMessage = "Loading...";
+
     public MainWindowViewModel(ConfigService configService, CoreService coreService)
     {
         _configService = configService;
@@ -39,15 +45,24 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task LoadConfigCoreAsync()
     {
+        IsBusy = true;
+        BusyMessage = "Initializing...";
+
         await CreateBackupOnFirstRun();
 
+        BusyMessage = "Reading System Configuration...";
         var config = await _configService.LoadConfigAsync();
+
+        var initializationTasks = new List<Task>();
 
         foreach (var feature in config.Features)
         {
             var featureVm = new FeatureViewModel(feature, _coreService, _configService, config);
+            initializationTasks.Add(featureVm.InitializationTask);
             Features.Add(featureVm);
         }
+
+        await Task.WhenAll(initializationTasks);
 
         SettingsViewModel.Initialize(_configService, config, _coreService);
 
@@ -55,6 +70,8 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             SelectedFeature = Features[0];
         }
+
+        IsBusy = false;
     }
 
     private async Task CreateBackupOnFirstRun()
@@ -67,6 +84,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
+            BusyMessage = "Creating First Run Backup...";
             await _coreService.CreateSystemRestorePointAsync(backupName);
         }
         catch { }

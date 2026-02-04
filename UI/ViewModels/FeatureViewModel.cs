@@ -13,6 +13,8 @@ public partial class FeatureViewModel : ViewModelBase
     [ObservableProperty]
     private string _name;
 
+    public Task InitializationTask { get; private set; } = Task.CompletedTask;
+
     [ObservableProperty]
     private string _icon;
 
@@ -53,9 +55,11 @@ public partial class FeatureViewModel : ViewModelBase
         }
     }
 
+
     private void InitializeItems(Feature feature, AppConfig? config)
     {
         var rawItems = new List<object>();
+        var initTasks = new List<Task>();
 
         if (feature.Items != null)
         {
@@ -67,7 +71,7 @@ public partial class FeatureViewModel : ViewModelBase
                     feature.Name.Equals("Installer", StringComparison.OrdinalIgnoreCase) == true;
                 var itemVm = new ItemViewModel(item, _coreService, _configService, isInstaller);
 
-                _ = itemVm.InitializeAsync();
+                initTasks.Add(itemVm.InitializeAsync());
 
                 if (item.IsCategory)
                 {
@@ -83,7 +87,7 @@ public partial class FeatureViewModel : ViewModelBase
                             _configService,
                             isInstaller
                         );
-                        _ = subItemVm.InitializeAsync();
+                        initTasks.Add(subItemVm.InitializeAsync());
 
                         group.Items.Add(subItemVm);
                         i++;
@@ -118,6 +122,7 @@ public partial class FeatureViewModel : ViewModelBase
         }
 
         DistributeItems(rawItems);
+        InitializationTask = Task.WhenAll(initTasks);
     }
 
     private void DistributeItems(List<object> items)
