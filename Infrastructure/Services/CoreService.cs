@@ -5,13 +5,20 @@ namespace Winsane.Infrastructure.Services;
 
 public class CoreService : IDisposable
 {
-    private PowerShellSession? _generalSession;
+    private readonly ConcurrentBag<PowerShellSession> _sessionPool = new();
+    private readonly SemaphoreSlim _poolSemaphore;
+    
     private PowerShellSession? _installerSession;
-
-    private readonly SemaphoreSlim _generalSemaphore = new(1, 1);
     private readonly SemaphoreSlim _installerSemaphore = new(1, 1);
+    
+    private bool _disposed;
 
-    public CoreService() { }
+    public CoreService() 
+    { 
+        // Allow up to ProcessorCount sessions for parallel checks
+        int poolSize = Math.Max(2, Environment.ProcessorCount);
+        _poolSemaphore = new SemaphoreSlim(poolSize, poolSize);
+    }
 
     public enum PowerShellLane
     {
@@ -24,32 +31,55 @@ public class CoreService : IDisposable
         PowerShellLane lane = PowerShellLane.General
     )
     {
-        PowerShellSession? session = null;
+        if (lane == PowerShellLane.Installer)
+        {
+            return await ExecuteInstallerCommandAsync(command);
+        }
 
-        var semaphore = lane == PowerShellLane.Installer ? _installerSemaphore : _generalSemaphore;
+        return await ExecutePooledCommandAsync(command);
+    }
 
-        await semaphore.WaitAsync();
-
+    private async Task<(bool Success, string Output, string Error)> ExecuteInstallerCommandAsync(string command)
+    {
+        await _installerSemaphore.WaitAsync();
         try
         {
-            if (lane == PowerShellLane.Installer)
+            if (_installerSession == null)
+                _installerSession = new PowerShellSession();
+            
+            return await _installerSession.ExecuteCommandAsync(command);
+        }
+        finally
+        {
+            _installerSemaphore.Release();
+        }
+    }
+
+    private async Task<(bool Success, string Output, string Error)> ExecutePooledCommandAsync(string command)
+    {
+        await _poolSemaphore.WaitAsync();
+        
+        PowerShellSession? session = null;
+        try
+        {
+            if (!_sessionPool.TryTake(out session))
             {
-                if (_installerSession == null)
-                    _installerSession = new PowerShellSession();
-                session = _installerSession;
-            }
-            else
-            {
-                if (_generalSession == null)
-                    _generalSession = new PowerShellSession();
-                session = _generalSession;
+                session = new PowerShellSession();
             }
 
             return await session.ExecuteCommandAsync(command);
         }
         finally
         {
-            semaphore.Release();
+            if (session != null && !_disposed)
+            {
+                _sessionPool.Add(session);
+            }
+            else
+            {
+                session?.Dispose();
+            }
+            _poolSemaphore.Release();
         }
     }
 
@@ -57,7 +87,7 @@ public class CoreService : IDisposable
     {
         string cmd =
             $"Checkpoint-Computer -Description \"{description}\" -RestorePointType \"MODIFY_SETTINGS\"";
-        var (success, _, _) = await ExecutePowerShellAsync(cmd);
+        var (success, _, _) = await ExecutePowerShellAsync(cmd, PowerShellLane.Installer);
         return success;
     }
 
@@ -65,15 +95,22 @@ public class CoreService : IDisposable
     {
         string cmd =
             $"Get-ComputerRestorePoint | Where-Object {{ $_.Description -eq '{description}' }}";
-        var (success, output, _) = await ExecutePowerShellAsync(cmd);
+        var (success, output, _) = await ExecutePowerShellAsync(cmd, PowerShellLane.General);
         return success && !string.IsNullOrWhiteSpace(output);
     }
 
     public void Dispose()
     {
-        _generalSession?.Dispose();
+        if (_disposed) return;
+        _disposed = true;
+
         _installerSession?.Dispose();
-        _generalSemaphore.Dispose();
         _installerSemaphore.Dispose();
+        _poolSemaphore.Dispose();
+        
+        foreach (var session in _sessionPool)
+        {
+            session.Dispose();
+        }
     }
 }

@@ -147,7 +147,7 @@ public partial class ItemViewModel : ViewModelBase
         {
             var (success, output, _) = await _coreService.ExecutePowerShellAsync(
                 _item.CheckCommand,
-                _lane
+                CoreService.PowerShellLane.General
             );
 
             if (success && bool.TryParse(output.Trim(), out bool result))

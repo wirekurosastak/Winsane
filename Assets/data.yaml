@@ -94,7 +94,7 @@ features:
         
     #CATEGORY    
     - category: Accessibility
-      icon: Speaker0
+      icon: Star
     
     - name: Disable Sticky Keys #🟢
       purpose: Prevents the prompt when pressing Shift 5 times.
@@ -603,7 +603,7 @@ features:
       
 #FEATURE
 - feature: Installer
-  icon: AllApps
+  icon: Download
   type: apps
   items:
   
@@ -901,7 +901,7 @@ features:
   
     #CATEGORY
     - category: Management
-    
+      icon: People
     #Is Start-Process really neccessary???
     - name: Computer Management (compmgmt.msc)
       purpose: Opens the 'God Mode' console (Events, Disk, Users, Scheduler).
@@ -927,7 +927,8 @@ features:
 
     #CATEGORY
     - category: System & Security
-    
+      icon: ReportHacked
+
     - name: User Accounts (netplwiz.exe)
       purpose: Manage user passwords and auto-login settings.
       true: Start-Process netplwiz.exe
@@ -949,7 +950,8 @@ features:
     
     #CATEGORY
     - category: Hardware & Storage
-    
+      icon: XboxConsole
+
     - name: Device Manager (devmgmt.msc)
       purpose: Manage hardware drivers and devices.
       true: Start-Process devmgmt.msc
@@ -962,7 +964,8 @@ features:
 
     #CATEGORY
     - category: Configuration
-    
+      icon: Setting
+
     - name: System Configuration (msconfig.exe)
       purpose: Manage boot options and startup services.
       true: Start-Process msconfig.exe
@@ -981,7 +984,8 @@ features:
 
     #CATEGORY
     - category: System Utilities
-    
+      icon: Calendar
+
     - name: God Mode (All Tasks)
       purpose: Opens a folder containing all available control panel settings.
       true: Start-Process "explorer.exe" -ArgumentList "shell:::{ED7BA470-8E54-465E-825C-99712043E01C}"
@@ -991,7 +995,8 @@ features:
       
     #CATEGORY
     - category: Shell & Terminal
-    
+      icon: Code
+
     - name: Command Prompt (Admin)
       purpose: Open an elevated Command Prompt window.
       true: Start-Process cmd.exe -Verb RunAs
@@ -1004,7 +1009,8 @@ features:
 
     #CATEGORY
     - category: Diagnostics
-    
+      icon: Ruler
+
     - name: Resource Monitor (resmon.exe)
       purpose: Deep detailed analysis of CPU, Disk, Network, and RAM usage.
       true: Start-Process resmon.exe
@@ -1025,3 +1031,8 @@ features:
 - feature: Dashboard
   icon: Home
   type: dashboard
+
+#FEATURE
+- feature: Power
+  icon: Power
+  type: power
