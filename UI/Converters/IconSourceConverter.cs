@@ -16,7 +16,7 @@ public class IconSourceConverter : IValueConverter
                 return new SymbolIconSource { Symbol = symbol };
             }
         }
-        return new SymbolIconSource { Symbol = Symbol.Settings };
+        return null;
     }
 
     public object? ConvertBack(

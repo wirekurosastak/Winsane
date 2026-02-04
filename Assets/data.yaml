@@ -9,6 +9,7 @@ features:
   
     #CATEGORY
     - category: Performance
+      icon: Target
     
     - name: Activate Windows/Office #🟢 massgrave.dev is an open source microsoft-activation tool, safe but possibly considered piracy
       purpose: Activate Windows and Office using massgrave.dev.
@@ -71,6 +72,7 @@ features:
         
     #CATEGORY    
     - category: Gaming
+      icon: Games
     
     - name: Gaming Mode #🟢
       purpose: Prioritizes system resources for gaming applications.
@@ -92,6 +94,7 @@ features:
         
     #CATEGORY    
     - category: Accessibility
+      icon: Speaker0
     
     - name: Disable Sticky Keys #🟢
       purpose: Prevents the prompt when pressing Shift 5 times.
@@ -101,6 +104,7 @@ features:
         
     #CATEGORY
     - category: Explorer & UI
+      icon: Edit
     
     - name: Align Taskbar to Left #🟢
       purpose: Moves taskbar icons to the left.
@@ -200,6 +204,7 @@ features:
 
     #CATEGORY
     - category: Security & Privacy
+      icon: ReportHacked
     
     #- name: Set Passwords to Never Expire
       #purpose: Disables the mandatory password expiration for all local user accounts.
@@ -269,6 +274,7 @@ features:
       
     #CATEGORY
     - category: Windows Update
+      icon: Sync
     
     - name: Exclude Drivers from Updates
       purpose: Prevents Windows Update from installing drivers.
@@ -456,6 +462,7 @@ features:
           
     #CATEGORY
     - category: Debloat - Remove Microsoft Components
+      icon: Delete
     
     - name: Bing Search
       purpose: Uninstalls the Bing Search integration.
@@ -602,6 +609,7 @@ features:
   
     #CATEGORY
     - category: Browsers
+      icon: Globe
     
     - name: Google Chrome
       purpose: Fast, secure, and customizable browser by Google.
@@ -646,6 +654,7 @@ features:
       
     #CATEGORY
     - category: Communication
+      icon: Message
     
     - name: Discord
       purpose: Voice, video, and text chat app for communities.
@@ -675,6 +684,7 @@ features:
       
     #CATEGORY
     - category: Gaming
+      icon: Games
     
     - name: Steam
       purpose: Digital distribution platform for video games.
@@ -704,6 +714,7 @@ features:
     
     #CATEGORY
     - category: Development
+      icon: Code
     
     - name: Visual Studio Code
       purpose: Lightweight but powerful source code editor.
@@ -768,6 +779,7 @@ features:
       
     #CATEGORY
     - category: Design & Editing
+      icon: Image
     
     - name: Blender
       purpose: Free and open-source 3D creation suite.
@@ -797,6 +809,7 @@ features:
     
     #CATEGORY
     - category: Productivity
+      icon: Calendar
     
     - name: LibreOffice
       purpose: Free and open-source office productivity software suite.
@@ -826,6 +839,7 @@ features:
     
     #CATEGORY
     - category: Media
+      icon: Play
     
     - name: VLC Media Player
       purpose: Free and open-source cross-platform multimedia player.
@@ -845,7 +859,8 @@ features:
       
     #CATEGORY
     - category: Utilities
-    
+      icon: Manage
+
     - name: Microsoft PowerToys
       purpose: A set of utilities for power users to tune their Windows experience.
       check: winget list --id Microsoft.PowerToys --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0

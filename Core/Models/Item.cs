@@ -10,6 +10,9 @@ public class Item
     public string Name { get; set; } = "Unknown Item";
     public string Purpose { get; set; } = string.Empty;
 
+    [YamlMember(Alias = "icon")]
+    public string? Icon { get; set; }
+
     [YamlMember(Alias = "true")]
     public string TrueCommand { get; set; } = string.Empty;
 

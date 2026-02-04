@@ -4,21 +4,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Winsane.UI.ViewModels"
              xmlns:views="using:Winsane.UI.Views"
+             xmlns:converters="using:Winsane.UI.Converters"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="Winsane.UI.Views.FeatureView"
              x:DataType="vm:FeatureViewModel">
     
     <UserControl.Resources>
+        <converters:IconSourceConverter x:Key="IconSourceConverter"/>
+
         <!-- Category Group Template (Dropdown) -->
         <DataTemplate x:Key="GroupTemplate" x:DataType="vm:ItemGroupViewModel">
             <ui:SettingsExpander Header="{Binding Header}"
                                  IsExpanded="True"
                                  ItemsSource="{Binding Items}"
-                                 Margin="0,4,0,8">
-                <ui:SettingsExpander.IconSource>
-                     <ui:SymbolIconSource Symbol="Settings"/>
-                </ui:SettingsExpander.IconSource>
+                                 Margin="0,4,0,8"
+                                 IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
+
                 <ui:SettingsExpander.ItemTemplate>
                     <DataTemplate x:DataType="vm:ItemViewModel">
                         <ui:SettingsExpanderItem Content="{Binding Name}"

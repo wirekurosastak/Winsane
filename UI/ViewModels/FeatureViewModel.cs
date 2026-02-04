@@ -75,7 +75,7 @@ public partial class FeatureViewModel : ViewModelBase
 
                 if (item.IsCategory)
                 {
-                    var group = new ItemGroupViewModel(item.Category);
+                    var group = new ItemGroupViewModel(item.Category, item.Icon);
 
                     i++;
                     while (i < feature.Items.Count && !feature.Items[i].IsCategory)
