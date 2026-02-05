@@ -48,13 +48,17 @@
                         <ContentControl.ContentTemplate>
                             <DataTemplate x:DataType="vm:FeatureViewModel">
                                 <Grid>
-                                    <!-- Dashboard View - only visible when IsDashboard is true -->
+                                    <!-- Dashboard View -->
                                     <views:DashboardView DataContext="{Binding Dashboard}"
                                                          IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
                                     
-                                    <!-- Feature View - only visible when IsDashboard is false -->
+                                    <!-- Power View -->
+                                    <views:PowerView DataContext="{Binding Power}"
+                                                     IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsPower}"/>
+                                    
+                                    <!-- Feature View -->
                                     <views:FeatureView DataContext="{Binding}"
-                                                       IsVisible="{Binding !IsDashboard}"/>
+                                                       IsVisible="{Binding IsGenericFeature}"/>
                                 </Grid>
                             </DataTemplate>
                         </ContentControl.ContentTemplate>

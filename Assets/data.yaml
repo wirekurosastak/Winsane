@@ -9,7 +9,7 @@ features:
   
     #CATEGORY
     - category: Performance
-      icon: Target
+      icon: Performance
     
     - name: Activate Windows/Office #🟢 massgrave.dev is an open source microsoft-activation tool, safe but possibly considered piracy
       purpose: Activate Windows and Office using massgrave.dev.
@@ -94,7 +94,7 @@ features:
         
     #CATEGORY    
     - category: Accessibility
-      icon: Star
+      icon: Accessibility
     
     - name: Disable Sticky Keys #🟢
       purpose: Prevents the prompt when pressing Shift 5 times.
@@ -1034,5 +1034,5 @@ features:
 
 #FEATURE
 - feature: Power
-  icon: Power
+  icon: PowerButton
   type: power
