@@ -106,6 +106,12 @@ features:
     - category: Explorer & UI
       icon: Edit
     
+    - name: Dark Mode #🟢
+      purpose: Sets System and App themes to Dark.
+      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -ErrorAction SilentlyContinue).AppsUseLightTheme -eq 0
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 1 -Type DWORD -Force;Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 1 -Type DWORD -Force
+
     - name: Align Taskbar to Left #🟢
       purpose: Moves taskbar icons to the left.
       check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -ErrorAction SilentlyContinue).TaskbarAl -eq 0
@@ -641,11 +647,11 @@ features:
       check: winget list --id Vivaldi.Vivaldi --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
       true: winget install --id Vivaldi.Vivaldi -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
       false: winget uninstall --id Vivaldi.Vivaldi -e --source winget --accept-source-agreements --silent
-    - name: Tor Browser
-      purpose: Browse with enhanced privacy and anonymity.
-      check: winget list --id TorProject.TorBrowser --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id TorProject.TorBrowser -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
-      false: winget uninstall --id TorProject.TorBrowser -e --source winget --accept-source-agreements --silent
+    #- name: Tor Browser #🟡Installs portable version
+    #  purpose: Browse with enhanced privacy and anonymity.
+    #  check: winget list --id TorProject.TorBrowser --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+    #  true: winget install --id TorProject.TorBrowser -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+    #  false: winget uninstall --id TorProject.TorBrowser -e --source winget --accept-source-agreements --silent
     - name: LibreWolf
       purpose: A fork of Firefox, focused on privacy, security and freedom.
       check: winget list --id LibreWolf.LibreWolf --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
@@ -656,11 +662,11 @@ features:
     - category: Communication
       icon: Message
     
-    - name: Discord
-      purpose: Voice, video, and text chat app for communities.
-      check: winget list --id Discord.Discord --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Discord.Discord -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
-      false: winget uninstall --id Discord.Discord -e --source winget --accept-source-agreements --silent
+    #- name: Discord #🟡Requires UAC prompt
+    #  purpose: Voice, video, and text chat app for communities.
+    #  check: winget list --id Discord.Discord --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+    #  true: winget install --id Discord.Discord -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+    #  false: winget uninstall --id Discord.Discord -e --source winget --accept-source-agreements --silent
     - name: Slack
       purpose: Team-based communication and collaboration platform.
       check: winget list --id SlackTechnologies.Slack --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
@@ -746,11 +752,11 @@ features:
       check: winget list --id Docker.DockerDesktop --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
       true: winget install --id Docker.DockerDesktop -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
       false: winget uninstall --id Docker.DockerDesktop -e --source winget --accept-source-agreements --silent
-    - name: XAMPP
-      purpose: Apache + MariaDB + PHP + Perl development environment.
-      check: winget list --id ApacheFriends.Xampp.8.2 --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id ApacheFriends.Xampp.8.2 -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
-      false: winget uninstall --id ApacheFriends.Xampp.8.2 -e --source winget --accept-source-agreements --silent
+    #- name: XAMPP #🟡Requires Firewall prompt
+    #  purpose: Apache + MariaDB + PHP + Perl development environment.
+    #  check: winget list --id ApacheFriends.Xampp.8.2 --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+    #  true: winget install --id ApacheFriends.Xampp.8.2 -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+    #  false: winget uninstall --id ApacheFriends.Xampp.8.2 -e --source winget --accept-source-agreements --silent
     - name: Postman
       purpose: The collaboration platform for API development.
       check: winget list --id Postman.Postman --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
@@ -831,11 +837,11 @@ features:
       check: winget list --id Mozilla.Thunderbird --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
       true: winget install --id Mozilla.Thunderbird -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
       false: winget uninstall --id Mozilla.Thunderbird -e --source winget --accept-source-agreements --silent
-    - name: AnyDesk
-      purpose: Remote desktop application for remote support and access.
-      check: winget list --id AnyDesk.AnyDesk --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id AnyDesk.AnyDesk -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
-      false: winget uninstall --id AnyDesk.AnyDesk -e --source winget --accept-source-agreements --silent
+    #- name: AnyDesk #🟡fail
+    #  purpose: Remote desktop application for remote support and access.
+    #  check: winget list --id AnyDesk.AnyDesk --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+    #  true: winget install --id AnyDesk.AnyDesk -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+    #  false: winget uninstall --id AnyDesk.AnyDesk -e --source winget --accept-source-agreements --silent
     
     #CATEGORY
     - category: Media
@@ -846,11 +852,11 @@ features:
       check: winget list --id VideoLAN.VLC --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
       true: winget install --id VideoLAN.VLC -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
       false: winget uninstall --id VideoLAN.VLC -e --source winget --accept-source-agreements --silent
-    - name: Spotify
-      purpose: Digital music, podcast, and video streaming service.
-      check: winget list --id Spotify.Spotify --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Spotify.Spotify -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
-      false: winget uninstall --id Spotify.Spotify -e --source winget --accept-source-agreements --silent
+    #- name: Spotify #🟡fail
+    #  purpose: Digital music, podcast, and video streaming service.
+    #  check: winget list --id Spotify.Spotify --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+    #  true: winget install --id Spotify.Spotify -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+    #  false: winget uninstall --id Spotify.Spotify -e --source winget --accept-source-agreements --silent
     - name: Audacity
       purpose: Free, open-source, cross-platform audio software.
       check: winget list --id Audacity.Audacity --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
@@ -876,11 +882,11 @@ features:
       check: winget list --id TechPowerUp.GPU-Z --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
       true: winget install --id TechPowerUp.GPU-Z -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
       false: winget uninstall --id TechPowerUp.GPU-Z -e --source winget --accept-source-agreements --silent
-    - name: Rufus
-      purpose: Utility that helps format and create bootable USB flash drives.
-      check: winget list --id Rufus.Rufus --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Rufus.Rufus -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
-      false: winget uninstall --id Rufus.Rufus -e --source winget --accept-source-agreements --silent
+    #- name: Rufus #🟡fail
+    #  purpose: Utility that helps format and create bootable USB flash drives.
+    #  check: winget list --id Rufus.Rufus --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
+    #  true: winget install --id Rufus.Rufus -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+    #  false: winget uninstall --id Rufus.Rufus -e --source winget --accept-source-agreements --silent
     - name: 7-Zip
       purpose: Free and open-source file archiver with a high compression ratio.
       check: winget list --id 7zip.7zip --exact --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
