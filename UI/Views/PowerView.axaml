@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Winsane.UI.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Winsane.UI.Views.PowerView"
+             x:DataType="vm:PowerViewModel">
+    
+    <ScrollViewer>
+        <StackPanel Spacing="20" Margin="24" MaxWidth="600" HorizontalAlignment="Left">
+            
+            <TextBlock Text="Power Timer" Theme="{StaticResource TitleTextBlockStyle}" />
+            
+            <TextBlock Text="Schedule a shutdown, restart, or other power action."
+                       Theme="{StaticResource CaptionTextBlockStyle}" 
+                       Opacity="0.6"/>
+
+            <!-- Card Border Replacement -->
+            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="24">
+                <StackPanel Spacing="24">
+                    
+                    <!-- Timer Inputs -->
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Set Timer" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Hours" Opacity="0.7" FontSize="12"/>
+                                <NumericUpDown Value="{Binding Hours}" Minimum="0" FormatString="0" Width="100"/>
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Minutes" Opacity="0.7" FontSize="12"/>
+                                <NumericUpDown Value="{Binding Minutes}" Minimum="0" Maximum="59" FormatString="0" Width="100"/>
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Seconds" Opacity="0.7" FontSize="12"/>
+                                <NumericUpDown Value="{Binding Seconds}" Minimum="0" Maximum="59" FormatString="0" Width="100"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Separator Opacity="0.2"/>
+
+                    <!-- Actions -->
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Actions" FontWeight="SemiBold"/>
+                        
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Command="{Binding ShutdownCommand}" Classes="accent" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ui:SymbolIcon Symbol="Stop" FontSize="16"/>
+                                    <TextBlock Text="Shutdown"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button Command="{Binding RestartCommand}" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ui:SymbolIcon Symbol="Sync" FontSize="16"/>
+                                    <TextBlock Text="Restart"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button Command="{Binding BiosCommand}" Margin="0,0,8,0" 
+                                    ToolTip.Tip="Requires Admin Privileges">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ui:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                    <TextBlock Text="Restart to Firmware (BIOS)"/>
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Spacing="8">
+                        <Button Command="{Binding CancelCommand}" Background="Transparent" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ui:SymbolIcon Symbol="Cancel" FontSize="16"/>
+                                <TextBlock Text="Cancel Scheduled Action"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

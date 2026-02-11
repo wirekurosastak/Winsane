@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Winsane.UI.ViewModels"
+             xmlns:views="using:Winsane.UI.Views"
+             xmlns:cv="using:Winsane.UI.Converters"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="Winsane.UI.Views.MainWindow"
+             x:DataType="vm:MainWindowViewModel"
+             Title="Winsane"
+             Width="1200" Height="800"
+             MinWidth="900" MinHeight="600"
+             WindowStartupLocation="CenterScreen"
+             WindowState="Maximized"
+             TransparencyLevelHint="Mica"
+             Background="Transparent">
+
+    <Window.Resources>
+        <cv:IconSourceConverter x:Key="IconSourceConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <ui:NavigationView x:Name="NavView"
+                           PaneDisplayMode="Left"
+                           IsBackButtonVisible="False"
+                           IsPaneToggleButtonVisible="True"
+                           IsSettingsVisible="True"
+                           OpenPaneLength="200"
+                           ItemInvoked="NavView_ItemInvoked"
+                           SelectionChanged="NavView_SelectionChanged"
+                           MenuItemsSource="{Binding Features}">
+            
+            <ui:NavigationView.MenuItemTemplate>
+                <DataTemplate x:DataType="vm:FeatureViewModel">
+                    <ui:NavigationViewItem Content="{Binding Name}"
+                                           Tag="{Binding}"
+                                           IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}"/>
+                </DataTemplate>
+            </ui:NavigationView.MenuItemTemplate>
+
+            <ui:NavigationView.Content>
+                <Grid>
+                    <!-- Feature Content -->
+                    <ContentControl Content="{Binding SelectedFeature}"
+                                    IsVisible="{Binding !IsSettingsVisible}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate x:DataType="vm:FeatureViewModel">
+                                <Grid>
+                                    <!-- Dashboard View -->
+                                    <views:DashboardView DataContext="{Binding Dashboard}"
+                                                         IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
+                                    
+                                    <!-- Power View -->
+                                    <views:PowerView DataContext="{Binding Power}"
+                                                     IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsPower}"/>
+                                    
+                                    <!-- Feature View -->
+                                    <views:FeatureView DataContext="{Binding}"
+                                                       IsVisible="{Binding IsGenericFeature}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    
+                    <!-- Settings View -->
+                    <views:SettingsView DataContext="{Binding SettingsViewModel}"
+                                        IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsVisible}"/>
+                </Grid>
+            </ui:NavigationView.Content>
+        </ui:NavigationView>
+
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsBusy}" 
+              Background="#AA000000">
+            <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center" 
+                        Spacing="20">
+                <ui:ProgressRing IsIndeterminate="True" 
+                                 Width="60" Height="60"
+                                 BorderThickness="6"
+                                 Foreground="{DynamicResource SystemAccentColor}"/>
+                <TextBlock Text="{Binding BusyMessage}"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Foreground="White"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

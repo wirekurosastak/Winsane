@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Winsane.UI.ViewModels"
+             xmlns:views="using:Winsane.UI.Views"
+             xmlns:converters="using:Winsane.UI.Converters"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Winsane.UI.Views.FeatureView"
+             x:DataType="vm:FeatureViewModel">
+    
+    <UserControl.Resources>
+        <converters:IconSourceConverter x:Key="IconSourceConverter"/>
+
+        <!-- Category Group Template (Dropdown) -->
+        <DataTemplate x:Key="GroupTemplate" x:DataType="vm:ItemGroupViewModel">
+            <ui:SettingsExpander Header="{Binding Header}"
+                                 IsExpanded="True"
+                                 ItemsSource="{Binding Items}"
+                                 Margin="0,4,0,8"
+                                 IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
+
+                <ui:SettingsExpander.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ItemViewModel">
+                        <ui:SettingsExpanderItem Content="{Binding Name}"
+                                                 Description="{Binding Purpose}">
+                            <ui:SettingsExpanderItem.Footer>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <!-- Status text -->
+                                    <TextBlock Text="{Binding StatusText}"
+                                              VerticalAlignment="Center"
+                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                              IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                    
+                                    <!-- Loading indicator -->
+                                    <ui:ProgressRing IsIndeterminate="True"
+                                                    Width="20" Height="20"
+                                                    IsVisible="{Binding IsLoading}"/>
+                                    
+                                    <!-- Toggle Switch -->
+                                    <ToggleSwitch IsChecked="{Binding IsEnabled}"
+                                                 IsVisible="{Binding ShowToggle}"
+                                                 IsEnabled="{Binding !IsLoading}"
+                                                 OnContent="{x:Null}"
+                                                 OffContent="{x:Null}"/>
+                                    
+                                    <!-- Run/Open Button -->
+                                    <Button Content="{Binding ButtonText}"
+                                           IsVisible="{Binding ShowRunButton}"
+                                           IsEnabled="{Binding !IsLoading}"
+                                           Command="{Binding ExecuteButtonCommand}"
+                                           Classes="accent"
+                                           Foreground="White"
+                                           Margin="0,0,7,0"/>
+                                    
+                                    <!-- Delete Button -->
+                                    <Button Content="Delete"
+                                           IsVisible="{Binding ShowDeleteButton}"
+                                           IsEnabled="{Binding !IsLoading}"
+                                           Command="{Binding DeleteCommand}"
+                                           Foreground="#E74856"/>
+                                </StackPanel>
+                            </ui:SettingsExpanderItem.Footer>
+                        </ui:SettingsExpanderItem>
+                    </DataTemplate>
+                </ui:SettingsExpander.ItemTemplate>
+            </ui:SettingsExpander>
+        </DataTemplate>
+        
+        <!-- Standalone Item Template -->
+        <DataTemplate x:Key="ItemTemplate" x:DataType="vm:ItemViewModel">
+            <views:ItemControl DataContext="{Binding}" Margin="0,0,0,8"/>
+        </DataTemplate>
+        
+        <!-- Add Tweak Template -->
+        <DataTemplate x:Key="AddTweakTemplate" x:DataType="vm:AddTweakViewModel">
+            <ui:SettingsExpander Header="Add Custom Tweak"
+                                 Description="Create your own PowerShell tweak"
+                                 IsExpanded="True"
+                                 ItemsSource="{Binding CombinedItems}">
+                <ui:SettingsExpander.IconSource>
+                     <ui:SymbolIconSource Symbol="Add"/>
+                </ui:SettingsExpander.IconSource>
+                
+                <ui:SettingsExpander.ItemTemplate>
+                    <DataTemplate>
+                        <ContentControl Content="{Binding}">
+                            <ContentControl.DataTemplates>
+                                <DataTemplate DataType="vm:AddTweakViewModel">
+                                    <views:AddTweakControl/>
+                                </DataTemplate>
+                                <DataTemplate DataType="vm:ItemViewModel">
+                                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemLeafTemplate}"/>
+                                </DataTemplate>
+                            </ContentControl.DataTemplates>
+                        </ContentControl>
+                    </DataTemplate>
+                </ui:SettingsExpander.ItemTemplate>
+            </ui:SettingsExpander>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Margin="24,24,24,24">
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto">
+                <!-- Left Column -->
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftColumnItems}" Margin="0,0,6,0">
+                     <ItemsControl.DataTemplates>
+                         <DataTemplate x:DataType="vm:ItemGroupViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>
+                         </DataTemplate>
+                         <DataTemplate x:DataType="vm:ItemViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemTemplate}"/>
+                         </DataTemplate>
+                         <DataTemplate x:DataType="vm:AddTweakViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource AddTweakTemplate}"/>
+                         </DataTemplate>
+                     </ItemsControl.DataTemplates>
+                </ItemsControl>
+                
+                <!-- Right Column -->
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding RightColumnItems}" Margin="6,0,0,0">
+                     <ItemsControl.DataTemplates>
+                         <DataTemplate x:DataType="vm:ItemGroupViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>
+                         </DataTemplate>
+                         <DataTemplate x:DataType="vm:ItemViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemTemplate}"/>
+                         </DataTemplate>
+                         <DataTemplate x:DataType="vm:AddTweakViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource AddTweakTemplate}"/>
+                         </DataTemplate>
+                     </ItemsControl.DataTemplates>
+                </ItemsControl>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
