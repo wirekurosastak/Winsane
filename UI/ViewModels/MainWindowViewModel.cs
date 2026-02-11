@@ -50,7 +50,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         await CreateBackupOnFirstRun();
 
-        BusyMessage = "Reading System Configuration...";
+        BusyMessage = "Reading Configuration...";
         var config = await _configService.LoadConfigAsync();
 
         var initializationTasks = new List<Task>();
@@ -84,7 +84,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            BusyMessage = "Creating First Run Backup...";
+            BusyMessage = "Creating Restore Point...";
             await _coreService.CreateSystemRestorePointAsync(backupName);
         }
         catch { }
