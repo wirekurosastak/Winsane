@@ -46,8 +46,8 @@ public partial class ItemViewModel : ViewModelBase
     [ObservableProperty]
     private bool _hasSubItems;
 
-    public bool ShowToggle => !ShowRunButton;
-    public bool ShowRunButton => !_item.IsIrreversible == false && !HasSubItems;
+    public bool ShowToggle => (!string.IsNullOrEmpty(_item.TrueCommand) || !string.IsNullOrEmpty(_item.FalseCommand)) || _hasSubItems;
+    public bool ShowRunButton => !string.IsNullOrEmpty(_item.ButtonCommand);
     public bool ShowDeleteButton => IsUserTweak;
     public bool IsInstaller => _lane == CoreService.PowerShellLane.Installer;
 
@@ -72,6 +72,7 @@ public partial class ItemViewModel : ViewModelBase
         _isHeader = item.IsCategory;
         _categoryName = item.Category;
         _isUserTweak = item.IsUserTweak;
+        _buttonText = !string.IsNullOrEmpty(item.ButtonText) ? item.ButtonText : "Run";
 
         if (item.SubItems.Any())
         {
@@ -207,7 +208,7 @@ public partial class ItemViewModel : ViewModelBase
     [RelayCommand]
     private async Task ExecuteButton()
     {
-        if (IsLoading || string.IsNullOrEmpty(_item.TrueCommand))
+        if (IsLoading || string.IsNullOrEmpty(_item.ButtonCommand))
             return;
 
         IsLoading = true;
@@ -216,7 +217,7 @@ public partial class ItemViewModel : ViewModelBase
         try
         {
             var (success, _, error) = await _coreService.ExecutePowerShellAsync(
-                _item.TrueCommand,
+                _item.ButtonCommand,
                 _lane
             );
             StatusText = success ? "Done" : "Failed";

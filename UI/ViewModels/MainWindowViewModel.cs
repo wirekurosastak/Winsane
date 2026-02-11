@@ -78,6 +78,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
+            string taskPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Winsane", "Cleaner");
+            Directory.CreateDirectory(taskPath);
+
             const string backupName = "Winsane First Run Backup";
             if (await _coreService.RestorePointExistsAsync(backupName))
             {

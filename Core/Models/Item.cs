@@ -19,6 +19,12 @@ public class Item
     [YamlMember(Alias = "false")]
     public string FalseCommand { get; set; } = string.Empty;
 
+    [YamlMember(Alias = "button")]
+    public string ButtonCommand { get; set; } = string.Empty;
+
+    [YamlMember(Alias = "button_text")]
+    public string ButtonText { get; set; } = string.Empty;
+
     [YamlMember(Alias = "check")]
     public string CheckCommand { get; set; } = string.Empty;
 
@@ -26,8 +32,6 @@ public class Item
     public List<Item> SubItems { get; set; } = new();
 
     public bool IsCategory => !string.IsNullOrEmpty(Category);
-
-    public bool IsIrreversible => string.IsNullOrEmpty(FalseCommand);
 
     [YamlMember(Alias = "is_user_tweak")]
     public bool IsUserTweak { get; set; } = false;
