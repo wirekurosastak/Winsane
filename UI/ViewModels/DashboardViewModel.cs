@@ -31,10 +31,12 @@ public partial class SystemViewModel : ViewModelBase
     private string _gpuName = "N/A";
 
     [ObservableProperty]
-    private string _gpuMemory = "N/A";
+    private string _gpu3DLoad = "N/A";
 
     [ObservableProperty]
-    private string _gpuUsage = "N/A";
+    private string _gpuVramUsage = "N/A";
+
+    private float _gpuVramTotalGb;
 
     [ObservableProperty]
     private string _osCaption = "N/A";
@@ -59,6 +61,17 @@ public partial class SystemViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _hyperVStatus = "N/A";
+
+    [ObservableProperty] private string _hostname = "N/A";
+    [ObservableProperty] private string _username = "N/A";
+    [ObservableProperty] private string _displayVersion = "N/A";
+    [ObservableProperty] private string _biosVersion = "N/A";
+    [ObservableProperty] private string _uptime = "N/A";
+
+    [ObservableProperty] private string _antivirusStatus = "N/A";
+    [ObservableProperty] private string _uacStatus = "N/A";
+    [ObservableProperty] private string _developerModeStatus = "N/A";
+    [ObservableProperty] private string _bitLockerStatus = "N/A";
 
     private Avalonia.Threading.DispatcherTimer? _refreshTimer;
     private SystemInfoService? _systemInfoService;
@@ -94,7 +107,7 @@ public partial class SystemViewModel : ViewModelBase
             CpuCores = info.CpuCores;
             RamSpeed = info.RamSpeed;
             GpuName = info.GpuName;
-            GpuMemory = info.GpuMemory;
+            _gpuVramTotalGb = info.GpuVramTotalGb;
             OsCaption = info.OsCaption;
             OsVersion = info.OsVersion;
             OsArch = info.OsArch;
@@ -103,6 +116,16 @@ public partial class SystemViewModel : ViewModelBase
             SecureBootStatus = info.SecureBootStatus;
             TpmStatus = info.TpmStatus;
             HyperVStatus = info.HyperVStatus;
+            
+            Hostname = info.Hostname;
+            Username = info.Username;
+            DisplayVersion = info.DisplayVersion;
+            BiosVersion = info.BiosVersion;
+            
+            AntivirusStatus = info.AntivirusStatus;
+            UacStatus = info.UacStatus;
+            DeveloperModeStatus = info.DeveloperModeStatus;
+            BitLockerStatus = info.BitLockerStatus;
         }
         catch { }
     }
@@ -120,8 +143,16 @@ public partial class SystemViewModel : ViewModelBase
             var (usedGb, totalGb, percentage) = _systemInfoService.GetRamUsage();
             RamUsage = $"{percentage:F1}% ({usedGb:F1} GB / {totalGb:F1} GB)";
 
-            var gpuUsage = _systemInfoService.GetGpuUsage();
-            GpuUsage = gpuUsage >= 0 ? $"{gpuUsage:F1}%" : "N/A";
+            var gpu3D = _systemInfoService.GetGpu3DLoad();
+            Gpu3DLoad = $"{gpu3D:F1}%";
+
+            var vramUsed = _systemInfoService.GetGpuVramUsageGb();
+            GpuVramUsage = _gpuVramTotalGb > 0 
+                ? $"{vramUsed:F1} GB / {_gpuVramTotalGb:F0} GB" 
+                : $"{vramUsed:F1} GB";
+
+            var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+            Uptime = $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s";
         }
         catch { }
     }

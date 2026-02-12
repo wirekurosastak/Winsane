@@ -13,7 +13,7 @@ public class ConfigService
     );
     private const string PrefsFileName = "user_tweaks.json";
     private const string RemoteConfigUrl =
-        "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/WinsaneC%23/Assets/data.yaml";
+        "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/main/Assets/data.yaml";
 
     private readonly IDeserializer _yamlDeserializer;
     private readonly HttpClient _httpClient;

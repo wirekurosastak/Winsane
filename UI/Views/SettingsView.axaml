@@ -11,7 +11,7 @@
     
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="8" MaxWidth="800" Margin="24">
+        <StackPanel Spacing="12" MaxWidth="800" Margin="24">
             <!-- Header -->
             <TextBlock Text="Settings"
                        Theme="{StaticResource TitleTextBlockStyle}"

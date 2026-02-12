@@ -18,7 +18,6 @@
             <ui:SettingsExpander Header="{Binding Header}"
                                  IsExpanded="True"
                                  ItemsSource="{Binding Items}"
-                                 Margin="0,4,0,8"
                                  IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
 
                 <ui:SettingsExpander.ItemTemplate>
@@ -70,7 +69,7 @@
         
         <!-- Standalone Item Template -->
         <DataTemplate x:Key="ItemTemplate" x:DataType="vm:ItemViewModel">
-            <views:ItemControl DataContext="{Binding}" Margin="0,0,0,8"/>
+            <views:ItemControl DataContext="{Binding}"/>
         </DataTemplate>
         
         <!-- Add Tweak Template -->
@@ -105,9 +104,14 @@
                   HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Margin="24,24,24,24">
-            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto" ColumnSpacing="12">
                 <!-- Left Column -->
-                <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftColumnItems}" Margin="0,0,6,0">
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftColumnItems}">
+                     <ItemsControl.ItemsPanel>
+                         <ItemsPanelTemplate>
+                             <StackPanel Spacing="12"/>
+                         </ItemsPanelTemplate>
+                     </ItemsControl.ItemsPanel>
                      <ItemsControl.DataTemplates>
                          <DataTemplate x:DataType="vm:ItemGroupViewModel">
                              <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>
@@ -122,7 +126,12 @@
                 </ItemsControl>
                 
                 <!-- Middle Column -->
-                <ItemsControl Grid.Column="1" ItemsSource="{Binding MiddleColumnItems}" Margin="6,0,6,0">
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding MiddleColumnItems}">
+                     <ItemsControl.ItemsPanel>
+                         <ItemsPanelTemplate>
+                             <StackPanel Spacing="12"/>
+                         </ItemsPanelTemplate>
+                     </ItemsControl.ItemsPanel>
                      <ItemsControl.DataTemplates>
                          <DataTemplate x:DataType="vm:ItemGroupViewModel">
                              <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>
@@ -137,7 +146,12 @@
                 </ItemsControl>
 
                 <!-- Right Column -->
-                <ItemsControl Grid.Column="2" ItemsSource="{Binding RightColumnItems}" Margin="6,0,0,0">
+                <ItemsControl Grid.Column="2" ItemsSource="{Binding RightColumnItems}">
+                     <ItemsControl.ItemsPanel>
+                         <ItemsPanelTemplate>
+                             <StackPanel Spacing="12"/>
+                         </ItemsPanelTemplate>
+                     </ItemsControl.ItemsPanel>
                      <ItemsControl.DataTemplates>
                          <DataTemplate x:DataType="vm:ItemGroupViewModel">
                              <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>

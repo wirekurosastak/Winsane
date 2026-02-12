@@ -8,7 +8,7 @@
              x:Class="Winsane.UI.Views.AddTweakControl"
              x:DataType="vm:AddTweakViewModel">
     
-    <StackPanel Spacing="16">
+    <StackPanel Spacing="12">
         <!-- Name -->
         <StackPanel Spacing="4">
             <TextBlock Text="Name" FontWeight="SemiBold"/>

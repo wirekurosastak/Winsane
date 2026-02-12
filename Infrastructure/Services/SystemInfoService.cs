@@ -10,6 +10,12 @@ public sealed class SystemInfoService : IDisposable
     private const string RegHyperV = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization";
     private const string WmiTpmNamespace = @"root\cimv2\Security\MicrosoftTpm";
     private const string WmiTpmQuery = "SELECT * FROM Win32_Tpm";
+    private const string WmiSecurityNamespace = @"root\SecurityCenter2";
+    private const string WmiBitLockerNamespace = @"root\CIMV2\Security\MicrosoftVolumeEncryption";
+    
+    private const string RegDisplayVersion = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
+    private const string RegUac = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System";
+    private const string RegDevMode = @"SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock";
 
     private static readonly string[] GpuRegistryPaths =
     {
@@ -28,13 +34,14 @@ public sealed class SystemInfoService : IDisposable
             return;
 
         _cpuCounter?.Dispose();
-        if (_gpuCounters != null)
+        if (_gpu3DCounters != null)
         {
-            foreach (var counter in _gpuCounters)
+            foreach (var counter in _gpu3DCounters)
             {
                 counter.Dispose();
             }
         }
+        _vramCounter?.Dispose();
         _ramCounter?.Dispose();
 
         _disposed = true;
@@ -51,6 +58,8 @@ public sealed class SystemInfoService : IDisposable
                 GetHardwareInfo(info);
                 GetOsInfo(info);
                 GetSecurityInfo(info);
+                GetExtraOsInfo(info);
+                GetExtraSecurityInfo(info);
             }
             catch { }
 
@@ -117,9 +126,21 @@ public sealed class SystemInfoService : IDisposable
                     if (vramBytes > 0)
                     {
                         var vramGb = vramBytes / 1024.0 / 1024.0 / 1024.0;
-                        info.GpuMemory =
-                            vramGb >= 1 ? $"{vramGb:F0} GB" : $"{vramBytes / 1024 / 1024} MB";
+                        info.GpuVramTotalGb = (float)vramGb;
                     }
+                    break;
+                }
+            }
+        }
+        catch { }
+        
+        try
+        {
+             using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_BIOS"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    info.BiosVersion = obj["SMBIOSBIOSVersion"]?.ToString()?.Trim() ?? "N/A";
                     break;
                 }
             }
@@ -136,7 +157,7 @@ public sealed class SystemInfoService : IDisposable
             );
             foreach (var obj in searcher.Get())
             {
-                info.OsCaption = obj["Caption"]?.ToString() ?? "N/A";
+                info.OsCaption = obj["Caption"]?.ToString()?.Replace("Microsoft ", "")?.Trim() ?? "N/A";
                 info.OsVersion = obj["Version"]?.ToString() ?? "N/A";
                 info.OsArch = obj["OSArchitecture"]?.ToString() ?? "N/A";
 
@@ -196,7 +217,8 @@ public sealed class SystemInfoService : IDisposable
     }
 
     private PerformanceCounter? _cpuCounter;
-    private List<PerformanceCounter>? _gpuCounters;
+    private List<PerformanceCounter>? _gpu3DCounters;
+    private PerformanceCounter? _vramCounter;
     private PerformanceCounter? _ramCounter;
     private bool _countersInitialized;
 
@@ -233,35 +255,53 @@ public sealed class SystemInfoService : IDisposable
     {
         try
         {
-            var category = new PerformanceCounterCategory("GPU Engine");
-            var instances = category.GetInstanceNames();
+            // 1. Initialize 3D Engine Counters
+            var categoryEngine = new PerformanceCounterCategory("GPU Engine");
+            var instanceNamesEngine = categoryEngine.GetInstanceNames();
 
-            _gpuCounters = new List<PerformanceCounter>();
-            foreach (var instance in instances)
+            _gpu3DCounters = new List<PerformanceCounter>();
+            foreach (var instance in instanceNamesEngine)
             {
-                if (!instance.Contains("engtype_3D") && !instance.Contains("engtype_Graphics"))
+                if (!instance.Contains("engtype_3D"))
                     continue;
 
-                if (!instance.Contains("_eng_0_"))
-                    continue;
-
+                // We try to capture all 3D engines to get a total "3D Load"
                 var counter = new PerformanceCounter(
                     "GPU Engine",
                     "Utilization Percentage",
                     instance
                 );
                 counter.NextValue();
-                _gpuCounters.Add(counter);
+                _gpu3DCounters.Add(counter);
             }
 
-            if (_gpuCounters.Count == 0)
+            if (_gpu3DCounters.Count == 0)
+                _gpu3DCounters = null;
+
+            // 2. Initialize VRAM Counter (GPU Adapter Memory -> Dedicated Usage)
+            // We'll simplisticly pick the first instance that looks like a physical adapter 
+            // or the one with the highest usage if we could measure. 
+            // For now, let's pick the first one that ends with _phys_0 (usually physical adapter 0)
+            var categoryMem = new PerformanceCounterCategory("GPU Adapter Memory");
+            var instanceNamesMem = categoryMem.GetInstanceNames();
+            
+            // Try to find one matching typical structure
+            var targetInstance = instanceNamesMem.FirstOrDefault(x => x.Contains("_phys_0"));
+            
+            // Fallback to first if not found
+            if (string.IsNullOrEmpty(targetInstance) && instanceNamesMem.Length > 0)
+                targetInstance = instanceNamesMem[0];
+
+            if (!string.IsNullOrEmpty(targetInstance))
             {
-                _gpuCounters = null;
+                _vramCounter = new PerformanceCounter("GPU Adapter Memory", "Dedicated Usage", targetInstance);
+                _vramCounter.NextValue();
             }
         }
         catch
         {
-            _gpuCounters = null;
+            _gpu3DCounters = null;
+            _vramCounter = null;
         }
     }
 
@@ -278,25 +318,43 @@ public sealed class SystemInfoService : IDisposable
         }
     }
 
-    public float GetGpuUsage()
+    public float GetGpu3DLoad()
     {
         EnsureCountersInitialized();
         try
         {
-            if (_gpuCounters == null || _gpuCounters.Count == 0)
-                return -1f;
+            if (_gpu3DCounters == null || _gpu3DCounters.Count == 0)
+                return 0f;
 
             float totalUsage = 0f;
-            foreach (var counter in _gpuCounters)
+            foreach (var counter in _gpu3DCounters)
             {
                 totalUsage += counter.NextValue();
             }
 
+            // Cap at 100% just in case
             return Math.Min(totalUsage, 100f);
         }
         catch
         {
-            return -1f;
+            return 0f;
+        }
+    }
+
+    public float GetGpuVramUsageGb()
+    {
+        EnsureCountersInitialized();
+        try
+        {
+            if (_vramCounter == null) return 0f;
+            
+            // Counter returns bytes
+            var bytes = _vramCounter.NextValue();
+            return (float)(bytes / 1024.0 / 1024.0 / 1024.0);
+        }
+        catch 
+        { 
+            return 0f;
         }
     }
 
@@ -367,5 +425,67 @@ public sealed class SystemInfoService : IDisposable
         catch { }
 
         return 0;
+    }
+
+
+    private void GetExtraOsInfo(SystemInfo info)
+    {
+        try
+        {
+            info.Hostname = Environment.MachineName;
+            info.Username = Environment.UserName;
+            info.Uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegDisplayVersion);
+            info.DisplayVersion = key?.GetValue("DisplayVersion")?.ToString() ?? "N/A";
+        }
+        catch { }
+    }
+
+    private void GetExtraSecurityInfo(SystemInfo info)
+    {
+        try
+        {
+            // Antivirus
+            using (var searcher = new ManagementObjectSearcher(WmiSecurityNamespace, "SELECT * FROM AntivirusProduct"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    info.AntivirusStatus = obj["displayName"]?.ToString() ?? "Unknown";
+                    break;
+                }
+                if (info.AntivirusStatus == "N/A") info.AntivirusStatus = "None";
+            }
+
+            
+            // UAC
+            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegUac))
+            {
+                 var val = key?.GetValue("EnableLUA");
+                 info.UacStatus = val?.ToString() == "1" ? "Enabled" : "Disabled";
+            }
+
+            // Developer Mode
+             using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(RegDevMode))
+            {
+                 var val = key?.GetValue("AllowDevelopmentWithoutDevLicense");
+                 info.DeveloperModeStatus = val?.ToString() == "1" ? "Enabled" : "Disabled";
+            }
+
+            // BitLocker
+            try
+            {
+                using (var searcher = new ManagementObjectSearcher(WmiBitLockerNamespace, "SELECT * FROM Win32_EncryptableVolume WHERE DriveLetter = 'C:'"))
+                {
+                    foreach (var obj in searcher.Get())
+                    {
+                        var status = obj["ProtectionStatus"]?.ToString();
+                        info.BitLockerStatus = status == "1" ? "Enabled" : "Disabled";
+                        break;
+                    }
+                }
+            } catch {}
+        }
+        catch { }
     }
 }

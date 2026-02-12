@@ -19,8 +19,7 @@
                                          Description="{Binding Purpose}"
                                          ItemsSource="{Binding SubItems}"
                                          ItemTemplate="{DynamicResource RecursiveItemTemplate}"
-                                         IsExpanded="False"
-                                         Margin="0,4">
+                                         IsExpanded="False">
                          <ui:SettingsExpander.IconSource>
                             <ui:SymbolIconSource Symbol="Folder"/>
                          </ui:SettingsExpander.IconSource>
@@ -52,8 +51,7 @@
                             Description="{Binding Purpose}"
                             ItemsSource="{Binding SubItems}"
                             ItemTemplate="{StaticResource RecursiveItemTemplate}"
-                            IsExpanded="False"
-                            Margin="0,4">
+                            IsExpanded="False">
             
             <ui:SettingsExpander.Footer>
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemFooterTemplate}"/>
