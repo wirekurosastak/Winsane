@@ -36,7 +36,8 @@
             <ui:NavigationView.PaneHeader>
                 <StackPanel Spacing="5" Margin="0,5,10,0" 
                             IsVisible="{Binding #NavView.IsPaneOpen}">
-                    <TextBox Watermark="Search..."
+                    <TextBox x:Name="SearchBox"
+                             Watermark="Search..."
                              Width="130"
                              Text="{Binding SearchText, Mode=TwoWay}"/>
                     

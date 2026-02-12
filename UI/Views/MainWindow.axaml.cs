@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using FluentAvalonia.UI.Controls;
 using Winsane.UI.ViewModels;
 using Winsane.Infrastructure.Services;
@@ -61,6 +62,27 @@ public partial class MainWindow : Window
             {
                 feature.RefreshSystem(_systemInfoService);
             }
+        }
+    }
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+
+        if (e.Key == Key.F && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            var navView = this.FindControl<NavigationView>("NavView");
+            if (navView != null)
+            {
+                navView.IsPaneOpen = true;
+            }
+
+            var searchBox = this.FindControl<TextBox>("SearchBox");
+            if (searchBox != null)
+            {
+                searchBox.Text = string.Empty;
+                searchBox.Focus();
+            }
+            e.Handled = true;
         }
     }
 }
