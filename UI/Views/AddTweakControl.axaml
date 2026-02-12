@@ -16,6 +16,17 @@
                      Watermark="Enter tweak name"
                      IsEnabled="{Binding !IsAdding}"/>
         </StackPanel>
+
+        <!-- Check Status Command -->
+        <StackPanel Spacing="4">
+            <TextBlock Text="Check Command (PowerShell)" FontWeight="SemiBold"/>
+            <TextBox Text="{Binding CheckCommand}"
+                     Watermark="Reliable for switch state"
+                     IsEnabled="{Binding !IsAdding}"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     MinHeight="60"/>
+        </StackPanel>
         
         <!-- PowerShell ON Command -->
         <StackPanel Spacing="4">

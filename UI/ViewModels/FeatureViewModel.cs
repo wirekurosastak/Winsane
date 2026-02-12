@@ -71,6 +71,7 @@ public partial class FeatureViewModel : ViewModelBase
             while (i < feature.Items.Count)
             {
                 var item = feature.Items[i];
+
                 bool isInstaller =
                     feature.Name.Equals("Installer", StringComparison.OrdinalIgnoreCase) == true;
                 var itemVm = new ItemViewModel(item, _coreService, _configService, isInstaller);
@@ -97,7 +98,8 @@ public partial class FeatureViewModel : ViewModelBase
                         i++;
                     }
 
-                    rawItems.Add(group);
+                    if (group.Items.Any())
+                         rawItems.Add(group);
                 }
                 else
                 {
@@ -111,10 +113,14 @@ public partial class FeatureViewModel : ViewModelBase
         {
             var existingUserTweaks =
                 feature
-                    .Items?.Where(x => x.IsUserTweak)
-                    .Select(x => new ItemViewModel(x, _coreService, _configService, false))
-                    .ToList()
-                ?? new List<ItemViewModel>();
+                    .UserTweaks.Where(x => x.IsUserTweak)
+                    .Select(x => 
+                    {
+                        var vm = new ItemViewModel(x, _coreService, _configService, false);
+                        initTasks.Add(vm.InitializeAsync());
+                        return vm;
+                    })
+                    .ToList();
 
             var addTweakVm = new AddTweakViewModel(
                 config,

@@ -46,7 +46,7 @@ public partial class ItemViewModel : ViewModelBase
     [ObservableProperty]
     private bool _hasSubItems;
 
-    public bool ShowToggle => (!string.IsNullOrEmpty(_item.TrueCommand) || !string.IsNullOrEmpty(_item.FalseCommand)) || _hasSubItems;
+    public bool ShowToggle => (!string.IsNullOrEmpty(_item.TrueCommand) || !string.IsNullOrEmpty(_item.FalseCommand)) || HasSubItems;
     public bool ShowRunButton => !string.IsNullOrEmpty(_item.ButtonCommand);
     public bool ShowDeleteButton => IsUserTweak;
     public bool IsInstaller => _lane == CoreService.PowerShellLane.Installer;
@@ -70,11 +70,11 @@ public partial class ItemViewModel : ViewModelBase
         _name = item.Name;
         _purpose = item.Purpose;
         _isHeader = item.IsCategory;
-        _categoryName = item.Category;
+        _categoryName = item.Category ?? string.Empty;
         _isUserTweak = item.IsUserTweak;
         _buttonText = !string.IsNullOrEmpty(item.ButtonText) ? item.ButtonText : "Run";
 
-        if (item.SubItems.Any())
+        if (item.SubItems?.Any() == true)
         {
             HasSubItems = true;
             foreach (var subItem in item.SubItems)
@@ -120,7 +120,7 @@ public partial class ItemViewModel : ViewModelBase
             return;
         }
 
-        ExecuteToggleAsync(value);
+        _ = ExecuteToggleAsync(value);
     }
 
     public async Task InitializeAsync()

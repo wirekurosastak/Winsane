@@ -23,6 +23,9 @@ public partial class AddTweakViewModel : ViewModelBase
     private string _purpose = string.Empty;
 
     [ObservableProperty]
+    private string _checkCommand = string.Empty;
+
+    [ObservableProperty]
     private string _trueCommand = string.Empty;
 
     [ObservableProperty]
@@ -85,6 +88,13 @@ public partial class AddTweakViewModel : ViewModelBase
             return;
         }
 
+
+        if (string.IsNullOrWhiteSpace(CheckCommand))
+        {
+            ErrorMessage = "Check command is required.";
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(TrueCommand))
         {
             ErrorMessage = "PowerShell ON command is required.";
@@ -106,7 +116,8 @@ public partial class AddTweakViewModel : ViewModelBase
                 Name,
                 Purpose,
                 TrueCommand,
-                FalseCommand
+                FalseCommand,
+                CheckCommand
             );
 
             if (newItem != null)
@@ -116,12 +127,15 @@ public partial class AddTweakViewModel : ViewModelBase
                     IsUserTweak = true,
                 };
 
+                await itemVm.InitializeAsync();
+
                 RegisterTweak(itemVm);
 
                 Name = string.Empty;
                 Purpose = string.Empty;
                 TrueCommand = string.Empty;
                 FalseCommand = string.Empty;
+                CheckCommand = string.Empty;
             }
             else
             {

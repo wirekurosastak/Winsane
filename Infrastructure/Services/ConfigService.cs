@@ -11,7 +11,7 @@ public class ConfigService
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Winsane"
     );
-    private const string PrefsFileName = "user_prefs.json";
+    private const string PrefsFileName = "user_tweaks.json";
     private const string RemoteConfigUrl =
         "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/WinsaneC%23/Assets/data.yaml";
 
@@ -49,12 +49,16 @@ public class ConfigService
         {
             Theme = config.Theme,
 
-            CustomTweaks = FlattenItems(config.Features).Where(i => i.IsUserTweak).ToList(),
+            UserTweaks = FlattenItems(config.Features).Where(i => i.IsUserTweak).ToList(),
         };
 
         var json = JsonSerializer.Serialize(
             prefs,
-            new JsonSerializerOptions { WriteIndented = true }
+            new JsonSerializerOptions 
+            { 
+                WriteIndented = true, 
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault 
+            }
         );
         await File.WriteAllTextAsync(PrefsFilePath, json);
     }
@@ -79,7 +83,7 @@ public class ConfigService
             ?? throw new InvalidOperationException("Critical: Embedded config not found.");
 
         using var reader = new StreamReader(stream);
-        return _yamlDeserializer.Deserialize<AppConfig>(await reader.ReadToEndAsync());
+        return _yamlDeserializer.Deserialize<AppConfig>(await reader.ReadToEndAsync()) ?? new AppConfig();
     }
 
     private async Task ApplyUserPrefsAsync(AppConfig config)
@@ -97,26 +101,19 @@ public class ConfigService
             if (prefs.Theme != null)
                 config.Theme = prefs.Theme;
 
-            if (prefs.CustomTweaks?.Any() == true)
+            if (prefs.UserTweaks?.Any() == true)
             {
                 var targetFeature = config.Features.FirstOrDefault(f =>
                     f.UserTweaksSection != null
                 );
                 if (targetFeature != null)
                 {
-                    if (
-                        !targetFeature.Items.Any(i => i.Category == targetFeature.UserTweaksSection)
-                    )
-                        targetFeature.Items.Add(
-                            new Item { Category = targetFeature.UserTweaksSection }
-                        );
-
-                    foreach (var tweak in prefs.CustomTweaks)
+                    foreach (var tweak in prefs.UserTweaks)
                     {
-                        if (!targetFeature.Items.Any(i => i.Name == tweak.Name))
+                        if (!targetFeature.UserTweaks.Any(i => i.Name == tweak.Name))
                         {
                             tweak.IsUserTweak = true;
-                            targetFeature.Items.Add(tweak);
+                            targetFeature.UserTweaks.Add(tweak);
                         }
                     }
                 }
@@ -132,15 +129,24 @@ public class ConfigService
 
         foreach (var f in features)
         {
-            if (f.Items == null)
-                continue;
-            foreach (var i in f.Items)
+            if (f.Items != null)
             {
-                yield return i;
-                if (i.SubItems != null)
+                foreach (var i in f.Items)
                 {
-                    foreach (var s in i.SubItems)
-                        yield return s;
+                    yield return i;
+                    if (i.SubItems != null)
+                    {
+                        foreach (var s in i.SubItems)
+                            yield return s;
+                    }
+                }
+            }
+            
+            if (f.UserTweaks != null)
+            {
+                foreach (var i in f.UserTweaks)
+                {
+                    yield return i;
                 }
             }
         }
@@ -151,7 +157,8 @@ public class ConfigService
         string name,
         string purpose,
         string trueCmd,
-        string falseCmd
+        string falseCmd,
+        string checkCmd
     )
     {
         var targetFeature = config.Features.FirstOrDefault(f => f.UserTweaksSection != null);
@@ -164,10 +171,11 @@ public class ConfigService
             Purpose = purpose,
             TrueCommand = trueCmd,
             FalseCommand = falseCmd,
+            CheckCommand = checkCmd,
             IsUserTweak = true,
         };
 
-        targetFeature.Items.Add(newItem);
+        targetFeature.UserTweaks.Add(newItem);
         await SaveConfigAsync(config);
         return newItem;
     }
@@ -178,10 +186,10 @@ public class ConfigService
         if (targetFeature == null)
             return;
 
-        var item = targetFeature.Items.FirstOrDefault(i => i.Name == name && i.IsUserTweak);
+        var item = targetFeature.UserTweaks.FirstOrDefault(i => i.Name == name && i.IsUserTweak);
         if (item != null)
         {
-            targetFeature.Items.Remove(item);
+            targetFeature.UserTweaks.Remove(item);
             await SaveConfigAsync(config);
         }
     }
@@ -190,5 +198,5 @@ public class ConfigService
 public class UserPrefs
 {
     public ThemeConfig? Theme { get; set; }
-    public List<Item> CustomTweaks { get; set; } = new();
+    public List<Item> UserTweaks { get; set; } = new();
 }

@@ -14,4 +14,7 @@ public class Feature
     public string? UserTweaksSection { get; set; }
 
     public List<Item> Items { get; set; } = new();
+
+    [YamlIgnore]
+    public List<Item> UserTweaks { get; set; } = new();
 }
