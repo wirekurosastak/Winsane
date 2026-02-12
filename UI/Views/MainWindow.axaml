@@ -6,6 +6,7 @@
              xmlns:views="using:Winsane.UI.Views"
              xmlns:cv="using:Winsane.UI.Converters"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:models="using:Winsane.UI.Models"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="Winsane.UI.Views.MainWindow"
              x:DataType="vm:MainWindowViewModel"
@@ -31,6 +32,43 @@
                            ItemInvoked="NavView_ItemInvoked"
                            SelectionChanged="NavView_SelectionChanged"
                            MenuItemsSource="{Binding Features}">
+            
+            <ui:NavigationView.PaneHeader>
+                <StackPanel Spacing="5" Margin="0,5,10,0" 
+                            IsVisible="{Binding #NavView.IsPaneOpen}">
+                    <TextBox Watermark="Search..."
+                             Width="130"
+                             Text="{Binding SearchText, Mode=TwoWay}"/>
+                    
+                    <Popup IsOpen="{Binding IsSearchPopupOpen, Mode=TwoWay}"
+                           PlacementTarget="{Binding $parent[TextBox]}"
+                           Placement="Bottom"
+                           IsLightDismissEnabled="True">
+                        <Border Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}"
+                                CornerRadius="4"
+                                MaxHeight="800" MaxWidth="290">
+                            <ListBox ItemsSource="{Binding SearchResults}"
+                                     SelectedItem="{Binding SelectedSearchResult, Mode=TwoWay}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="models:SearchResultItem">
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Subtitle}" 
+                                                           FontSize="10" 
+                                                           Opacity="0.6"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Popup>
+                </StackPanel>
+            </ui:NavigationView.PaneHeader>
             
             <ui:NavigationView.MenuItemTemplate>
                 <DataTemplate x:DataType="vm:FeatureViewModel">

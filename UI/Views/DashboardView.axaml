@@ -8,7 +8,7 @@
              x:Class="Winsane.UI.Views.SystemView"
              x:DataType="vm:SystemViewModel">
     
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
         <Grid Margin="24" ColumnSpacing="12">
             <Grid.ColumnDefinitions>
@@ -30,23 +30,24 @@
                                 <StackPanel Spacing="12" IsVisible="{Binding !IsTimerRunning}">
                                     <TextBlock Text="Set Timer" FontWeight="SemiBold" Margin="4,0,0,0"/>
                                     
-                                    <Grid ColumnDefinitions="Auto,Auto,Auto" 
+                                    <Grid ColumnDefinitions="*,*,*" 
                                           RowDefinitions="Auto,Auto"
-                                          ColumnSpacing="12" 
-                                          HorizontalAlignment="Center">
+                                          ColumnSpacing="12"
+                                          HorizontalAlignment="Center"
+                                          MaxWidth="450">
                                         
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Hours" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Minutes" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Seconds" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Hours" Opacity="0.7" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Minutes" Opacity="0.7" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Seconds" Opacity="0.7" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,4"/>
 
-                                        <NumericUpDown Grid.Row="1" Grid.Column="0" Value="{Binding Hours}" Minimum="0" FormatString="0" Width="110" HorizontalContentAlignment="Center"/>
-                                        <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Minutes}" Minimum="0" Maximum="59" FormatString="0" Width="110" HorizontalContentAlignment="Center"/>
-                                        <NumericUpDown Grid.Row="1" Grid.Column="2" Value="{Binding Seconds}" Minimum="0" Maximum="59" FormatString="0" Width="110" HorizontalContentAlignment="Center"/>
+                                        <NumericUpDown Grid.Row="1" Grid.Column="0" Value="{Binding Hours}" Minimum="0" FormatString="0" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch"/>
+                                        <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Minutes}" Minimum="0" Maximum="59" FormatString="0" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch"/>
+                                        <NumericUpDown Grid.Row="1" Grid.Column="2" Value="{Binding Seconds}" Minimum="0" Maximum="59" FormatString="0" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch"/>
                                     </Grid>
                                 </StackPanel>
 
                                 <StackPanel Spacing="12" IsVisible="{Binding IsTimerRunning}">
-                                    <TextBlock Text="Action executing in:" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding StatusMessage, StringFormat='{}{0} in:'}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                                     <Viewbox Height="48">
                                         <TextBlock Text="{Binding RemainingTimeMessage}" 
                                                    FontWeight="Light" 
