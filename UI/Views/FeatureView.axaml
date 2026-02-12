@@ -79,7 +79,7 @@
                                  IsExpanded="True"
                                  ItemsSource="{Binding CombinedItems}">
                 <ui:SettingsExpander.IconSource>
-                     <ui:SymbolIconSource Symbol="Add"/>
+                     <ui:FontIconSource Glyph="&#xE710;" FontFamily="Segoe Fluent Icons"/>
                 </ui:SettingsExpander.IconSource>
                 
                 <ui:SettingsExpander.ItemTemplate>

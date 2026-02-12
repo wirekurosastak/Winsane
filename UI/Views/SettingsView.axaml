@@ -46,7 +46,7 @@
                                  Description="Application information"
                                  IsExpanded="True">
                 <ui:SettingsExpander.IconSource>
-                <ui:SymbolIconSource Symbol="Help"/>
+                <ui:FontIconSource Glyph="&#xF167;" FontFamily="Segoe Fluent Icons"/>
                 </ui:SettingsExpander.IconSource>
                 
                 <ui:SettingsExpanderItem Content="Winsane"

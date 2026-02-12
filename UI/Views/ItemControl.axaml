@@ -21,7 +21,7 @@
                                          ItemTemplate="{DynamicResource RecursiveItemTemplate}"
                                          IsExpanded="False">
                          <ui:SettingsExpander.IconSource>
-                            <ui:SymbolIconSource Symbol="Folder"/>
+                            <ui:FontIconSource Glyph="&#xE8B7;" FontFamily="Segoe Fluent Icons"/>
                          </ui:SettingsExpander.IconSource>
                          <ui:SettingsExpander.Footer>
                              <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemFooterTemplate}"/>

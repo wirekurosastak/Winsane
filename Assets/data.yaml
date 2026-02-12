@@ -2,14 +2,14 @@
 features:
 #FEATURE
 - feature: Tweaks
-  icon: Settings
+  icon: "&#xE713;"
   type: standard
   user_tweaks_section: User
   items:
   
     #CATEGORY
     - category: Performance
-      icon: Performance
+      icon: "&#xEC4A;" #WinUI 3 Gallery
       column: 0
     
     - name: Activate Windows/Office #🟢 massgrave.dev is an open-source microsoft-activation tool, safe but possibly considered piracy.
@@ -74,7 +74,7 @@ features:
         
     #CATEGORY    
     - category: Gaming
-      icon: Games
+      icon: "&#xE7FC;"
       column: 0
     
     - name: Gaming Mode #🟢
@@ -103,20 +103,20 @@ features:
 
     #CATEGORY
     - category: Security & Privacy
-      icon: ReportHacked
+      icon: "&#xEA18;"
       column: 1
     
-    - name: Set Passwords to Never Expire
-      purpose: Disables the mandatory password expiration for all local user accounts
-      check: #🔴
-      true: Get-LocalUser | Set-LocalUser -PasswordNeverExpires $true
-      false: #🔴
+    #- name: Set Passwords to Never Expire
+    #  purpose: Disables the mandatory password expiration for all local user accounts
+    #  check: #🔴
+    #  true: Get-LocalUser | Set-LocalUser -PasswordNeverExpires $true
+    #  false: #🔴
     
-    - name: Prevent Device Encryption #🔴
-      purpose: Prevents Windows from automatically enabling BitLocker/Device encryption
-      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -ErrorAction SilentlyContinue).PreventDeviceEncryption -eq 1
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Force
+    #- name: Prevent Device Encryption #🔴
+    #  purpose: Prevents Windows from automatically enabling BitLocker/Device encryption
+    # check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -ErrorAction SilentlyContinue).PreventDeviceEncryption -eq 1
+    #  true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Type DWord -Value 1 -Force
+    # false: Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Force
 
     - name: Remote Desktop (RDP)
       purpose: Enables Remote Desktop services and opens firewall ports
@@ -160,21 +160,21 @@ features:
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 1 -Force
       
-    - name: Disable Account Lockout Policy
-      purpose: Sets the account lockout threshold to 0 (disabled)
-      check: 
-      true: net accounts /lockoutthreshold:0
-      false: #🔴
+    #- name: Disable Account Lockout Policy
+    #  purpose: Sets the account lockout threshold to 0 (disabled)
+    #  check: 
+    #  true: net accounts /lockoutthreshold:0
+    #  false: #🔴
       
-    - name: Disable Smart App Control
-      purpose: Permanently turns off Smart App Control
-      check: 
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "VerifiedAndReputablePolicyState" -Type DWord -Value 0 -Force
-      false: #🔴
+    #- name: Disable Smart App Control
+    #  purpose: Permanently turns off Smart App Control
+    #  check: 
+    #  true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "VerifiedAndReputablePolicyState" -Type DWord -Value 0 -Force
+    #  false: #🔴
       
     #CATEGORY
     - category: Windows Update
-      icon: Sync
+      icon: "&#xE895;"
       column: 1
     
     - name: Exclude Drivers from Updates
@@ -191,7 +191,7 @@ features:
 
     #CATEGORY
     - category: Explorer & UI
-      icon: Edit
+      icon: "&#xEC50;"
       column: 2
     
     - name: Dark Mode #🟢
@@ -218,11 +218,11 @@ features:
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 2 -Force
       
-    - name: Long Paths #🟡UNTESTED
-      purpose: Removes the 260 character limit for file paths
-      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -ErrorAction SilentlyContinue).LongPathsEnabled -eq 1
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
-      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
+    #- name: Long Paths #🟡UNTESTED
+    #  purpose: Removes the 260 character limit for file paths
+    #  check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -ErrorAction SilentlyContinue).LongPathsEnabled -eq 1
+    #  true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
+    #  false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
         
     - name: Show File Extensions #🟢
       purpose: Forces Explorer to show file extensions
@@ -236,17 +236,17 @@ features:
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
       
-    - name: Show Protected OS Files #🟡UNTESTED
-      purpose: Reveals hidden system files (SuperHidden) in File Explorer
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -ErrorAction SilentlyContinue).ShowSuperHidden -eq 1
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+    #- name: Show Protected OS Files #🟡UNTESTED
+    #  purpose: Reveals hidden system files (SuperHidden) in File Explorer
+    #  check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -ErrorAction SilentlyContinue).ShowSuperHidden -eq 1
+    #  true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+    #  false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
       
-    - name: Show End Task in Taskbar #🟡UNTESTED
-      purpose: Enables the 'End Task' option when right-clicking an app on the taskbar
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -ErrorAction SilentlyContinue).TaskbarEndTask -eq 1
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Type DWord -Value 0 -Force
+    #- name: Show End Task in Taskbar #🟡UNTESTED
+    #  purpose: Enables the 'End Task' option when right-clicking an app on the taskbar
+    #  check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -ErrorAction SilentlyContinue).TaskbarEndTask -eq 1
+    #  true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force
+    #  false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Type DWord -Value 0 -Force
       
     - name: Hide Search Box #🟢
       purpose: Removes the search box/icon from the taskbar
@@ -260,17 +260,17 @@ features:
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1 -Force
       
-    - name: Disable Startup Sound #🟡UNTESTED
-      purpose: Prevents the Windows startup sound
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -ErrorAction SilentlyContinue).DisableStartupSound -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 1 -Force
-      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 0 -Force
+    #- name: Disable Startup Sound #🟡UNTESTED
+    #  purpose: Prevents the Windows startup sound
+    #  check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -ErrorAction SilentlyContinue).DisableStartupSound -eq 1
+    #  true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 1 -Force
+    #  false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 0 -Force
         
-    - name: Disable System Sounds #🟡UNTESTED
-      purpose: Sets the sound scheme to 'No Sounds'
-      check:
-      true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None'
-      false: #🔴
+    #- name: Disable System Sounds #🟡UNTESTED
+    #  purpose: Sets the sound scheme to 'No Sounds'
+    #  check:
+    #  true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None'
+    #  false: #🔴
       
     - name: Disable Lock Screen #🟢
       purpose: Skips the 'slide up' lock screen and goes straight to login
@@ -278,27 +278,27 @@ features:
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Force -ErrorAction SilentlyContinue
 
-    - name: Disable Consumer Features #🟡UNTESTED
-      purpose: Disables 'Suggested' apps and ads in the Start Menu
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
+    #- name: Disable Consumer Features #🟡UNTESTED
+    #  purpose: Disables 'Suggested' apps and ads in the Start Menu
+    #  check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
+    #  true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
+    #  false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
         
-    - name: Disable Xbox Game Bar #🟡UNTESTED
-      purpose: Disables the Game Bar overlay (Win+G)
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -ErrorAction SilentlyContinue).AppCaptureEnabled -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1 -Force
+    #- name: Disable Xbox Game Bar #🟡UNTESTED
+    #  purpose: Disables the Game Bar overlay (Win+G)
+    #  check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -ErrorAction SilentlyContinue).AppCaptureEnabled -eq 0
+    #  true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -Force
+    #  false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1 -Force
         
-    - name: Disable Widgets #🟡UNTESTED
-      purpose: Removes the Widgets button from the taskbar
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -ErrorAction SilentlyContinue).TaskbarDa -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type DWord -Value 1 -Force
+    #- name: Disable Widgets #🟡UNTESTED
+    #  purpose: Removes the Widgets button from the taskbar
+    #  check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -ErrorAction SilentlyContinue).TaskbarDa -eq 0
+    #  true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type DWord -Value 0 -Force
+    #  false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type DWord -Value 1 -Force
       
 #FEATURE
 - feature: Cleaner
-  icon: Delete
+  icon: "&#xEA99;"
   type: standard
   items:
 
@@ -612,7 +612,7 @@ features:
 
 #CATEGORY
     - category: Debloat - Remove Microsoft Components
-      icon: Delete
+      icon: "&#xE74D;"
       column: 2
     
     - name: Bing Search
@@ -799,13 +799,13 @@ features:
       
 #FEATURE
 - feature: Installer
-  icon: Download
+  icon: "&#xE896;"
   type: apps
   items:
   
     #CATEGORY
     - category: Browsers
-      icon: Globe
+      icon: "&#xE774;"
       column: 0
     
     - name: Google Chrome
@@ -862,7 +862,7 @@ features:
 
     #CATEGORY
     - category: Development
-      icon: Code
+      icon: "&#xE943;"
       column: 0
     
     - name: Visual Studio Code
@@ -928,7 +928,7 @@ features:
 
     #CATEGORY
     - category: Communication
-      icon: Message
+      icon: "&#xE8BD;"
       column: 1
     
     - name: Discord #🟡Requires UAC prompt
@@ -959,7 +959,7 @@ features:
 
     #CATEGORY
     - category: Gaming
-      icon: Games
+      icon: "&#xE7FC;"
       column: 1
     
     - name: Steam
@@ -990,7 +990,7 @@ features:
 
     #CATEGORY
     - category: Media
-      icon: Play
+      icon: "&#xE768;"
       column: 1
     
     - name: VLC Media Player
@@ -1016,7 +1016,7 @@ features:
       
     #CATEGORY
     - category: Design & Editing
-      icon: Image
+      icon: "&#xE91B;"
       column: 2
     
     - name: Blender
@@ -1047,7 +1047,7 @@ features:
     
     #CATEGORY
     - category: Utilities
-      icon: Manage
+      icon: "&#xEA86;"
       column: 2
 
     - name: Microsoft PowerToys
@@ -1078,7 +1078,7 @@ features:
 
     #CATEGORY
     - category: Productivity
-      icon: Calendar
+      icon: "&#xE821;"
       column: 2
     
     - name: LibreOffice
@@ -1104,13 +1104,13 @@ features:
 
 #FEATURE
 - feature: Admin Tools
-  icon: Admin
+  icon: "&#xE7EF;"
   type: standard
   items:
 
     #CATEGORY
     - category: Management
-      icon: People
+      icon: "&#xE912;"
       column: 0
 
     - name: Computer Management (compmgmt.msc)
@@ -1140,7 +1140,7 @@ features:
 
     #CATEGORY
     - category: Diagnostics
-      icon: Ruler
+      icon: "&#xE9D9;"
       column: 0
 
     - name: Resource Monitor (resmon.exe)
@@ -1164,7 +1164,7 @@ features:
 
     #CATEGORY
     - category: System & Security
-      icon: ReportHacked
+      icon: "&#xEA18;"
       column: 1
 
     - name: User Accounts (netplwiz.exe)
@@ -1191,7 +1191,7 @@ features:
 
     #CATEGORY
     - category: Configuration
-      icon: Setting
+      icon: "&#xE713;"
       column: 1
 
     - name: System Configuration (msconfig.exe)
@@ -1218,7 +1218,7 @@ features:
           
     #CATEGORY
     - category: Shell & Terminal
-      icon: Code
+      icon: "&#xE943;"
       column: 2
 
     - name: Command Prompt (Admin)
@@ -1233,7 +1233,7 @@ features:
       
     #CATEGORY
     - category: System Utilities
-      icon: Calendar
+      icon: "&#xEA86;"
       column: 2
 
     - name: God Mode (All Tasks)
@@ -1248,7 +1248,7 @@ features:
 
     #CATEGORY
     - category: Hardware & Storage
-      icon: XboxConsole
+      icon: "&#xE977;"
       column: 2
 
     - name: Device Manager (devmgmt.msc)
@@ -1269,5 +1269,5 @@ features:
 
 #FEATURE
 - feature: System
-  icon: PowerButton
+  icon: "&#xE9D9;"
   type: system

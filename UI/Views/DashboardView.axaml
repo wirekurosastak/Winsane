@@ -59,7 +59,7 @@
                                             HorizontalAlignment="Stretch"
                                             Classes="danger">
                                         <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                            <ui:SymbolIcon Symbol="Cancel" FontSize="16"/>
+                                            <ui:FontIcon Glyph="&#xE711;" FontFamily="Segoe Fluent Icons"/>
                                             <TextBlock Text="Cancel Action"/>
                                         </StackPanel>
                                     </Button>
@@ -76,35 +76,35 @@
                                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="12" ColumnSpacing="12">
                                     <Button Grid.Row="0" Grid.Column="0" Command="{Binding ShutdownCommand}" Classes="accent" HorizontalAlignment="Stretch" Height="70">
                                         <StackPanel Spacing="4">
-                                            <ui:SymbolIcon Symbol="Stop" FontSize="20"/>
+                                            <ui:FontIcon Glyph="&#xE71A;" FontFamily="Segoe Fluent Icons"/>
                                             <TextBlock Text="Shutdown" FontSize="11"/>
                                         </StackPanel>
                                     </Button>
                                     
                                     <Button Grid.Row="0" Grid.Column="1" Command="{Binding RestartCommand}" HorizontalAlignment="Stretch" Height="70">
                                         <StackPanel Spacing="4">
-                                            <ui:SymbolIcon Symbol="Sync" FontSize="20"/>
+                                            <ui:FontIcon Glyph="&#xE72C;" FontFamily="Segoe Fluent Icons"/>
                                             <TextBlock Text="Restart" FontSize="11"/>
                                         </StackPanel>
                                     </Button>
                                     
                                     <Button Grid.Row="1" Grid.Column="0" Command="{Binding SleepCommand}" HorizontalAlignment="Stretch" Height="70">
                                         <StackPanel Spacing="4">
-                                            <ui:SymbolIcon Symbol="WeatherHailNight" FontSize="20"/>
+                                            <ui:FontIcon Glyph="&#xE708;" FontFamily="Segoe Fluent Icons" FontSize="20"/>
                                             <TextBlock Text="Sleep" FontSize="11"/>
                                         </StackPanel>
                                     </Button>
 
                                     <Button Grid.Row="1" Grid.Column="1" Command="{Binding HibernateCommand}" HorizontalAlignment="Stretch" Height="70">
                                         <StackPanel Spacing="4">
-                                            <ui:SymbolIcon Symbol="Save" FontSize="20"/>
+                                            <ui:FontIcon Glyph="&#xE74E;" FontFamily="Segoe Fluent Icons"/>
                                             <TextBlock Text="Hibernate" FontSize="11"/>
                                         </StackPanel>
                                     </Button>
 
                                     <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding BiosCommand}" HorizontalAlignment="Stretch" Height="40">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <ui:SymbolIcon Symbol="Settings" FontSize="16"/>
+                                            <ui:FontIcon Glyph="&#xE713;" FontFamily="Segoe Fluent Icons"/>
                                             <TextBlock Text="Restart to BIOS" FontSize="11"/>
                                         </StackPanel>
                                     </Button>
@@ -119,7 +119,7 @@
                 <ui:SettingsExpander Header="Motherboard"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Settings"/>
+                        <ui:FontIconSource Glyph="&#xE713;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding MotherboardName}"
                                              Description="Name"/>
@@ -130,7 +130,7 @@
                 <ui:SettingsExpander Header="Processor (CPU)"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Settings"/>
+                        <ui:FontIconSource Glyph="&#xEEA1;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding CpuName}"
                                              Description="Name"/>
@@ -143,7 +143,7 @@
                 <ui:SettingsExpander Header="Memory (RAM)"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Settings"/>
+                        <ui:FontIconSource Glyph="&#xEEA0;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding RamSpeed}"
                                              Description="Speed"/>
@@ -154,7 +154,7 @@
                 <ui:SettingsExpander Header="Graphics (GPU)"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Image"/>
+                        <ui:FontIconSource Glyph="&#xE91B;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding GpuName}"
                                              Description="Name"/>
@@ -169,7 +169,7 @@
                 <ui:SettingsExpander Header="Operating System"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Globe"/>
+                        <ui:FontIconSource Glyph="&#xE770;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Description="Edition &amp; Architecture">
                         <ui:SettingsExpanderItem.Content>
@@ -212,7 +212,7 @@
                 <ui:SettingsExpander Header="Security"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Permissions"/>
+                        <ui:FontIconSource Glyph="&#xEA18;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding SecureBootStatus}"
                                              Description="Secure Boot"/>

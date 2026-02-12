@@ -12,32 +12,43 @@ public class IconSourceConverter : IValueConverter
     {
         if (value is string iconName)
         {
+            // 1. Try to parse as Symbol enum (e.g. "Home", "Settings")
             if (Enum.TryParse<Symbol>(iconName, out var symbol))
             {
                 return new SymbolIconSource { Symbol = symbol };
             }
 
-            string glyph = iconName switch
+            // 2. Try to parse as hex glyph code
+            // Supports formats: "&#xE708;", "xE708", "E708", "\uE708"
+            string? hexCode = null;
+            if (iconName.StartsWith("&#x", StringComparison.OrdinalIgnoreCase) && iconName.EndsWith(";"))
             {
-                "PowerButton" => "\uE7E8",
-                "Accessibility" => "\uE776",
-                "User" => "\uE77B",
-                "Gaming" => "\uE7FC",
-                "Shield" => "\uEA18",
-                "Broom" => "\uE894",
-                "Terminal" => "\uE756",
-                "Performance" => "\uEC4A",
-                _ => ""
-            };
+                hexCode = iconName.Substring(3, iconName.Length - 4);
+            }
+            else if (iconName.StartsWith("\\u", StringComparison.OrdinalIgnoreCase))
+            {
+                hexCode = iconName.Substring(2);
+            }
+            else if (iconName.StartsWith("x", StringComparison.OrdinalIgnoreCase))
+            {
+                hexCode = iconName.Substring(1);
+            }
+            else if (iconName.Length == 4 && int.TryParse(iconName, System.Globalization.NumberStyles.HexNumber, null, out _))
+            {
+                 hexCode = iconName;
+            }
 
-            if (!string.IsNullOrEmpty(glyph))
+            if (hexCode != null && int.TryParse(hexCode, System.Globalization.NumberStyles.HexNumber, null, out int glyphCode))
             {
                 return new FontIconSource
                 {
-                    Glyph = glyph,
-                    FontFamily = new FontFamily("Segoe Fluent Icons") 
+                    Glyph = char.ConvertFromUtf32(glyphCode),
+                    FontFamily = new FontFamily("Segoe Fluent Icons")
                 };
             }
+
+            // 3. Fallback (removed as per request)
+
         }
         return new SymbolIconSource { Symbol = Symbol.Help };
     }
