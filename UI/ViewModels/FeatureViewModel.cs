@@ -22,6 +22,9 @@ public partial class FeatureViewModel : ViewModelBase
     private ObservableCollection<object> _leftColumnItems = new();
 
     [ObservableProperty]
+    private ObservableCollection<object> _middleColumnItems = new();
+
+    [ObservableProperty]
     private ObservableCollection<object> _rightColumnItems = new();
 
     [ObservableProperty]
@@ -137,12 +140,14 @@ public partial class FeatureViewModel : ViewModelBase
 
     private void DistributeItems(List<object> items)
     {
-        int splitIndex = (int)Math.Ceiling(items.Count / 2.0);
+        int itemsPerCol = (int)Math.Ceiling(items.Count / 3.0);
 
-        var left = items.Take(splitIndex);
-        var right = items.Skip(splitIndex);
+        var left = items.Take(itemsPerCol).ToList();
+        var middle = items.Skip(itemsPerCol).Take(itemsPerCol).ToList();
+        var right = items.Skip(itemsPerCol * 2).ToList();
 
         LeftColumnItems = new ObservableCollection<object>(left);
+        MiddleColumnItems = new ObservableCollection<object>(middle);
         RightColumnItems = new ObservableCollection<object>(right);
     }
 

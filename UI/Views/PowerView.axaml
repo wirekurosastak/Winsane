@@ -11,8 +11,6 @@
     <ScrollViewer>
         <StackPanel Spacing="20" Margin="24" MaxWidth="600" HorizontalAlignment="Left">
             
-            <TextBlock Text="Power Timer" Theme="{StaticResource TitleTextBlockStyle}" />
-            
             <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"

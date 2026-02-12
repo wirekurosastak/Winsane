@@ -14,6 +14,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
             <!-- Left Column - Hardware -->
@@ -43,8 +44,8 @@
                     <ui:SettingsExpanderItem Content="{Binding CpuUsage}"
                                             Description="Usage"/>
                 </ui:SettingsExpander>
-                
-                <!-- RAM -->
+
+                                <!-- RAM -->
                 <ui:SettingsExpander Header="Memory (RAM)"
                                     IsExpanded="True"
                                     Margin="0,4,0,8">
@@ -72,9 +73,9 @@
                                             Description="Usage"/>
                 </ui:SettingsExpander>
             </StackPanel>
-            
-            <!-- Right Column - System -->
-            <StackPanel Grid.Column="1" Spacing="8" Margin="6,0,0,0">
+
+            <!-- Middle Column - Graphics & Memory -->
+            <StackPanel Grid.Column="1" Spacing="8" Margin="6,0,6,0">
                 <!-- OS Info -->
                 <ui:SettingsExpander Header="Operating System"
                                     IsExpanded="True"
@@ -108,6 +109,11 @@
                     <ui:SettingsExpanderItem Content="{Binding HyperVStatus}"
                                             Description="Hyper-V"/>
                 </ui:SettingsExpander>
+            </StackPanel>
+            
+            <!-- Right Column - System -->
+            <StackPanel Grid.Column="2" Spacing="8" Margin="6,0,0,0">
+                
             </StackPanel>
         </Grid>
     </ScrollViewer>

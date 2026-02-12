@@ -105,7 +105,7 @@
                   HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Margin="24,24,24,24">
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto">
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
                 <!-- Left Column -->
                 <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftColumnItems}" Margin="0,0,6,0">
                      <ItemsControl.DataTemplates>
@@ -121,8 +121,23 @@
                      </ItemsControl.DataTemplates>
                 </ItemsControl>
                 
+                <!-- Middle Column -->
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding MiddleColumnItems}" Margin="6,0,6,0">
+                     <ItemsControl.DataTemplates>
+                         <DataTemplate x:DataType="vm:ItemGroupViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>
+                         </DataTemplate>
+                         <DataTemplate x:DataType="vm:ItemViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ItemTemplate}"/>
+                         </DataTemplate>
+                         <DataTemplate x:DataType="vm:AddTweakViewModel">
+                             <ContentControl Content="{Binding}" ContentTemplate="{StaticResource AddTweakTemplate}"/>
+                         </DataTemplate>
+                     </ItemsControl.DataTemplates>
+                </ItemsControl>
+
                 <!-- Right Column -->
-                <ItemsControl Grid.Column="1" ItemsSource="{Binding RightColumnItems}" Margin="6,0,0,0">
+                <ItemsControl Grid.Column="2" ItemsSource="{Binding RightColumnItems}" Margin="6,0,0,0">
                      <ItemsControl.DataTemplates>
                          <DataTemplate x:DataType="vm:ItemGroupViewModel">
                              <ContentControl Content="{Binding}" ContentTemplate="{StaticResource GroupTemplate}"/>

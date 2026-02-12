@@ -16,13 +16,13 @@ public partial class DashboardViewModel : ViewModelBase
     private string _cpuCores = "N/A";
 
     [ObservableProperty]
-    private string _cpuUsage = "0.0%";
+    private string _cpuUsage = "N/A";
 
     [ObservableProperty]
     private string _ramSpeed = "N/A";
 
     [ObservableProperty]
-    private string _ramUsage = "0.0% (0.0 GB / 0.0 GB)";
+    private string _ramUsage = "N/A";
 
     [ObservableProperty]
     private string _gpuName = "N/A";
