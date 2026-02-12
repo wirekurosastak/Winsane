@@ -42,7 +42,10 @@
                                                  IsVisible="{Binding ShowToggle}"
                                                  IsEnabled="{Binding !IsLoading}"
                                                  OnContent="{x:Null}"
-                                                 OffContent="{x:Null}"/>
+                                                 OffContent="{x:Null}"
+                                                 MinHeight="0"
+                                                 Margin="0,-8,0,-3"
+                                                 VerticalAlignment="Center"/>
                                     
                                     <!-- Run/Open Button -->
                                     <Button Content="{Binding ButtonText}"
@@ -50,6 +53,7 @@
                                            IsEnabled="{Binding !IsLoading}"
                                            Command="{Binding ExecuteButtonCommand}"
                                            Classes="accent"
+                                           VerticalAlignment="Center"
                                            Foreground="White"
                                            Margin="0,0,7,0"/>
                                     
