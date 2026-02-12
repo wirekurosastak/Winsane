@@ -52,9 +52,7 @@
                                     <views:DashboardView DataContext="{Binding Dashboard}"
                                                          IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
                                     
-                                    <!-- Power View -->
-                                    <views:PowerView DataContext="{Binding Power}"
-                                                     IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsPower}"/>
+
                                     
                                     <!-- Feature View -->
                                     <views:FeatureView DataContext="{Binding}"

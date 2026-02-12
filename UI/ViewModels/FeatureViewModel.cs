@@ -33,11 +33,7 @@ public partial class FeatureViewModel : ViewModelBase
     [ObservableProperty]
     private DashboardViewModel? _dashboard;
 
-    [ObservableProperty]
-    private bool _isPower;
 
-    [ObservableProperty]
-    private PowerViewModel? _power;
 
     public FeatureViewModel(
         Feature feature,
@@ -53,15 +49,10 @@ public partial class FeatureViewModel : ViewModelBase
         _icon = feature.Icon ?? "Settings";
         _isDashboard =
             feature.Type?.Equals("dashboard", StringComparison.OrdinalIgnoreCase) ?? false;
-        _isPower = feature.Type?.Equals("power", StringComparison.OrdinalIgnoreCase) ?? false;
 
         if (_isDashboard)
         {
             Dashboard = new DashboardViewModel();
-        }
-        else if (_isPower)
-        {
-            Power = new PowerViewModel();
         }
         else
         {
@@ -151,7 +142,7 @@ public partial class FeatureViewModel : ViewModelBase
         RightColumnItems = new ObservableCollection<object>(right);
     }
 
-    public bool IsGenericFeature => !IsDashboard && !IsPower;
+    public bool IsGenericFeature => !IsDashboard;
     
     public void RefreshDashboard(SystemInfoService systemInfoService)
     {

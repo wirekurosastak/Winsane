@@ -1210,10 +1210,5 @@ features:
       
 #FEATURE
 - feature: Dashboard
-  icon: Home
-  type: dashboard
-
-#FEATURE
-- feature: Power
   icon: PowerButton
-  type: power
+  type: dashboard
