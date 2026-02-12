@@ -170,7 +170,7 @@
                     <ui:SettingsExpander.IconSource>
                         <ui:SymbolIconSource Symbol="Globe"/>
                     </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Description="Edition">
+                    <ui:SettingsExpanderItem Description="Edition &amp; Architecture">
                         <ui:SettingsExpanderItem.Content>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="{Binding OsCaption}" VerticalAlignment="Center"/>
@@ -179,7 +179,7 @@
                             </StackPanel>
                         </ui:SettingsExpanderItem.Content>
                     </ui:SettingsExpanderItem>
-                    <ui:SettingsExpanderItem Description="Version">
+                    <ui:SettingsExpanderItem Description="Version &amp; Build">
                         <ui:SettingsExpanderItem.Content>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="{Binding DisplayVersion}" VerticalAlignment="Center"/>
@@ -188,7 +188,7 @@
                             </StackPanel>
                         </ui:SettingsExpanderItem.Content>
                     </ui:SettingsExpanderItem>
-                    <ui:SettingsExpanderItem Description="Last Boot">
+                    <ui:SettingsExpanderItem Description="Last Boot &amp; Uptime">
                         <ui:SettingsExpanderItem.Content>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="{Binding BootTime}" VerticalAlignment="Center"/>
@@ -197,12 +197,16 @@
                             </StackPanel>
                         </ui:SettingsExpanderItem.Content>
                     </ui:SettingsExpanderItem>
-
-                    <ui:SettingsExpanderItem Content="{Binding Hostname}"
-                                             Description="Hostname"/>
-                    <ui:SettingsExpanderItem Content="{Binding Username}"
-                                             Description="Current User"/>
-                </ui:SettingsExpander>
+                    <ui:SettingsExpanderItem Description="Host &amp; User">
+                        <ui:SettingsExpanderItem.Content>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="{Binding Hostname}" VerticalAlignment="Center"/>
+                                <TextBlock Text="•" Opacity="0.5" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Username}" Opacity="0.7" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:SettingsExpanderItem.Content>
+                    </ui:SettingsExpanderItem>
+                </ui:SettingsExpander>         
                 
                 <ui:SettingsExpander Header="Security"
                                      IsExpanded="True">
