@@ -14,9 +14,13 @@ public partial class ItemGroupViewModel : ViewModelBase
     [ObservableProperty]
     private string? _icon;
 
-    public ItemGroupViewModel(string header, string? icon = null)
+    [ObservableProperty]
+    private int? _column;
+
+    public ItemGroupViewModel(string header, string? icon = null, int? column = null)
     {
         Header = header;
+        Column = column;
         if (!string.IsNullOrEmpty(icon))
         {
             Icon = icon;

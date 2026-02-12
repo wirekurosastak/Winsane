@@ -80,7 +80,7 @@ public partial class FeatureViewModel : ViewModelBase
 
                 if (item.IsCategory)
                 {
-                    var group = new ItemGroupViewModel(item.Category, item.Icon);
+                    var group = new ItemGroupViewModel(item.Category, item.Icon, item.Column);
 
                     i++;
                     while (i < feature.Items.Count && !feature.Items[i].IsCategory)
@@ -137,15 +137,29 @@ public partial class FeatureViewModel : ViewModelBase
 
     private void DistributeItems(List<object> items)
     {
-        int itemsPerCol = (int)Math.Ceiling(items.Count / 3.0);
+        var columns = new List<object>[] { new(), new(), new() };
 
-        var left = items.Take(itemsPerCol).ToList();
-        var middle = items.Skip(itemsPerCol).Take(itemsPerCol).ToList();
-        var right = items.Skip(itemsPerCol * 2).ToList();
+        var unassigned = new List<object>();
 
-        LeftColumnItems = new ObservableCollection<object>(left);
-        MiddleColumnItems = new ObservableCollection<object>(middle);
-        RightColumnItems = new ObservableCollection<object>(right);
+        foreach (var item in items)
+        {
+            int? col = (item as ItemGroupViewModel)?.Column;
+            if (col.HasValue && col.Value >= 0 && col.Value <= 2)
+                columns[col.Value].Add(item);
+            else
+                unassigned.Add(item);
+        }
+
+        foreach (var item in unassigned)
+        {
+            int smallest = columns[0].Count <= columns[1].Count && columns[0].Count <= columns[2].Count ? 0
+                         : columns[1].Count <= columns[2].Count ? 1 : 2;
+            columns[smallest].Add(item);
+        }
+
+        LeftColumnItems = new ObservableCollection<object>(columns[0]);
+        MiddleColumnItems = new ObservableCollection<object>(columns[1]);
+        RightColumnItems = new ObservableCollection<object>(columns[2]);
     }
 
     public bool IsGenericFeature => !IsSystem;

@@ -11,6 +11,9 @@ public class Item
     [YamlMember(Alias = "category")]
     public string? Category { get; set; }
 
+    [YamlMember(Alias = "column")]
+    public int? Column { get; set; }
+
     public string Name { get; set; } = "Unknown Item";
     public string Purpose { get; set; } = string.Empty;
 
