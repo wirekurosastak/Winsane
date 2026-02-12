@@ -101,7 +101,8 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer x:Name="MainScrollViewer"
+                  HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Margin="24,24,24,24">
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto">

@@ -12,7 +12,6 @@ public class IconSourceConverter : IValueConverter
     {
         if (value is string iconName)
         {
-            // 1. Próbáljuk meg a beépített Symbol listából (pl. "Settings", "Home")
             if (Enum.TryParse<Symbol>(iconName, out var symbol))
             {
                 return new SymbolIconSource { Symbol = symbol };
@@ -20,14 +19,14 @@ public class IconSourceConverter : IValueConverter
 
             string glyph = iconName switch
             {
-                "PowerButton" => "\uE7E8",   // ⏨ Kikapcsoló gomb
-                "Accessibility" => "\uE776", // ♿ Kerekesszékes / Kisegítő ikon
-                "User" => "\uE77B",          // 👤 Felhasználó
-                "Gaming" => "\uE7FC",        // 🎮 Játék kontroller
-                "Shield" => "\uEA18",        // 🛡️ Pajzs (Security)
-                "Broom" => "\uE894",         // 🧹 Seprű (Cleaner alternatíva)
-                "Terminal" => "\uE756",      // 📟 Konzol/Terminál
-                "Performance" => "\uEC4A",   // 📊 Teljesítmény
+                "PowerButton" => "\uE7E8",
+                "Accessibility" => "\uE776",
+                "User" => "\uE77B",
+                "Gaming" => "\uE7FC",
+                "Shield" => "\uEA18",
+                "Broom" => "\uE894",
+                "Terminal" => "\uE756",
+                "Performance" => "\uEC4A",
                 _ => ""
             };
 
@@ -36,14 +35,10 @@ public class IconSourceConverter : IValueConverter
                 return new FontIconSource
                 {
                     Glyph = glyph,
-                    // A FluentAvalonia alapértelmezetten tartalmazza a megfelelő fontot,
-                    // de ha biztosra akarsz menni, megadhatod:
                     FontFamily = new FontFamily("Segoe Fluent Icons") 
                 };
             }
         }
-        
-        // Ha semmi nem talált, egy kérdőjelet adunk vissza
         return new SymbolIconSource { Symbol = Symbol.Help };
     }
 
