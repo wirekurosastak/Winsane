@@ -64,7 +64,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         await Task.WhenAll(initializationTasks);
 
-        SettingsViewModel.Initialize(_configService, config, _coreService);
+        SettingsViewModel.Initialize(_coreService);
 
         if (Features.Count > 0)
         {
