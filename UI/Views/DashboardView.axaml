@@ -5,8 +5,8 @@
              xmlns:vm="using:Winsane.UI.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
-             x:Class="Winsane.UI.Views.DashboardView"
-             x:DataType="vm:DashboardViewModel">
+             x:Class="Winsane.UI.Views.SystemView"
+             x:DataType="vm:SystemViewModel">
     
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
@@ -18,92 +18,6 @@
             </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0" Spacing="8" Margin="0,0,6,0">
-                <ui:SettingsExpander Header="Motherboard"
-                                     IsExpanded="True"
-                                     Margin="0,4,0,8">
-                    <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Settings"/>
-                    </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Content="{Binding MotherboardName}"
-                                             Description="Name"/>
-                </ui:SettingsExpander>
-                
-                <ui:SettingsExpander Header="Processor (CPU)"
-                                     IsExpanded="True"
-                                     Margin="0,4,0,8">
-                    <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Settings"/>
-                    </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Content="{Binding CpuName}"
-                                             Description="Name"/>
-                    <ui:SettingsExpanderItem Content="{Binding CpuCores}"
-                                             Description="Topology"/>
-                    <ui:SettingsExpanderItem Content="{Binding CpuUsage}"
-                                             Description="Usage"/>
-                </ui:SettingsExpander>
-
-                <ui:SettingsExpander Header="Memory (RAM)"
-                                     IsExpanded="True"
-                                     Margin="0,4,0,8">
-                    <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Settings"/>
-                    </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Content="{Binding RamSpeed}"
-                                             Description="Speed"/>
-                    <ui:SettingsExpanderItem Content="{Binding RamUsage}"
-                                             Description="Usage"/>
-                </ui:SettingsExpander>
-                
-                <ui:SettingsExpander Header="Graphics (GPU)"
-                                     IsExpanded="True"
-                                     Margin="0,4,0,8">
-                    <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Image"/>
-                    </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Content="{Binding GpuName}"
-                                             Description="Name"/>
-                    <ui:SettingsExpanderItem Content="{Binding GpuMemory}"
-                                             Description="VRAM"/>
-                    <ui:SettingsExpanderItem Content="{Binding GpuUsage}"
-                                             Description="Usage"/>
-                </ui:SettingsExpander>
-            </StackPanel>
-
-            <StackPanel Grid.Column="1" Spacing="8" Margin="6,0,6,0">
-                <ui:SettingsExpander Header="Operating System"
-                                     IsExpanded="True"
-                                     Margin="0,4,0,8">
-                    <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Globe"/>
-                    </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Content="{Binding OsCaption}"
-                                             Description="Edition"/>
-                    <ui:SettingsExpanderItem Content="{Binding OsVersion}"
-                                             Description="Build"/>
-                    <ui:SettingsExpanderItem Content="{Binding OsArch}"
-                                             Description="Architecture"/>
-                    <ui:SettingsExpanderItem Content="{Binding OsInstallDate}"
-                                             Description="Installed"/>
-                    <ui:SettingsExpanderItem Content="{Binding BootTime}"
-                                             Description="Last Boot"/>
-                </ui:SettingsExpander>
-                
-                <ui:SettingsExpander Header="Security"
-                                     IsExpanded="True"
-                                     Margin="0,4,0,8">
-                    <ui:SettingsExpander.IconSource>
-                        <ui:SymbolIconSource Symbol="Permissions"/>
-                    </ui:SettingsExpander.IconSource>
-                    <ui:SettingsExpanderItem Content="{Binding SecureBootStatus}"
-                                             Description="Secure Boot"/>
-                    <ui:SettingsExpanderItem Content="{Binding TpmStatus}"
-                                             Description="TPM"/>
-                    <ui:SettingsExpanderItem Content="{Binding HyperVStatus}"
-                                             Description="Hyper-V"/>
-                </ui:SettingsExpander>
-            </StackPanel>
-            
-            <StackPanel Grid.Column="2" Spacing="8" Margin="6,0,0,0">
                 <ui:SettingsExpander Header="Power Control"
                                      IsExpanded="True"
                                      Margin="0,4,0,8">
@@ -198,9 +112,95 @@
                             </StackPanel>
                         </ui:SettingsExpanderItem.Content>
                     </ui:SettingsExpanderItem>
-
                 </ui:SettingsExpander>
             </StackPanel>
+
+            <StackPanel Grid.Column="1" Spacing="8" Margin="6,0,6,0">
+                <ui:SettingsExpander Header="Motherboard"
+                                     IsExpanded="True"
+                                     Margin="0,4,0,8">
+                    <ui:SettingsExpander.IconSource>
+                        <ui:SymbolIconSource Symbol="Settings"/>
+                    </ui:SettingsExpander.IconSource>
+                    <ui:SettingsExpanderItem Content="{Binding MotherboardName}"
+                                             Description="Name"/>
+                </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Processor (CPU)"
+                                     IsExpanded="True"
+                                     Margin="0,4,0,8">
+                    <ui:SettingsExpander.IconSource>
+                        <ui:SymbolIconSource Symbol="Settings"/>
+                    </ui:SettingsExpander.IconSource>
+                    <ui:SettingsExpanderItem Content="{Binding CpuName}"
+                                             Description="Name"/>
+                    <ui:SettingsExpanderItem Content="{Binding CpuCores}"
+                                             Description="Topology"/>
+                    <ui:SettingsExpanderItem Content="{Binding CpuUsage}"
+                                             Description="Usage"/>
+                </ui:SettingsExpander>
+
+                <ui:SettingsExpander Header="Memory (RAM)"
+                                     IsExpanded="True"
+                                     Margin="0,4,0,8">
+                    <ui:SettingsExpander.IconSource>
+                        <ui:SymbolIconSource Symbol="Settings"/>
+                    </ui:SettingsExpander.IconSource>
+                    <ui:SettingsExpanderItem Content="{Binding RamSpeed}"
+                                             Description="Speed"/>
+                    <ui:SettingsExpanderItem Content="{Binding RamUsage}"
+                                             Description="Usage"/>
+                </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Graphics (GPU)"
+                                     IsExpanded="True"
+                                     Margin="0,4,0,8">
+                    <ui:SettingsExpander.IconSource>
+                        <ui:SymbolIconSource Symbol="Image"/>
+                    </ui:SettingsExpander.IconSource>
+                    <ui:SettingsExpanderItem Content="{Binding GpuName}"
+                                             Description="Name"/>
+                    <ui:SettingsExpanderItem Content="{Binding GpuMemory}"
+                                             Description="VRAM"/>
+                    <ui:SettingsExpanderItem Content="{Binding GpuUsage}"
+                                             Description="Usage"/>
+                </ui:SettingsExpander>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Spacing="8" Margin="6,0,0,0">
+                <ui:SettingsExpander Header="Operating System"
+                                     IsExpanded="True"
+                                     Margin="0,4,0,8">
+                    <ui:SettingsExpander.IconSource>
+                        <ui:SymbolIconSource Symbol="Globe"/>
+                    </ui:SettingsExpander.IconSource>
+                    <ui:SettingsExpanderItem Content="{Binding OsCaption}"
+                                             Description="Edition"/>
+                    <ui:SettingsExpanderItem Content="{Binding OsVersion}"
+                                             Description="Build"/>
+                    <ui:SettingsExpanderItem Content="{Binding OsArch}"
+                                             Description="Architecture"/>
+                    <ui:SettingsExpanderItem Content="{Binding OsInstallDate}"
+                                             Description="Installed"/>
+                    <ui:SettingsExpanderItem Content="{Binding BootTime}"
+                                             Description="Last Boot"/>
+                </ui:SettingsExpander>
+                
+                <ui:SettingsExpander Header="Security"
+                                     IsExpanded="True"
+                                     Margin="0,4,0,8">
+                    <ui:SettingsExpander.IconSource>
+                        <ui:SymbolIconSource Symbol="Permissions"/>
+                    </ui:SettingsExpander.IconSource>
+                    <ui:SettingsExpanderItem Content="{Binding SecureBootStatus}"
+                                             Description="Secure Boot"/>
+                    <ui:SettingsExpanderItem Content="{Binding TpmStatus}"
+                                             Description="TPM"/>
+                    <ui:SettingsExpanderItem Content="{Binding HyperVStatus}"
+                                             Description="Hyper-V"/>
+                </ui:SettingsExpander>
+            </StackPanel>
+            
         </Grid>
     </ScrollViewer>
 </UserControl>

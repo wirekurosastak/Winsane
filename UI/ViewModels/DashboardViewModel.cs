@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Winsane.UI.ViewModels;
 
-public partial class DashboardViewModel : ViewModelBase
+public partial class SystemViewModel : ViewModelBase
 {
     [ObservableProperty]
     private string _motherboardName = "N/A";

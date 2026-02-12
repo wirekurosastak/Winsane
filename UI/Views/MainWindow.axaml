@@ -48,9 +48,9 @@
                         <ContentControl.ContentTemplate>
                             <DataTemplate x:DataType="vm:FeatureViewModel">
                                 <Grid>
-                                    <!-- Dashboard View -->
-                                    <views:DashboardView DataContext="{Binding Dashboard}"
-                                                         IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsDashboard}"/>
+                                    <!-- System View -->
+                                    <views:SystemView DataContext="{Binding System}"
+                                                         IsVisible="{Binding $parent[Grid].((vm:FeatureViewModel)DataContext).IsSystem}"/>
                                     
 
                                     

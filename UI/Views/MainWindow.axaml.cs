@@ -21,9 +21,9 @@ public partial class MainWindow : Window
                 vm.SelectedFeature = vm.Features[0];
                 
                 
-                if (vm.SelectedFeature.IsDashboard)
+                if (vm.SelectedFeature.IsSystem)
                 {
-                    vm.SelectedFeature.RefreshDashboard(_systemInfoService);
+                    vm.SelectedFeature.RefreshSystem(_systemInfoService);
                 }
             }
         };
@@ -57,9 +57,9 @@ public partial class MainWindow : Window
         {
             vm.SelectedFeature = feature;
             
-            if (feature.IsDashboard)
+            if (feature.IsSystem)
             {
-                feature.RefreshDashboard(_systemInfoService);
+                feature.RefreshSystem(_systemInfoService);
             }
         }
     }

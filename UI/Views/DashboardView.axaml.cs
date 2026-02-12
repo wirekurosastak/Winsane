@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace Winsane.UI.Views;
 
-public partial class DashboardView : UserControl
+public partial class SystemView : UserControl
 {
-    public DashboardView()
+    public SystemView()
     {
         InitializeComponent();
     }

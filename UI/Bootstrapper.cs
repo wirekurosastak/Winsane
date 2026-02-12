@@ -17,7 +17,7 @@ public static class Bootstrapper
         services.AddSingleton<SystemInfoService>();
 
         services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<SystemViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();
     }

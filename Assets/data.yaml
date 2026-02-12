@@ -1209,6 +1209,6 @@ features:
       true: Start-Process mdsched.exe
       
 #FEATURE
-- feature: Dashboard
+- feature: System
   icon: PowerButton
-  type: dashboard
+  type: system

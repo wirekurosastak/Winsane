@@ -28,10 +28,10 @@ public partial class FeatureViewModel : ViewModelBase
     private ObservableCollection<object> _rightColumnItems = new();
 
     [ObservableProperty]
-    private bool _isDashboard;
+    private bool _isSystem;
 
     [ObservableProperty]
-    private DashboardViewModel? _dashboard;
+    private SystemViewModel? _system;
 
 
 
@@ -47,12 +47,12 @@ public partial class FeatureViewModel : ViewModelBase
 
         _name = feature.Name;
         _icon = feature.Icon ?? "Settings";
-        _isDashboard =
-            feature.Type?.Equals("dashboard", StringComparison.OrdinalIgnoreCase) ?? false;
+        _isSystem =
+            feature.Type?.Equals("system", StringComparison.OrdinalIgnoreCase) ?? false;
 
-        if (_isDashboard)
+        if (_isSystem)
         {
-            Dashboard = new DashboardViewModel();
+            System = new SystemViewModel();
         }
         else
         {
@@ -142,10 +142,10 @@ public partial class FeatureViewModel : ViewModelBase
         RightColumnItems = new ObservableCollection<object>(right);
     }
 
-    public bool IsGenericFeature => !IsDashboard;
+    public bool IsGenericFeature => !IsSystem;
     
-    public void RefreshDashboard(SystemInfoService systemInfoService)
+    public void RefreshSystem(SystemInfoService systemInfoService)
     {
-        Dashboard?.Refresh(systemInfoService);
+        System?.Refresh(systemInfoService);
     }
 }
