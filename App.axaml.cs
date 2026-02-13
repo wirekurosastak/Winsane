@@ -22,8 +22,6 @@ namespace Winsane
             {
                 DisableAvaloniaDataAnnotationValidation();
 
-                var coreService =
-                    Bootstrapper.GetService<Winsane.Infrastructure.Services.CoreService>();
 
                 desktop.MainWindow = new MainWindow
                 {

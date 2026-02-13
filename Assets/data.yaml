@@ -5,7 +5,7 @@
 
 features:
 #FEATURE
-- feature: Tweaks
+- feature: General
   icon: "&#xE713;"
   type: standard
   user_tweaks_section: User
@@ -79,7 +79,7 @@ features:
     #CATEGORY    
     - category: Gaming
       icon: "&#xE7FC;"
-      column: 0
+      column: 1
     
     - name: Game Mode #🟡 untested
       purpose: Prioritizes system resources for gaming applications
@@ -104,215 +104,13 @@ features:
       check: (Get-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -ErrorAction SilentlyContinue).Flags -eq "506"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506" -Force
       false: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "510" -Force
-
-    #CATEGORY
-    - category: Security & Privacy
-      icon: "&#xEA18;"
-      column: 1
     
-    #- name: Set Passwords to Never Expire
-    #  purpose: Disables the mandatory password expiration for all local user accounts
-    #  check: #🔴
-    #  true: Get-LocalUser | Set-LocalUser -PasswordNeverExpires $true
-    #  false: #🔴
-    
-    - name: Prevent Device Encryption #🟡 untested
-      purpose: Prevents Windows from automatically enabling BitLocker/Device encryption
-      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -ErrorAction SilentlyContinue).PreventDeviceEncryption -eq 1
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Force
-
-    - name: Remote Desktop (RDP) #🟢 (25H2)
-      purpose: Enables Remote Desktop services and opens firewall ports
-      check: (Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections").fDenyTSConnections -eq 0
-      true: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0; Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-      false: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1; Disable-NetFirewallRule -DisplayGroup "Remote Desktop"
-
-    - name: Disable VBS #🟡 untested
-      purpose: Disables Virtualization-Based Security to potentially boost gaming FPS
-      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity -eq 0
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
-        
-    - name: Disable UAC #🟢 (25H2)
-      purpose: Disables Security Prompts
-      check: (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -ErrorAction SilentlyContinue).EnableLUA -eq 0
-      true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1 -Type DWORD -Force
-        
-    - name: Disable Telemetry #🟡 untested
-      purpose: Reduces background data collection
-      check: Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue | Where-Object { $_.AllowTelemetry -eq 0 }
-      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue; Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Force -ErrorAction SilentlyContinue
-        
-    - name: Disable Location Tracking #🟡 untested
-      purpose: Prevents apps and the OS from tracking global location
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -ErrorAction SilentlyContinue).Value -eq "Deny"
-      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Deny" -Force
-      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Allow" -Force
-        
-    - name: Disable Advertising ID #🟡 untested
-      purpose: Prevents apps from using your advertising ID
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 1 -Force
-
-    - name: Disable Bing Search Results #🟡 untested
-      purpose: Prevents web results from Bing appearing in the Start menu search.
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue).BingSearchEnabled -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 1 -Force
-      
-    #- name: Disable Account Lockout Policy  #🔴
-    #  purpose: Sets the account lockout threshold to 0 (disabled)
-    #  check:
-    #  true: net accounts /lockoutthreshold:0
-    #  false:
-      
-    #- name: Disable Smart App Control  #🔴
-    #  purpose: Permanently turns off Smart App Control
-    #  check: 
-    #  true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "VerifiedAndReputablePolicyState" -Type DWord -Value 0 -Force
-    #  false:
-      
-    #CATEGORY
-    - category: Windows Update
-      icon: "&#xE895;"
-      column: 1
-    
-    - name: Exclude Drivers from Updates #🟡 untested
-      purpose: Prevents Windows Update from installing drivers
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue).ExcludeWUDriversInQualityUpdate -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Force -ErrorAction SilentlyContinue
-        
-    - name: Disable Automatic Maintenance #🟡 untested
-      purpose: Disables automatic maintenance tasks
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -ErrorAction SilentlyContinue).MaintenanceDisabled -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
-
-    #CATEGORY
-    - category: Explorer & UI
-      icon: "&#xEC50;"
+    #CATEGORY    
+    - category: Cleaner
+      icon: "&#xEA99;"
       column: 2
-    
-    - name: Dark Mode #🟢 (25H2)
-      purpose: Sets System and App themes to Dark
-      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -ErrorAction SilentlyContinue).AppsUseLightTheme -eq 0
-      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 1 -Type DWORD -Force;Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 1 -Type DWORD -Force
 
-    - name: Align Taskbar to Left #🟢 (25H2)
-      purpose: Moves taskbar icons to the left
-      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -ErrorAction SilentlyContinue).TaskbarAl -eq 0
-      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -Value 0 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -Value 1 -Type DWORD -Force
-        
-    - name: Classic Right-Click #🟢 (25H2)
-      purpose: Restores the full context menu by removing 'Show more options'
-      check: Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
-      true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(default)" -Value "" -Force
-      false: Remove-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Recurse -Force
-      
-    - name: Open File Explorer to This PC #🟢 (25H2)
-      purpose: Sets Explorer to open 'This PC' instead of 'Home'.
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -ErrorAction SilentlyContinue).LaunchTo -eq 1
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 2 -Force
-      
-    - name: Expand to Current Folder #🟢 (25H2)
-      purpose: Automatically expands the left sidebar to show your current folder
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -ErrorAction SilentlyContinue).NavPaneExpandToCurrentFolder -eq 1
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
-
-    - name: Long Paths #🟢 (25H2)
-      purpose: Removes the 260 character limit for file paths
-      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -ErrorAction SilentlyContinue).LongPathsEnabled -eq 1
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
-      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
-        
-    - name: Show File Extensions #🟢 (25H2)
-      purpose: Forces Explorer to show file extensions
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -ErrorAction SilentlyContinue).HideFileExt -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-        
-    - name: Show Hidden Files #🟢 (25H2)
-      purpose: Forces Explorer to show hidden files and folders
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -ErrorAction SilentlyContinue).Hidden -eq 1
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
-      
-    - name: Show Protected OS Files #🟡 untested
-      purpose: Reveals hidden system files (SuperHidden) in File Explorer
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -ErrorAction SilentlyContinue).ShowSuperHidden -eq 1
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
-      
-    - name: Show End Task in Taskbar #🟢 (25H2)
-      purpose: Enables the 'End Task' option when right-clicking an app on the taskbar
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -ErrorAction SilentlyContinue).TaskbarEndTask -eq 1
-      true: New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Force -ErrorAction SilentlyContinue; Stop-Process -Name explorer -Force
-      
-    - name: Hide Search Box #🟢 (25H2)
-      purpose: Removes the search box/icon from the taskbar
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -ErrorAction SilentlyContinue).SearchboxTaskbarMode -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -Force
-      
-    - name: Hide Task View Button #🟢 (25H2)
-      purpose: Removes the 'Task View' button from the taskbar
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -ErrorAction SilentlyContinue).ShowTaskViewButton -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1 -Force
-      
-    - name: Disable Startup Sound #🟡 untested
-      purpose: Prevents the Windows startup sound
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -ErrorAction SilentlyContinue).DisableStartupSound -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 1 -Force
-      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 0 -Force
-        
-    #- name: Disable System Sounds #🔴
-    #  purpose: Sets the sound scheme to 'No Sounds'
-    #  check:
-    #  true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None'
-    #  false:
-      
-    - name: Disable Lock Screen #🟡 untested
-      purpose: Skips the 'slide up' lock screen and goes straight to login
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue).NoLockScreen -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Force -ErrorAction SilentlyContinue
-
-    - name: Disable Consumer Features #🟡 untested
-      purpose: Disables 'Suggested' apps and ads in the Start Menu
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
-        
-    - name: Disable Xbox Game Bar #🟡 untested
-      purpose: Disables the Game Bar overlay (Win+G)
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -ErrorAction SilentlyContinue).AppCaptureEnabled -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1 -Force
-        
-    - name: Disable Widgets #🟢 (25H2)
-      purpose: Removes the Widgets button from the taskbar (Universal)
-      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -ErrorAction SilentlyContinue).AllowNewsAndInterests -eq 0
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
-      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Force -ErrorAction SilentlyContinue; Stop-Process -Name explorer -Force
-      
-#FEATURE
-- feature: Cleaner
-  icon: "&#xEA99;"
-  type: standard
-  items:
-
-    - name: Auto-Clean
+    - name: Automatic Cleaning
       purpose: Clean selected items on startup (Files/Browsers)
       check: Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Winsane Cleaner.vbs"
       true: |
@@ -387,7 +185,6 @@ features:
       purpose: Browser data cleaning
       subitems:
       - name: Google Chrome
-        purpose: Clean Chrome data
         subitems:
         - name: Cache
           check: Test-Path "$env:LOCALAPPDATA\Winsane\Cleaner\ChromeCache.ps1"
@@ -426,7 +223,6 @@ features:
           button_text: Clean
 
       - name: Microsoft Edge
-        purpose: Clean Edge data
         subitems:
         - name: Cache
           check: Test-Path "$env:LOCALAPPDATA\Winsane\Cleaner\EdgeCache.ps1"
@@ -465,7 +261,6 @@ features:
           button_text: Clean
 
       - name: Mozilla Firefox
-        purpose: Clean Mozilla Firefox data
         subitems:
         - name: Cache
           check: Test-Path "$env:LOCALAPPDATA\Winsane\Cleaner\FirefoxCache.ps1"
@@ -504,7 +299,6 @@ features:
           button_text: Clean
 
       - name: Brave
-        purpose: Clean Brave data
         subitems:
         - name: Cache
           check: Test-Path "$env:LOCALAPPDATA\Winsane\Cleaner\BraveCache.ps1"
@@ -543,7 +337,6 @@ features:
           button_text: Clean
 
       - name: Opera
-        purpose: Clean Opera data
         subitems:
         - name: Cache
           check: Test-Path "$env:LOCALAPPDATA\Winsane\Cleaner\OperaCache.ps1"
@@ -582,7 +375,6 @@ features:
           button_text: Clean
 
       - name: Opera GX
-        purpose: Clean Opera GX data
         subitems:
         - name: Cache
           check: Test-Path "$env:LOCALAPPDATA\Winsane\Cleaner\OperaGXCache.ps1"
@@ -620,196 +412,251 @@ features:
           button: Remove-Item "$env:APPDATA\Opera Software\Opera GX Stable\Sessions\*" -Force -ErrorAction SilentlyContinue
           button_text: Clean
 
+#Feature
+- feature: Security & Privacy
+  icon: "&#xEA18;"
+  type: standard
+  items:
+
 #CATEGORY
-    - category: Debloat - Remove Microsoft Components
-      icon: "&#xE74D;"
+    - category: Security
+      icon: "&#xE83D;"
+      column: 0
+    
+    #- name: Set Passwords to Never Expire
+    #  purpose: Disables the mandatory password expiration for all local user accounts
+    #  check: #🔴
+    #  true: Get-LocalUser | Set-LocalUser -PasswordNeverExpires $true
+    #  false: #🔴
+    
+    - name: Prevent Device Encryption #🟡 untested
+      purpose: Prevents Windows from automatically enabling BitLocker/Device encryption
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -ErrorAction SilentlyContinue).PreventDeviceEncryption -eq 1
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -Force
+
+    - name: Remote Desktop (RDP) #🟢 (25H2)
+      purpose: Enables Remote Desktop services and opens firewall ports
+      check: (Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections").fDenyTSConnections -eq 0
+      true: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0; Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      false: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1; Disable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+    - name: Disable VBS #🟡 untested
+      purpose: Disables Virtualization-Based Security to potentially boost gaming FPS
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity -eq 0
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
+        
+    - name: Disable UAC #🟢 (25H2)
+      purpose: Disables Security Prompts
+      check: (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -ErrorAction SilentlyContinue).EnableLUA -eq 0
+      true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1 -Type DWORD -Force
+      
+    #- name: Disable Account Lockout Policy  #🔴
+    #  purpose: Sets the account lockout threshold to 0 (disabled)
+    #  check:
+    #  true: net accounts /lockoutthreshold:0
+    #  false:
+      
+    #- name: Disable Smart App Control  #🔴
+    #  purpose: Permanently turns off Smart App Control
+    #  check: 
+    #  true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "VerifiedAndReputablePolicyState" -Type DWord -Value 0 -Force
+    #  false:
+
+    #CATEGORY
+    - category: Privacy
+      icon: "&#xED1A;"
+      column: 1
+
+    - name: Disable Telemetry #🟡 untested
+      purpose: Reduces background data collection
+      check: Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue | Where-Object { $_.AllowTelemetry -eq 0 }
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue; Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Force -ErrorAction SilentlyContinue
+        
+    - name: Disable Location Tracking #🟡 untested
+      purpose: Prevents apps and the OS from tracking global location
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -ErrorAction SilentlyContinue).Value -eq "Deny"
+      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Deny" -Force
+      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Allow" -Force
+        
+    - name: Disable Advertising ID #🟡 untested
+      purpose: Prevents apps from using your advertising ID
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 1 -Force
+
+    #CATEGORY
+    - category: Windows Update
+      icon: "&#xE895;"
       column: 2
     
-    - name: Bing Search
-      purpose: Uninstalls the Bing Search integration
-      button: Get-AppxPackage *BingSearch* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Calculator
-      purpose: Uninstalls the default Calculator app
-      button: Get-AppxPackage *WindowsCalculator* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Camera
-      purpose: Uninstalls the default Camera app
-      button: Get-AppxPackage *WindowsCamera* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Clipchamp
-      purpose: Uninstalls the Clipchamp video editor
-      button: Get-AppxPackage *Clipchamp* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Clock
-      purpose: Uninstalls the Alarms & Clock application
-      button: Get-AppxPackage *WindowsAlarms* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Copilot
-      purpose: Uninstalls the Copilot app and hides the taskbar button
-      button: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
-      button_text: Uninstall
-    - name: Dev Home
-      purpose: Uninstalls the Dev Home app
-      button: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Family
-      purpose: Uninstalls the Microsoft Family Safety application
-      button: Get-AppxPackage *MicrosoftFamily* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Feedback Hub
-      purpose: Uninstalls the Feedback Hub
-      button: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Get Help
-      purpose: Uninstalls the Get Help application
-      button: Get-AppxPackage *GetHelp* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Microsoft Tips
-      purpose: Uninstalls the Tips (Get Started) app
-      button: Get-AppxPackage *Getstarted* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Mail and Calendar
-      purpose: Uninstalls the legacy Mail and Calendar apps
-      button: Get-AppxPackage *windowscommunicationsapps* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Maps
-      purpose: Uninstalls the Maps application
-      button: Get-AppxPackage *WindowsMaps* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: News
-      purpose: Uninstalls the MSN News application
-      button: Get-AppxPackage *BingNews* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Notepad (Modern)
-      purpose: Uninstalls the modern Notepad application
-      button: Get-AppxPackage *WindowsNotepad* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Office Hub
-      purpose: Uninstalls the Microsoft 365 (Office) app
-      button: Get-AppxPackage *MicrosoftOfficeHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: OneNote
-      purpose: Uninstalls OneNote
-      button: Get-AppxPackage *OneNote* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Outlook (New)
-      purpose: Uninstalls Outlook
-      button: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Paint
-      purpose: Uninstalls the modern Paint application
-      button: Get-AppxPackage *Paint* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: People
-      purpose: Uninstalls People application
-      button: Get-AppxPackage *People* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Photos
-      purpose: Uninstalls the Microsoft Photos application
-      button: Get-AppxPackage *Windows.Photos* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Power Automate
-      purpose: Uninstalls the Power Automate Desktop component
-      button: Get-AppxPackage *PowerAutomateDesktop* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Quick Assist
-      purpose: Uninstalls the Quick Assist remote support tool
-      button: Get-AppxPackage *QuickAssist* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Snipping Tool
-      purpose: Uninstalls the Snipping Tool / Screen Sketch application
-      button: Get-AppxPackage *ScreenSketch* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Solitaire Collection
-      purpose: Uninstalls the pre-installed Solitaire game
-      button: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Sticky Notes
-      purpose: Uninstalls the Microsoft Sticky Notes application
-      button: Get-AppxPackage *MicrosoftStickyNotes* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Teams (Personal)
-      purpose: Uninstalls the personal version of Microsoft Teams
-      button: Get-AppxPackage *MicrosoftTeams* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Teams (Work)
-      purpose: Uninstalls the work/school version of Microsoft Teams
-      button: Get-AppxPackage *MSTeams* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: To Do
-      purpose: Uninstalls the Microsoft To Do application
-      button: Get-AppxPackage *Todos* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Voice Recorder
-      purpose: Uninstalls the Sound Recorder application
-      button: Get-AppxPackage *WindowsSoundRecorder* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Wallet
-      purpose: Uninstalls Wallet application
-      button: Get-AppxPackage *Wallet* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Weather
-      purpose: Uninstalls the MSN Weather application
-      button: Get-AppxPackage *BingWeather* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Media Player
-      purpose: Uninstalls the modern Windows Media Player
-      button: Get-AppxPackage *ZuneMusic* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Movies & TV
-      purpose: Uninstalls the Movies & TV (Zune Video) application
-      button: Get-AppxPackage *ZuneVideo* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Phone Link
-      purpose: Uninstalls the Your Phone / Phone Link application
-      button: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Xbox App
-      purpose: Uninstalls the main Xbox application
-      button: Get-AppxPackage *XboxApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: Xbox Game Bar
-      purpose: Uninstalls the Xbox Game Bar and overlays
-      button: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue
-      button_text: Uninstall
-    - name: OneDrive
-      purpose: Uninstalls the OneDrive cloud storage client
-      button: taskkill /f /im OneDrive.exe; %SystemRoot%\SysWOW64\OneDriveSetup.exe /uninstall
-      button_text: Uninstall
-    # --- Windows Capabilities & Features (System components) ---
-    - name: Windows Recall
-      purpose: Disables the AI-powered Recall snapshots feature
-      button: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "DisableAIDataAnalysis" -Type DWord -Value 1 -Force
-      button_text: Disable
-    - name: Facial Recognition
-      purpose: Removes the Windows Hello Facial Recognition capability
-      button: Get-WindowsCapability -Online | Where-Object Name -like 'Hello.Face*' | Remove-WindowsCapability -Online
-      button_text: Remove
-    - name: Handwriting Recognition
-      purpose: Removes handwriting recognition components
-      button: Get-WindowsCapability -Online | Where-Object Name -like 'Language.Handwriting*' | Remove-WindowsCapability -Online
-      button_text: Remove
-    - name: OpenSSH Client
-      purpose: Removes the built-in OpenSSH client
-      button: Remove-WindowsCapability -Online -Name "OpenSSH.Client~~~~0.0.1.0"
-      button_text: Remove
-    - name: PowerShell ISE
-      purpose: Removes the legacy PowerShell Integrated Scripting Environment
-      button: Remove-WindowsCapability -Online -Name "Microsoft.Windows.PowerShell.ISE~~~~0.0.1.0"
-      button_text: Remove
-    - name: Fax and Scan
-      purpose: Removes the legacy Fax and Scan application
-      button: Remove-WindowsCapability -Online -Name "Print.Fax.Scan~~~~0.0.1.0"
-      button_text: Remove
-    - name: Remote Desktop Client
-      purpose: Removes the built-in Remote Desktop Connection client
-      button: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
-      button_text: Remove
+    - name: Exclude Drivers from Updates #🟡 untested
+      purpose: Prevents Windows Update from installing drivers
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue).ExcludeWUDriversInQualityUpdate -eq 1
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Force -ErrorAction SilentlyContinue
+        
+    - name: Disable Automatic Maintenance #🟡 untested
+      purpose: Disables automatic maintenance tasks
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -ErrorAction SilentlyContinue).MaintenanceDisabled -eq 1
+      true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
+
+#Feature
+- feature: Personalization
+  icon: "&#xE771;"
+  type: standard
+  items:
+
+    #CATEGORY
+    - category: Explorer
+      icon: "&#xEC50;"
+      column: 0
+      
+    - name: Open File Explorer to This PC #🟢 (25H2)
+      purpose: Sets Explorer to open 'This PC' instead of 'Home'.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -ErrorAction SilentlyContinue).LaunchTo -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 2 -Force
+      
+    - name: Expand to Current Folder #🟢 (25H2)
+      purpose: Automatically expands the left sidebar to show your current folder
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -ErrorAction SilentlyContinue).NavPaneExpandToCurrentFolder -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+
+    - name: Long Paths #🟢 (25H2)
+      purpose: Removes the 260 character limit for file paths
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -ErrorAction SilentlyContinue).LongPathsEnabled -eq 1
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
+        
+    - name: Show Hidden Files #🟢 (25H2)
+      purpose: Forces Explorer to show hidden files and folders
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -ErrorAction SilentlyContinue).Hidden -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
+
+    - name: Show File Extensions #🟢 (25H2)
+      purpose: Forces Explorer to show file extensions
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -ErrorAction SilentlyContinue).HideFileExt -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      
+    - name: Show Protected OS Files #🟡 untested
+      purpose: Reveals hidden system files (SuperHidden) in File Explorer
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -ErrorAction SilentlyContinue).ShowSuperHidden -eq 1
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+
+    #CATEGORY
+    - category: UI
+      icon: "&#xECA5;"
+      column: 0
+
+    - name: Classic Right-Click #🟢 (25H2)
+      purpose: Restores the full context menu by removing 'Show more options'
+      check: Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+      true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(default)" -Value "" -Force
+      false: Remove-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Recurse -Force
+
+    - name: Disable Lock Screen #🟡 untested
+      purpose: Skips the 'slide up' lock screen and goes straight to login
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue).NoLockScreen -eq 1
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Force -ErrorAction SilentlyContinue
+
+    - name: Disable Xbox Game Bar #🟡 untested
+      purpose: Disables the Game Bar overlay (Win+G)
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -ErrorAction SilentlyContinue).AppCaptureEnabled -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 1 -Force; Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1 -Force
+    
+    #CATEGORY
+    - category: Taskbar
+      icon: "&#xEE64;"
+      column: 1
+
+    - name: Align Taskbar to Left #🟢 (25H2)
+      purpose: Moves taskbar icons to the left
+      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -ErrorAction SilentlyContinue).TaskbarAl -eq 0
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -Value 1 -Type DWORD -Force      
+
+    - name: Show End Task in Taskbar #🟢 (25H2)
+      purpose: Enables the 'End Task' option when right-clicking an app on the taskbar
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -ErrorAction SilentlyContinue).TaskbarEndTask -eq 1
+      true: New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+      false: Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Force -ErrorAction SilentlyContinue; Stop-Process -Name explorer -Force
+
+    - name: Hide Search Box #🟢 (25H2)
+      purpose: Removes the search box/icon from the taskbar
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -ErrorAction SilentlyContinue).SearchboxTaskbarMode -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -Force
+      
+    - name: Hide Task View Button #🟢 (25H2)
+      purpose: Removes the 'Task View' button from the taskbar
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -ErrorAction SilentlyContinue).ShowTaskViewButton -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1 -Force
+
+    - name: Disable Widgets #🟢 (25H2)
+      purpose: Removes the Widgets button from the taskbar (Universal)
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -ErrorAction SilentlyContinue).AllowNewsAndInterests -eq 0
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Force -ErrorAction SilentlyContinue; Stop-Process -Name explorer -Force
+
+    #CATEGORY
+    - category: Start Menu
+      icon: "&#xF0E2;"
+      column: 1
+
+    - name: Disable Consumer Features #🟡 untested
+      purpose: Disables 'Suggested' apps and ads in the Start Menu
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
+      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
+    - name: Disable Bing Search Results #🟡 untested
+      purpose: Prevents web results from Bing appearing in the Start menu search.
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue).BingSearchEnabled -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 1 -Force
+
+    #CATEGORY
+    - category: Sounds
+      icon: "&#xE767;"
+      column: 2
+
+    - name: Disable Startup Sound #🟡 untested
+      purpose: Prevents the Windows startup sound
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -ErrorAction SilentlyContinue).DisableStartupSound -eq 1
+      true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 0 -Force
+
+    #- name: Disable System Sounds #🔴
+    #  purpose: Sets the sound scheme to 'No Sounds'
+    #  check:
+    #  true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None'
+    #  false:   
+
+    #CATEGORY
+    - category: Theme
+      icon: "&#xE790;"
+      column: 2
+
+    - name: Dark Mode #🟢 (25H2)
+      purpose: Sets System and App themes to Dark
+      check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -ErrorAction SilentlyContinue).AppsUseLightTheme -eq 0
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 1 -Type DWORD -Force;Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 1 -Type DWORD -Force
       
 #FEATURE
-- feature: Installer
-  icon: "&#xE896;"
+- feature: Apps
+  icon: "&#xE71D;"
   type: apps
   items:
   
@@ -1025,9 +872,196 @@ features:
       false: winget uninstall --id Audacity.Audacity -e --silent --force
       
     #CATEGORY
+    - category: Debloat - Remove Microsoft Components
+      icon: "&#xE74D;"
+      column: 2
+    
+    - name: Bing Search
+      purpose: Uninstalls the Bing Search integration
+      button: Get-AppxPackage *BingSearch* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Calculator
+      purpose: Uninstalls the default Calculator app
+      button: Get-AppxPackage *WindowsCalculator* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Camera
+      purpose: Uninstalls the default Camera app
+      button: Get-AppxPackage *WindowsCamera* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Clipchamp
+      purpose: Uninstalls the Clipchamp video editor
+      button: Get-AppxPackage *Clipchamp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Clock
+      purpose: Uninstalls the Alarms & Clock application
+      button: Get-AppxPackage *WindowsAlarms* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Copilot
+      purpose: Uninstalls the Copilot app and hides the taskbar button
+      button: Get-AppxPackage *Copilot* | Remove-AppxPackage -ErrorAction SilentlyContinue; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCopilotButton" -Type DWord -Value 0 -Force
+      button_text: Uninstall
+    - name: Dev Home
+      purpose: Uninstalls the Dev Home app
+      button: Get-AppxPackage *DevHome* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Family
+      purpose: Uninstalls the Microsoft Family Safety application
+      button: Get-AppxPackage *MicrosoftFamily* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Feedback Hub
+      purpose: Uninstalls the Feedback Hub
+      button: Get-AppxPackage *FeedbackHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Get Help
+      purpose: Uninstalls the Get Help application
+      button: Get-AppxPackage *GetHelp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Microsoft Tips
+      purpose: Uninstalls the Tips (Get Started) app
+      button: Get-AppxPackage *Getstarted* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Mail and Calendar
+      purpose: Uninstalls the legacy Mail and Calendar apps
+      button: Get-AppxPackage *windowscommunicationsapps* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Maps
+      purpose: Uninstalls the Maps application
+      button: Get-AppxPackage *WindowsMaps* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: News
+      purpose: Uninstalls the MSN News application
+      button: Get-AppxPackage *BingNews* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Notepad (Modern)
+      purpose: Uninstalls the modern Notepad application
+      button: Get-AppxPackage *WindowsNotepad* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Office Hub
+      purpose: Uninstalls the Microsoft 365 (Office) app
+      button: Get-AppxPackage *MicrosoftOfficeHub* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: OneNote
+      purpose: Uninstalls OneNote
+      button: Get-AppxPackage *OneNote* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Outlook (New)
+      purpose: Uninstalls Outlook
+      button: Get-AppxPackage *Outlook* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Paint
+      purpose: Uninstalls the modern Paint application
+      button: Get-AppxPackage *Paint* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: People
+      purpose: Uninstalls People application
+      button: Get-AppxPackage *People* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Photos
+      purpose: Uninstalls the Microsoft Photos application
+      button: Get-AppxPackage *Windows.Photos* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Power Automate
+      purpose: Uninstalls the Power Automate Desktop component
+      button: Get-AppxPackage *PowerAutomateDesktop* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Quick Assist
+      purpose: Uninstalls the Quick Assist remote support tool
+      button: Get-AppxPackage *QuickAssist* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Snipping Tool
+      purpose: Uninstalls the Snipping Tool / Screen Sketch application
+      button: Get-AppxPackage *ScreenSketch* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Solitaire Collection
+      purpose: Uninstalls the pre-installed Solitaire game
+      button: Get-AppxPackage *Solitaire* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Sticky Notes
+      purpose: Uninstalls the Microsoft Sticky Notes application
+      button: Get-AppxPackage *MicrosoftStickyNotes* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Teams (Personal)
+      purpose: Uninstalls the personal version of Microsoft Teams
+      button: Get-AppxPackage *MicrosoftTeams* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Teams (Work)
+      purpose: Uninstalls the work/school version of Microsoft Teams
+      button: Get-AppxPackage *MSTeams* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: To Do
+      purpose: Uninstalls the Microsoft To Do application
+      button: Get-AppxPackage *Todos* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Voice Recorder
+      purpose: Uninstalls the Sound Recorder application
+      button: Get-AppxPackage *WindowsSoundRecorder* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Wallet
+      purpose: Uninstalls Wallet application
+      button: Get-AppxPackage *Wallet* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Weather
+      purpose: Uninstalls the MSN Weather application
+      button: Get-AppxPackage *BingWeather* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Media Player
+      purpose: Uninstalls the modern Windows Media Player
+      button: Get-AppxPackage *ZuneMusic* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Movies & TV
+      purpose: Uninstalls the Movies & TV (Zune Video) application
+      button: Get-AppxPackage *ZuneVideo* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Phone Link
+      purpose: Uninstalls the Your Phone / Phone Link application
+      button: Get-AppxPackage *YourPhone* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Xbox App
+      purpose: Uninstalls the main Xbox application
+      button: Get-AppxPackage *XboxApp* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: Xbox Game Bar
+      purpose: Uninstalls the Xbox Game Bar and overlays
+      button: Get-AppxPackage *Xbox* | Remove-AppxPackage -ErrorAction SilentlyContinue
+      button_text: Uninstall
+    - name: OneDrive
+      purpose: Uninstalls the OneDrive cloud storage client
+      button: taskkill /f /im OneDrive.exe; %SystemRoot%\SysWOW64\OneDriveSetup.exe /uninstall
+      button_text: Uninstall
+    # --- Windows Capabilities & Features (System components) ---
+    - name: Windows Recall
+      purpose: Disables the AI-powered Recall snapshots feature
+      button: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "DisableAIDataAnalysis" -Type DWord -Value 1 -Force
+      button_text: Disable
+    - name: Facial Recognition
+      purpose: Removes the Windows Hello Facial Recognition capability
+      button: Get-WindowsCapability -Online | Where-Object Name -like 'Hello.Face*' | Remove-WindowsCapability -Online
+      button_text: Remove
+    - name: Handwriting Recognition
+      purpose: Removes handwriting recognition components
+      button: Get-WindowsCapability -Online | Where-Object Name -like 'Language.Handwriting*' | Remove-WindowsCapability -Online
+      button_text: Remove
+    - name: OpenSSH Client
+      purpose: Removes the built-in OpenSSH client
+      button: Remove-WindowsCapability -Online -Name "OpenSSH.Client~~~~0.0.1.0"
+      button_text: Remove
+    - name: PowerShell ISE
+      purpose: Removes the legacy PowerShell Integrated Scripting Environment
+      button: Remove-WindowsCapability -Online -Name "Microsoft.Windows.PowerShell.ISE~~~~0.0.1.0"
+      button_text: Remove
+    - name: Fax and Scan
+      purpose: Removes the legacy Fax and Scan application
+      button: Remove-WindowsCapability -Online -Name "Print.Fax.Scan~~~~0.0.1.0"
+      button_text: Remove
+    - name: Remote Desktop Client
+      purpose: Removes the built-in Remote Desktop Connection client
+      button: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
+      button_text: Remove
+
+    #CATEGORY
     - category: Design & Editing
       icon: "&#xE91B;"
-      column: 2
+      column: 1
     
     - name: Blender #🟢
       purpose: Free and open-source 3D creation suite
@@ -1058,7 +1092,7 @@ features:
     #CATEGORY
     - category: Utilities
       icon: "&#xEA86;"
-      column: 2
+      column: 1
 
     - name: Microsoft PowerToys #🟢
       purpose: A set of utilities for power users to tune their Windows experience
@@ -1089,7 +1123,7 @@ features:
     #CATEGORY
     - category: Productivity
       icon: "&#xE821;"
-      column: 2
+      column: 1
     
     - name: LibreOffice #🟢
       purpose: Free and open-source office productivity software suite
@@ -1279,5 +1313,5 @@ features:
 
 #FEATURE
 - feature: System
-  icon: "&#xE9D9;"
+  icon: "&#xE80F;"
   type: system

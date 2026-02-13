@@ -18,7 +18,7 @@
 ## ✨ Key Features
 
 ### 🟢 Community Edition (Open Source)
-* **📊 Comprehensive Dashboard:** Real-time monitoring of CPU, GPU, and RAM usage alongside security status (TPM, Secure Boot).
+* **📊 Comprehensive System:** Real-time monitoring of CPU, GPU, and RAM usage alongside security status (TPM, Secure Boot).
 * **🚀 Data-Driven Optimizer:** Toggle performance, gaming, and privacy tweaks defined entirely in external YAML files.
 * **📦 App Manager:** Integrated Winget support for automated software installation and bloatware removal.
 * **🧹 Deep Cleaner:** Automated cleaning of system temporary files, prefetch, recycle bin, and browser data.

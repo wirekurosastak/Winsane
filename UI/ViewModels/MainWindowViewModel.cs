@@ -98,11 +98,6 @@ public partial class MainWindowViewModel : ViewModelBase
             SelectedFeature = Features[0];
         }
 
-        if (Features.Count > 0)
-        {
-            SelectedFeature = Features[0];
-        }
-
         LoadSearchableItems();
         IsBusy = false;
     }

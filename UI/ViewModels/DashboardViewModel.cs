@@ -147,9 +147,15 @@ public partial class SystemViewModel : ViewModelBase
             Gpu3DLoad = $"{gpu3D:F1}%";
 
             var vramUsed = _systemInfoService.GetGpuVramUsageGb();
-            GpuVramUsage = _gpuVramTotalGb > 0 
-                ? $"{vramUsed:F1} GB / {_gpuVramTotalGb:F0} GB" 
-                : $"{vramUsed:F1} GB";
+            if (_gpuVramTotalGb > 0)
+            {
+                var vramPercentage = (vramUsed / _gpuVramTotalGb) * 100f;
+                GpuVramUsage = $"{vramPercentage:F1}% ({vramUsed:F1} GB / {_gpuVramTotalGb:F0} GB)";
+            }
+            else
+            {
+                GpuVramUsage = $"{vramUsed:F1} GB";
+            }
 
             var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
             Uptime = $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s";

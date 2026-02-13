@@ -33,8 +33,6 @@ public partial class FeatureViewModel : ViewModelBase
     [ObservableProperty]
     private SystemViewModel? _system;
 
-
-
     public FeatureViewModel(
         Feature feature,
         CoreService coreService,
@@ -72,15 +70,23 @@ public partial class FeatureViewModel : ViewModelBase
             {
                 var item = feature.Items[i];
 
-                bool isInstaller =
-                    feature.Name.Equals("Installer", StringComparison.OrdinalIgnoreCase) == true;
-                var itemVm = new ItemViewModel(item, _coreService, _configService, isInstaller);
+                bool isAppFeature = feature.Name.Equals("Apps", StringComparison.OrdinalIgnoreCase);
+
+                // Default behavior: if it's the Apps/Installer feature, use the installer lane
+                bool useInstallerLane = isAppFeature;
+
+                var itemVm = new ItemViewModel(item, _coreService, _configService, useInstallerLane);
 
                 initTasks.Add(itemVm.InitializeAsync());
 
                 if (item.IsCategory)
                 {
                     var group = new ItemGroupViewModel(item.Category, item.Icon, item.Column);
+                    
+                    // If this category is "Debloat", we MUST use the General lane, NOT the Installer lane
+                    // This prevents Debloat actions from blocking/being blocked by long-running Winget installs
+                    bool isDebloat = item.Category?.Contains("Debloat", StringComparison.OrdinalIgnoreCase) == true;
+                    bool groupUseInstallerLane = useInstallerLane && !isDebloat;
 
                     i++;
                     while (i < feature.Items.Count && !feature.Items[i].IsCategory)
@@ -90,7 +96,7 @@ public partial class FeatureViewModel : ViewModelBase
                             subItem,
                             _coreService,
                             _configService,
-                            isInstaller
+                            groupUseInstallerLane
                         );
                         initTasks.Add(subItemVm.InitializeAsync());
 

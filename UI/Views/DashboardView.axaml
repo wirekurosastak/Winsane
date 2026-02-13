@@ -154,7 +154,7 @@
                 <ui:SettingsExpander Header="Graphics (GPU)"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:FontIconSource Glyph="&#xE91B;" FontFamily="Segoe Fluent Icons"/>
+                        <ui:FontIconSource Glyph="&#xE8B9;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding GpuName}"
                                              Description="Name"/>
@@ -212,7 +212,7 @@
                 <ui:SettingsExpander Header="Security"
                                      IsExpanded="True">
                     <ui:SettingsExpander.IconSource>
-                        <ui:FontIconSource Glyph="&#xEA18;" FontFamily="Segoe Fluent Icons"/>
+                        <ui:FontIconSource Glyph="&#xE83D;" FontFamily="Segoe Fluent Icons"/>
                     </ui:SettingsExpander.IconSource>
                     <ui:SettingsExpanderItem Content="{Binding SecureBootStatus}"
                                              Description="Secure Boot"/>
