@@ -13,61 +13,65 @@
     <UserControl.Resources>
         <converters:IconSourceConverter x:Key="IconSourceConverter"/>
 
+        <!-- Local Leaf Template (No Margin to fix height issue) -->
+        <DataTemplate x:Key="LeafTemplate" x:DataType="vm:ItemViewModel">
+           <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{Binding Name}" 
+                               Theme="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <TextBlock Text="{Binding Purpose}" 
+                               Theme="{StaticResource CaptionTextBlockStyle}" 
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+                
+                <!-- Footer -->
+                <ContentControl Grid.Column="1" 
+                                VerticalAlignment="Center"
+                                Content="{Binding}" 
+                                ContentTemplate="{StaticResource ItemFooterTemplate}"
+                                Margin="12,0,0,0"/>
+           </Grid>
+        </DataTemplate>
+
+        <!-- Recursive Item Template (for Group Items) -->
+        <DataTemplate x:Key="GroupItemTemplate" x:DataType="vm:ItemViewModel">
+            <Panel>
+                <!-- Branch: Nested Expander (Has SubItems) -->
+                <ui:SettingsExpander IsVisible="{Binding HasSubItems}"
+                                     ItemsSource="{Binding SubItems}"
+                                     ItemTemplate="{DynamicResource GroupItemTemplate}"
+                                     IsExpanded="False">
+                    <ui:SettingsExpander.Header>
+                        <Grid ColumnDefinitions="*,Auto">
+                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2" Margin="0,0,12,0">
+                                 <TextBlock Text="{Binding Name}" Theme="{StaticResource BodyStrongTextBlockStyle}"/>
+                                 <TextBlock Text="{Binding Purpose}" Theme="{StaticResource CaptionTextBlockStyle}" 
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                             </StackPanel>
+                             <ContentControl Grid.Column="1" 
+                                             Content="{Binding}" 
+                                             ContentTemplate="{StaticResource ItemFooterTemplate}"
+                                             VerticalAlignment="Center"/>
+                        </Grid>
+                    </ui:SettingsExpander.Header>
+                </ui:SettingsExpander>
+
+                <!-- Leaf: Standard Item (No SubItems) -->
+                <!-- Use Local LeafTemplate to avoid double margin -->
+                <ContentControl IsVisible="{Binding !HasSubItems}" 
+                                Content="{Binding}" 
+                                ContentTemplate="{StaticResource LeafTemplate}"/>
+            </Panel>
+        </DataTemplate>
+
         <!-- Category Group Template (Dropdown) -->
         <DataTemplate x:Key="GroupTemplate" x:DataType="vm:ItemGroupViewModel">
             <ui:SettingsExpander Header="{Binding Header}"
                                  IsExpanded="True"
                                  ItemsSource="{Binding Items}"
+                                 ItemTemplate="{StaticResource GroupItemTemplate}"
                                  IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
-
-                <ui:SettingsExpander.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ItemViewModel">
-                        <ui:SettingsExpanderItem Content="{Binding Name}"
-                                                 Description="{Binding Purpose}">
-                            <ui:SettingsExpanderItem.Footer>
-                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <!-- Status text -->
-                                    <TextBlock Text="{Binding StatusText}"
-                                              VerticalAlignment="Center"
-                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                              IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                                    
-                                    <!-- Loading indicator -->
-                                    <ui:ProgressRing IsIndeterminate="True"
-                                                    Width="20" Height="20"
-                                                    IsVisible="{Binding IsLoading}"/>
-                                    
-                                    <!-- Toggle Switch -->
-                                    <ToggleSwitch IsChecked="{Binding IsEnabled}"
-                                                 IsVisible="{Binding ShowToggle}"
-                                                 IsEnabled="{Binding !IsLoading}"
-                                                 OnContent="{x:Null}"
-                                                 OffContent="{x:Null}"
-                                                 MinHeight="0"
-                                                 Margin="0,-8,0,-3"
-                                                 VerticalAlignment="Center"/>
-                                    
-                                    <!-- Run/Open Button -->
-                                    <Button Content="{Binding ButtonText}"
-                                           IsVisible="{Binding ShowRunButton}"
-                                           IsEnabled="{Binding !IsLoading}"
-                                           Command="{Binding ExecuteButtonCommand}"
-                                           Classes="accent"
-                                           VerticalAlignment="Center"
-                                           Foreground="White"
-                                           Margin="0,0,7,0"/>
-                                    
-                                    <!-- Delete Button -->
-                                    <Button Content="Delete"
-                                           IsVisible="{Binding ShowDeleteButton}"
-                                           IsEnabled="{Binding !IsLoading}"
-                                           Command="{Binding DeleteCommand}"
-                                           Foreground="#E74856"/>
-                                </StackPanel>
-                            </ui:SettingsExpanderItem.Footer>
-                        </ui:SettingsExpanderItem>
-                    </DataTemplate>
-                </ui:SettingsExpander.ItemTemplate>
             </ui:SettingsExpander>
         </DataTemplate>
         
