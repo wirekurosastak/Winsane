@@ -41,13 +41,15 @@
                 <ui:SettingsExpander IsVisible="{Binding HasSubItems}"
                                      ItemsSource="{Binding SubItems}"
                                      ItemTemplate="{DynamicResource GroupItemTemplate}"
-                                     IsExpanded="False">
+                                     IsExpanded="False"
+                                     IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
                     <ui:SettingsExpander.Header>
                         <Grid ColumnDefinitions="*,Auto">
                              <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2" Margin="0,0,12,0">
                                  <TextBlock Text="{Binding Name}" Theme="{StaticResource BodyStrongTextBlockStyle}"/>
                                  <TextBlock Text="{Binding Purpose}" Theme="{StaticResource CaptionTextBlockStyle}" 
-                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"
+                                            IsVisible="{Binding Purpose, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                              </StackPanel>
                              <ContentControl Grid.Column="1" 
                                              Content="{Binding}" 
@@ -83,7 +85,6 @@
         <!-- Add Tweak Template -->
         <DataTemplate x:Key="AddTweakTemplate" x:DataType="vm:AddTweakViewModel">
             <ui:SettingsExpander Header="Add Custom Tweak"
-                                 Description="Create your own PowerShell tweak"
                                  IsExpanded="True"
                                  ItemsSource="{Binding CombinedItems}">
                 <ui:SettingsExpander.IconSource>

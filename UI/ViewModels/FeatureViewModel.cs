@@ -88,6 +88,8 @@ public partial class FeatureViewModel : ViewModelBase
                     bool isDebloat = item.Category?.Contains("Debloat", StringComparison.OrdinalIgnoreCase) == true;
                     bool groupUseInstallerLane = useInstallerLane && !isDebloat;
 
+                    bool isStartupApps = item.Category?.Equals("Startup Apps", StringComparison.OrdinalIgnoreCase) == true;
+
                     i++;
                     while (i < feature.Items.Count && !feature.Items[i].IsCategory)
                     {
@@ -104,8 +106,12 @@ public partial class FeatureViewModel : ViewModelBase
                         i++;
                     }
 
-                    if (group.Items.Any())
+                    // Always add Startup Apps group (populated async), others only if non-empty
+                    if (isStartupApps || group.Items.Any())
                          rawItems.Add(group);
+
+                    if (isStartupApps)
+                        initTasks.Add(PopulateStartupAppsAsync(group));
                 }
                 else
                 {
@@ -173,5 +179,24 @@ public partial class FeatureViewModel : ViewModelBase
     public void RefreshSystem(SystemInfoService systemInfoService)
     {
         System?.Refresh(systemInfoService);
+    }
+
+    private async Task PopulateStartupAppsAsync(ItemGroupViewModel group)
+    {
+        try
+        {
+            var startupService = new StartupService(_coreService);
+            var entries = await startupService.GetStartupEntriesAsync();
+
+            var tasks = new List<Task>();
+            foreach (var entry in entries)
+            {
+                var vm = new ItemViewModel(entry, _coreService, _configService, false);
+                tasks.Add(vm.InitializeAsync());
+                group.Items.Add(vm);
+            }
+            await Task.WhenAll(tasks);
+        }
+        catch { }
     }
 }

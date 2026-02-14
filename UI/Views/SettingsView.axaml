@@ -12,14 +12,8 @@
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="12" MaxWidth="800" Margin="24">
-            <!-- Header -->
-            <TextBlock Text="Settings"
-                       Theme="{StaticResource TitleTextBlockStyle}"
-                       Margin="0,0,0,16"/>
-            
             <!-- Backup Section -->
             <ui:SettingsExpander Header="System Backup"
-                                 Description="Manage restore points and safety"
                                  IsExpanded="True">
                 <ui:SettingsExpander.IconSource>
                 <ui:SymbolIconSource Symbol="Save"/>
@@ -43,7 +37,6 @@
             
             <!-- About Section -->
             <ui:SettingsExpander Header="About"
-                                 Description="Application information"
                                  IsExpanded="True">
                 <ui:SettingsExpander.IconSource>
                 <ui:FontIconSource Glyph="&#xF167;" FontFamily="Segoe Fluent Icons"/>

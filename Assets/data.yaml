@@ -1,6 +1,7 @@
 #🟢 = Working
 #🟡 = Untested or partially working
 #🔴 = To be fixed or completed
+#⭐ = Highly recommended
 #For icons check WinUI 3 Gallery
 
 features:
@@ -22,25 +23,25 @@ features:
       button: irm https://get.activated.win | iex
       button_text: Activate
       
-    - name: Boot Optimization #🟢 (25H2)
+    - name: Boot Optimization ⭐ #🟢 (25H2)
       purpose: Sets boot timeout to minimum for faster startup
       check: $b = bcdedit | Out-String; if ($b -match 'timeout\s+(\d+)') { $matches[1] -eq '3' } else { $false }
       true: Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 3" -Verb RunAs
       false: Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 30" -Verb RunAs
         
-    - name: Ultimate Performance #🟢 (25H2)
+    - name: Ultimate Performance ⭐ #🟢 (25H2)
       purpose: Enables the Ultimate Performance power plan
       check: (powercfg /getactivescheme) -match 'e9a42b02-d5df-448d-aa00-03f14749eb01'
       true: $g="e9a42b02-d5df-448d-aa00-03f14749eb01"; if(!(powercfg /list | Select-String $g)) { powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 $g }; powercfg -setactive $g
       false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e; powercfg -delete e9a42b02-d5df-448d-aa00-03f14749eb01
       
-    - name: Disable Superfetch #🟢 (25H2)
+    - name: Disable Superfetch ⭐ #🟢 (25H2)
       purpose: Disables the SysMain service
       check: (Get-Service -Name SysMain -ErrorAction SilentlyContinue).StartType -eq 'Disabled'
       true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain -Force
       false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name SysMain
         
-    - name: Disable Search Indexing #🟢 (25H2)
+    - name: Disable Search Indexing ⭐ #🟢 (25H2)
       purpose: Disables the search indexing service
       check: (Get-Service -Name WSearch -ErrorAction SilentlyContinue).StartType -eq 'Disabled'
       true: Set-Service -Name WSearch -StartupType Disabled; Stop-Service -Name WSearch -Force
@@ -58,22 +59,22 @@ features:
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 1 -Force
       
-    - name: Disable Last Access Timestamp #🟡 untested
+    - name: Disable Last Access Timestamp ⭐ #🟡 untested
       purpose: Disable NTFS 'Last Access' timestamps to boost disk speed.
-      check: (fsutil behavior query disablelastaccess) -match 'DisableLastAccess = 1'
-      true: fsutil behavior set disablelastaccess 1
-      false: fsutil behavior set disablelastaccess 0
+      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -ErrorAction SilentlyContinue).NtfsDisableLastAccessUpdate -eq 1
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -Type DWord -Value 0 -Force
       
-    - name: Disable Edge Background Mode #🟡 untested
+    - name: Disable Edge Background Mode ⭐ #🟡 untested
       purpose: Prevents Microsoft Edge from running background processes when closed
-      check: $p = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; $v = Get-ItemProperty -Path $p -Name 'BackgroundModeEnabled' -ErrorAction SilentlyContinue; if ($v.BackgroundModeEnabled -eq 0) { $true } else { $false }
-      true: if (!(Test-Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge')) { New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -Type DWord -Value 0 -Force; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'StartupBoostEnabled' -Type DWord -Value 0 -Force
-      false: Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -Force -ErrorAction SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'StartupBoostEnabled' -Force -ErrorAction SilentlyContinue
+      check: (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -ErrorAction SilentlyContinue).BackgroundModeEnabled -eq 0
+      true: New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -Type DWord -Value 0 -Force
+      false: Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -Force -ErrorAction SilentlyContinue
       
-    - name: Disable Edge Startup Boost #🟡 untested
-      purpose: Stops Edge from running background processes when closed
+    - name: Disable Edge Startup Boost ⭐ #🟡 untested
+      purpose: Stops Edge from pre-loading processes at boot
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -ErrorAction SilentlyContinue).StartupBoostEnabled -eq 0
-      true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -Type DWord -Value 0 -Force
+      true: New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -Type DWord -Value 0 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -Force -ErrorAction SilentlyContinue
         
     #CATEGORY    
@@ -81,25 +82,31 @@ features:
       icon: "&#xE7FC;"
       column: 1
     
-    - name: Game Mode #🟡 untested
-      purpose: Prioritizes system resources for gaming applications
+    - name: Enable Game Mode ⭐ #🟡 untested
+      purpose: Prioritizes CPU/GPU resources for the active game window
       check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -ErrorAction SilentlyContinue).AutoGameModeEnabled -eq 1
-      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
-      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 0 -Type DWORD -Force; Set-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
+      true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 0 -Type DWORD -Force
+
+    - name: Disable GameDVR ⭐ #🟡 untested
+      purpose: Stops Windows from constantly recording gameplay in the background
+      check: (Get-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -ErrorAction SilentlyContinue).GameDVR_Enabled -eq 0
+      true: Set-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
+      false: Set-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
         
-    - name: Disable Mouse Acceleration #🟢 (25H2)
+    - name: Disable Mouse Acceleration ⭐ #🟢 (25H2)
       purpose: Disables 'Enhance Pointer Precision' for 1:1 raw input
       check: (Get-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -ErrorAction SilentlyContinue).MouseSpeed -eq "0"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value "0" -Force
       false: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "1" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value "6" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value "10" -Force
         
-    - name: Disable Network Throttling #🟡 untested
+    - name: Disable Network Throttling ⭐ #🟡 untested
       purpose: Disables network throttling
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -ErrorAction SilentlyContinue).NetworkThrottlingIndex -eq 4294967295
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295 -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 10 -Force
 
-    - name: Disable Sticky Keys #🟢 (25H2) disables shortcuts, maybe should disable altogether?
+    - name: Disable Sticky Keys ⭐ #🟢 (25H2)
       purpose: Prevents the prompt when pressing Shift 5 times
       check: (Get-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -ErrorAction SilentlyContinue).Flags -eq "506"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506" -Force
@@ -110,7 +117,7 @@ features:
       icon: "&#xEA99;"
       column: 2
 
-    - name: Automatic Cleaning
+    - name: Automatic Cleaning ⭐
       purpose: Clean selected items on startup (Files/Browsers)
       check: Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Winsane Cleaner.vbs"
       true: |
@@ -138,7 +145,7 @@ features:
 
     # --- SYSTEM FILES ---
     - name: Files
-      purpose: System file cleaning
+      icon: "&#xE8B7;"
       subitems:
       - name: Temp
         purpose: Delete User and Windows Temp files
@@ -182,7 +189,7 @@ features:
 
     # --- BROWSERS ---
     - name: Browsers
-      purpose: Browser data cleaning
+      icon: "&#xE774;"
       subitems:
       - name: Google Chrome
         subitems:
@@ -423,11 +430,11 @@ features:
       icon: "&#xE83D;"
       column: 0
     
-    #- name: Set Passwords to Never Expire
-    #  purpose: Disables the mandatory password expiration for all local user accounts
-    #  check: #🔴
-    #  true: Get-LocalUser | Set-LocalUser -PasswordNeverExpires $true
-    #  false: #🔴
+    - name: Passwords Never Expire #🟡 untested
+      purpose: Disables mandatory password expiration for the current user
+      check: (Get-LocalUser -Name $env:USERNAME).PasswordNeverExpires -eq $true
+      true: Get-LocalUser -Name $env:USERNAME | Set-LocalUser -PasswordNeverExpires $true
+      false: Get-LocalUser -Name $env:USERNAME | Set-LocalUser -PasswordNeverExpires $false
     
     - name: Prevent Device Encryption #🟡 untested
       purpose: Prevents Windows from automatically enabling BitLocker/Device encryption
@@ -441,11 +448,11 @@ features:
       true: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0; Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
       false: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1; Disable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Disable VBS #🟡 untested
-      purpose: Disables Virtualization-Based Security to potentially boost gaming FPS
-      check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity -eq 0
-      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force
+    - name: Disable VBS (Core Isolation) ⭐ #🟡 untested
+      purpose: Disables Virtualization-Based Security and Memory Integrity for maximum gaming FPS
+      check: $vbs = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity; $hvci = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled; ($vbs -eq 0) -and ($hvci -eq 0)
+      true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force; New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Name "Enabled" -Type DWord -Value 0 -Force
+      false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 1 -Force; Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Name "Enabled" -Type DWord -Value 1 -Force
         
     - name: Disable UAC #🟢 (25H2)
       purpose: Disables Security Prompts
@@ -453,13 +460,13 @@ features:
       true: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1 -Type DWORD -Force
       
-    #- name: Disable Account Lockout Policy  #🔴
+    #- name: Disable Account Lockout Policy  #🔴 maybe removing, protected by the kernel
     #  purpose: Sets the account lockout threshold to 0 (disabled)
     #  check:
     #  true: net accounts /lockoutthreshold:0
     #  false:
       
-    #- name: Disable Smart App Control  #🔴
+    #- name: Disable Smart App Control  #🔴 maybe removing, the Check for this is messy
     #  purpose: Permanently turns off Smart App Control
     #  check: 
     #  true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "VerifiedAndReputablePolicyState" -Type DWord -Value 0 -Force
@@ -470,19 +477,19 @@ features:
       icon: "&#xED1A;"
       column: 1
 
-    - name: Disable Telemetry #🟡 untested
+    - name: Disable Telemetry ⭐ #🟡 untested
       purpose: Reduces background data collection
-      check: Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue | Where-Object { $_.AllowTelemetry -eq 0 }
-      true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+      check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue).AllowTelemetry -eq 0
+      true: if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection")) { New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null }; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue; Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Force -ErrorAction SilentlyContinue
         
-    - name: Disable Location Tracking #🟡 untested
+    - name: Disable Location Tracking ⭐ #🟡 untested
       purpose: Prevents apps and the OS from tracking global location
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -ErrorAction SilentlyContinue).Value -eq "Deny"
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Deny" -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Allow" -Force
         
-    - name: Disable Advertising ID #🟡 untested
+    - name: Disable Advertising ID ⭐ #🟡 untested
       purpose: Prevents apps from using your advertising ID
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0 -Force
@@ -499,7 +506,7 @@ features:
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Force -ErrorAction SilentlyContinue
         
-    - name: Disable Automatic Maintenance #🟡 untested
+    - name: Disable Automatic Maintenance ⭐ #🟡 untested
       purpose: Disables automatic maintenance tasks
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -ErrorAction SilentlyContinue).MaintenanceDisabled -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type DWord -Value 1 -Force
@@ -516,13 +523,13 @@ features:
       icon: "&#xEC50;"
       column: 0
       
-    - name: Open File Explorer to This PC #🟢 (25H2)
+    - name: Open File Explorer to This PC ⭐ #🟢 (25H2)
       purpose: Sets Explorer to open 'This PC' instead of 'Home'.
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -ErrorAction SilentlyContinue).LaunchTo -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 2 -Force
       
-    - name: Expand to Current Folder #🟢 (25H2)
+    - name: Expand to Current Folder ⭐ #🟢 (25H2)
       purpose: Automatically expands the left sidebar to show your current folder
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -ErrorAction SilentlyContinue).NavPaneExpandToCurrentFolder -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
@@ -534,13 +541,13 @@ features:
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
         
-    - name: Show Hidden Files #🟢 (25H2)
+    - name: Show Hidden Files ⭐ #🟢 (25H2)
       purpose: Forces Explorer to show hidden files and folders
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -ErrorAction SilentlyContinue).Hidden -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
 
-    - name: Show File Extensions #🟢 (25H2)
+    - name: Show File Extensions ⭐ #🟢 (25H2)
       purpose: Forces Explorer to show file extensions
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -ErrorAction SilentlyContinue).HideFileExt -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
@@ -557,7 +564,7 @@ features:
       icon: "&#xECA5;"
       column: 0
 
-    - name: Classic Right-Click #🟢 (25H2)
+    - name: Classic Right-Click ⭐ #🟢 (25H2)
       purpose: Restores the full context menu by removing 'Show more options'
       check: Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
       true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(default)" -Value "" -Force
@@ -586,11 +593,11 @@ features:
       true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarAl' -Value 1 -Type DWORD -Force      
 
-    - name: Show End Task in Taskbar #🟢 (25H2)
+    - name: Show End Task in Taskbar #🟡 untested
       purpose: Enables the 'End Task' option when right-clicking an app on the taskbar
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -ErrorAction SilentlyContinue).TaskbarEndTask -eq 1
-      true: New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      false: Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Force -ErrorAction SilentlyContinue; Stop-Process -Name explorer -Force
+      true: if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings")) { New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Force | Out-Null }; Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Type DWord -Value 1 -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Type DWord -Value 0 -Force
 
     - name: Hide Search Box #🟢 (25H2)
       purpose: Removes the search box/icon from the taskbar
@@ -604,7 +611,7 @@ features:
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1 -Force
 
-    - name: Disable Widgets #🟢 (25H2)
+    - name: Disable Widgets ⭐ #🟢 (25H2)
       purpose: Removes the Widgets button from the taskbar (Universal)
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -ErrorAction SilentlyContinue).AllowNewsAndInterests -eq 0
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
@@ -615,16 +622,16 @@ features:
       icon: "&#xF0E2;"
       column: 1
 
-    - name: Disable Consumer Features #🟡 untested
+    - name: Disable Consumer Features ⭐ #🟡 untested
       purpose: Disables 'Suggested' apps and ads in the Start Menu
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
-    - name: Disable Bing Search Results #🟡 untested
-      purpose: Prevents web results from Bing appearing in the Start menu search.
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue).BingSearchEnabled -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 1 -Force
+    - name: Disable Bing Search Results ⭐ #🟡 untested
+      purpose: Prevents web results and trending searches in the Start Menu
+      check: (Get-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -ErrorAction SilentlyContinue).DisableSearchBoxSuggestions -eq 1
+      true: if (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer")) { New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Force | Out-Null }; Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Type DWord -Value 1 -Force
+      false: Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Force -ErrorAction SilentlyContinue
 
     #CATEGORY
     - category: Sounds
@@ -637,11 +644,11 @@ features:
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -Type DWord -Value 0 -Force
 
-    #- name: Disable System Sounds #🔴
-    #  purpose: Sets the sound scheme to 'No Sounds'
-    #  check:
-    #  true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None'
-    #  false:   
+    - name: Disable System Sounds #🟡 untested
+      purpose: Mutes all system event sounds (USB connect, Error, etc.)
+      check: (Get-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -ErrorAction SilentlyContinue).'(Default)' -eq '.None'
+      true: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.None' -Force
+      false: Set-ItemProperty -Path 'HKCU:\AppEvents\Schemes' -Name '(Default)' -Value '.Default' -Force  
 
     #CATEGORY
     - category: Theme
@@ -661,216 +668,304 @@ features:
   items:
   
     #CATEGORY
-    - category: Browsers
+    - category: Installer
+      icon: "&#xE896;"
+      column: 0
+  
+    - name: Browsers
       icon: "&#xE774;"
-      column: 0
-    
-    - name: Google Chrome #🔴 didnt install
-      purpose: Fast, secure, and customizable browser by Google
-      # --accept-source-agreements is an one-time agreement, accepting in first check command
-      check: winget list --id Google.Chrome -e --accept-source-agreements | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Google.Chrome -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Google.Chrome -e --silent --force
-    - name: Mozilla Firefox #🟡 uninstall requires user interaction
-      purpose: Privacy-focused, open-source browser
-      check: winget list --id Mozilla.Firefox -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Mozilla.Firefox -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Mozilla.Firefox -e --silent --force
-    - name: Brave Browser #🟡 uninstall requires user interaction
-      purpose: Privacy-first browser with built-in ad and tracker blocking
-      check: winget list --id Brave.Brave -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Brave.Brave -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Brave.Brave -e --silent --force
-    - name: Opera #🟡 uninstall requires user interaction
-      purpose: Browser with built-in VPN, Ad Blocker, and social messengers
-      check: winget list --id Opera.Opera -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Opera.Opera -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Opera.Opera -e --silent --force
-    - name: Opera GX #🟡 uninstall requires user interaction
-      purpose: Browser built specifically for gamers, with resource limiters
-      check: winget list --id Opera.OperaGX -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Opera.OperaGX -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Opera.OperaGX -e --silent --force
-    - name: Vivaldi #🟡 uninstall requires user interaction
-      purpose: Highly customizable browser built for power users
-      check: winget list --id Vivaldi.Vivaldi -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Vivaldi.Vivaldi -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Vivaldi.Vivaldi -e --silent --force
-    - name: LibreWolf #🟢
-      purpose: A fork of Firefox, focused on privacy, security and freedom
-      check: winget list --id LibreWolf.LibreWolf -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id LibreWolf.LibreWolf -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id LibreWolf.LibreWolf -e --silent --force
-    - name: Arc #🟢
-      purpose: Modern "OS for the web" with unique UI (Rising Popularity)
-      check: winget list --id TheBrowserCompany.Arc -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id TheBrowserCompany.Arc -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id TheBrowserCompany.Arc -e --silent --force
-    - name: Thorium #🟡 uninstall requires user interaction
-      purpose: Performance-optimized Chromium fork (Often benchmarked as fastest)
-      check: winget list --id Alex313031.Thorium -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Alex313031.Thorium -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Alex313031.Thorium -e --silent --force
-    - name: Zen #🔴 didnt install
-      purpose: Firefox-based with modern Arc-like UI (Vertical tabs, Split view)
-      check: winget list --id Zen-Team.Zen-Browser -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Zen-Team.Zen-Browser -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Zen-Team.Zen-Browser -e --silent --force
+      subitems:
+      - name: Google Chrome #🔴 didnt install
+        purpose: Fast, secure, and customizable browser by Google
+        check: winget list --id Google.Chrome -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Google.Chrome -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Google.Chrome -e --silent --force
+      - name: Mozilla Firefox #🟡 uninstall requires user interaction
+        purpose: Privacy-focused, open-source browser
+        check: winget list --id Mozilla.Firefox -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Mozilla.Firefox -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Mozilla.Firefox -e --silent --force
+      - name: Brave Browser #🟡 uninstall requires user interaction
+        purpose: Privacy-first browser with built-in ad and tracker blocking
+        check: winget list --id Brave.Brave -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Brave.Brave -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Brave.Brave -e --silent --force
+      - name: Opera #🟡 uninstall requires user interaction
+        purpose: Browser with built-in VPN, Ad Blocker, and social messengers
+        check: winget list --id Opera.Opera -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Opera.Opera -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Opera.Opera -e --silent --force
+      - name: Opera GX #🟡 uninstall requires user interaction
+        purpose: Browser built specifically for gamers, with resource limiters
+        check: winget list --id Opera.OperaGX -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Opera.OperaGX -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Opera.OperaGX -e --silent --force
+      - name: Vivaldi #🟡 uninstall requires user interaction
+        purpose: Highly customizable browser built for power users
+        check: winget list --id Vivaldi.Vivaldi -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Vivaldi.Vivaldi -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Vivaldi.Vivaldi -e --silent --force
+      - name: LibreWolf #🟢
+        purpose: A fork of Firefox, focused on privacy, security and freedom
+        check: winget list --id LibreWolf.LibreWolf -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id LibreWolf.LibreWolf -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id LibreWolf.LibreWolf -e --silent --force
+      - name: Arc #🟢
+        purpose: Modern "OS for the web" with unique UI (Rising Popularity)
+        check: winget list --id TheBrowserCompany.Arc -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id TheBrowserCompany.Arc -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id TheBrowserCompany.Arc -e --silent --force
+      - name: Thorium #🟡 uninstall requires user interaction
+        purpose: Performance-optimized Chromium fork (Often benchmarked as fastest)
+        check: winget list --id Alex313031.Thorium -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Alex313031.Thorium -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Alex313031.Thorium -e --silent --force
+      - name: Zen #🔴 didnt install
+        purpose: Firefox-based with modern Arc-like UI (Vertical tabs, Split view)
+        check: winget list --id Zen-Team.Zen-Browser -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Zen-Team.Zen-Browser -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Zen-Team.Zen-Browser -e --silent --force
 
-    #CATEGORY
-    - category: Development
+    - name: Development
       icon: "&#xE943;"
-      column: 0
+      subitems:
     
-    - name: Visual Studio Code #🟢
-      purpose: Lightweight but powerful source code editor
-      check: winget list --id Microsoft.VisualStudioCode -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Microsoft.VisualStudioCode -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Microsoft.VisualStudioCode -e --silent --force
-    - name: Git #🟢
-      purpose: Distributed version control system for tracking changes in source code
-      check: winget list --id Git.Git -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Git.Git -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Git.Git -e --silent --force
-    - name: OpenJDK 17 (Microsoft) #🟢
-      purpose: Free, open-source Java Development Kit (LTS)
-      check: winget list --id Microsoft.OpenJDK.17 -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Microsoft.OpenJDK.17 -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Microsoft.OpenJDK.17 -e --silent --force
-    - name: Python 3.11 #🟢
-      purpose: Popular programming language (installs version 3.11)
-      check: winget list --id Python.Python.3.11 -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Python.Python.3.11 -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Python.Python.3.11 -e --silent --force
-    - name: Node.js (LTS) #🟢
-      purpose: Installs the Long-Term Support version of Node.js
-      check: winget list --id OpenJS.NodeJS.LTS -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id OpenJS.NodeJS.LTS -e --silent --force
-    - name: Docker Desktop #🟢
-      purpose: Build, share, and run containers on your desktop
-      check: winget list --id Docker.DockerDesktop -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Docker.DockerDesktop -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Docker.DockerDesktop -e --silent --force
-    - name: XAMPP #🟡 uninstall requires user interaction
-      purpose: Apache + MariaDB + PHP + Perl development environment
-      check: winget list --id ApacheFriends.Xampp.8.2 -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id ApacheFriends.Xampp.8.2 -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id ApacheFriends.Xampp.8.2 -e --silent --force
-    - name: Postman #🟢
-      purpose: The collaboration platform for API development
-      check: winget list --id Postman.Postman -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Postman.Postman -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Postman.Postman -e --silent --force
-    - name: IntelliJ IDEA (Community) #🟡 uninstall requires user interaction
-      purpose: Free and open-source Java IDE from JetBrains
-      check: winget list --id JetBrains.IntelliJIDEA.Community -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id JetBrains.IntelliJIDEA.Community -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id JetBrains.IntelliJIDEA.Community -e --silent --force
-    - name: PyCharm (Community) #🟡 uninstall requires user interaction
-      purpose: Free and open-source Python IDE from JetBrains
-      check: winget list --id JetBrains.PyCharm.Community -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id JetBrains.PyCharm.Community -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id JetBrains.PyCharm.Community -e --silent --force
-    - name: GitKraken #🟢
-      purpose: Git GUI client for Windows, Mac, and Linux
-      check: winget list --id Axosoft.GitKraken -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Axosoft.GitKraken -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Axosoft.GitKraken -e --silent --force
-    - name: VS 2022 Community #🟡 uninstall requires user interaction
-      purpose: Free, full-featured IDE for students and open-source developers
-      check: winget list --id Microsoft.VisualStudio.2022.Community -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Microsoft.VisualStudio.2022.Community -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Microsoft.VisualStudio.2022.Community -e --silent --force
+      - name: Visual Studio Code #🟢
+        purpose: Lightweight but powerful source code editor
+        check: winget list --id Microsoft.VisualStudioCode -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Microsoft.VisualStudioCode -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Microsoft.VisualStudioCode -e --silent --force
+      - name: Git #🟢
+        purpose: Distributed version control system for tracking changes in source code
+        check: winget list --id Git.Git -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Git.Git -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Git.Git -e --silent --force
+      - name: OpenJDK 17 (Microsoft) #🟢
+        purpose: Free, open-source Java Development Kit (LTS)
+        check: winget list --id Microsoft.OpenJDK.17 -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Microsoft.OpenJDK.17 -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Microsoft.OpenJDK.17 -e --silent --force
+      - name: Python 3.11 #🟢
+        purpose: Popular programming language (installs version 3.11)
+        check: winget list --id Python.Python.3.11 -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Python.Python.3.11 -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Python.Python.3.11 -e --silent --force
+      - name: Node.js (LTS) #🟢
+        purpose: Installs the Long-Term Support version of Node.js
+        check: winget list --id OpenJS.NodeJS.LTS -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id OpenJS.NodeJS.LTS -e --silent --force
+      - name: Docker Desktop #🟢
+        purpose: Build, share, and run containers on your desktop
+        check: winget list --id Docker.DockerDesktop -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Docker.DockerDesktop -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Docker.DockerDesktop -e --silent --force
+      - name: XAMPP #🟡 uninstall requires user interaction
+        purpose: Apache + MariaDB + PHP + Perl development environment
+        check: winget list --id ApacheFriends.Xampp.8.2 -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id ApacheFriends.Xampp.8.2 -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id ApacheFriends.Xampp.8.2 -e --silent --force
+      - name: Postman #🟢
+        purpose: The collaboration platform for API development
+        check: winget list --id Postman.Postman -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Postman.Postman -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Postman.Postman -e --silent --force
+      - name: IntelliJ IDEA (Community) #🟡 uninstall requires user interaction
+        purpose: Free and open-source Java IDE from JetBrains
+        check: winget list --id JetBrains.IntelliJIDEA.Community -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id JetBrains.IntelliJIDEA.Community -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id JetBrains.IntelliJIDEA.Community -e --silent --force
+      - name: PyCharm (Community) #🟡 uninstall requires user interaction
+        purpose: Free and open-source Python IDE from JetBrains
+        check: winget list --id JetBrains.PyCharm.Community -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id JetBrains.PyCharm.Community -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id JetBrains.PyCharm.Community -e --silent --force
+      - name: GitKraken #🟢
+        purpose: Git GUI client for Windows, Mac, and Linux
+        check: winget list --id Axosoft.GitKraken -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Axosoft.GitKraken -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Axosoft.GitKraken -e --silent --force
+      - name: VS 2022 Community #🟡 uninstall requires user interaction
+        purpose: Free, full-featured IDE for students and open-source developers
+        check: winget list --id Microsoft.VisualStudio.2022.Community -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Microsoft.VisualStudio.2022.Community -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Microsoft.VisualStudio.2022.Community -e --silent --force
 
-    #CATEGORY
-    - category: Communication
+    - name: Communication
       icon: "&#xE8BD;"
-      column: 1
+      subitems:
     
-    - name: Discord #🟢
-      purpose: Voice, video, and text chat app for communities
-      check: winget list --id Discord.Discord -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Discord.Discord -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Discord.Discord -e --silent --force
-    - name: Slack #🟢
-      purpose: Team-based communication and collaboration platform
-      check: winget list --id SlackTechnologies.Slack -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id SlackTechnologies.Slack -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id SlackTechnologies.Slack -e --silent --force
-    - name: Zoom #🟢
-      purpose: Video conferencing and online meetings client
-      check: winget list --id Zoom.Zoom -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Zoom.Zoom -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Zoom.Zoom -e --silent --force
-    - name: Telegram Desktop #🟢
-      purpose: Fast and secure desktop app for messaging
-      check: winget list --id Telegram.TelegramDesktop -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Telegram.TelegramDesktop -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Telegram.TelegramDesktop -e --silent --force
-    - name: Microsoft Teams #🟢
-      purpose: The hub for team collaboration in Microsoft 365
-      check: winget list --id Microsoft.Teams -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Microsoft.Teams -e --source winget --accept-package-agreements --silent --force
-      false: Get-AppxPackage *MSTeams* | Remove-AppxPackage #Teams ins installed by default on Windows 11 via ms store
+      - name: Discord #🟢
+        purpose: Voice, video, and text chat app for communities
+        check: winget list --id Discord.Discord -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Discord.Discord -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Discord.Discord -e --silent --force
+      - name: Slack #🟢
+        purpose: Team-based communication and collaboration platform
+        check: winget list --id SlackTechnologies.Slack -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id SlackTechnologies.Slack -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id SlackTechnologies.Slack -e --silent --force
+      - name: Zoom #🟢
+        purpose: Video conferencing and online meetings client
+        check: winget list --id Zoom.Zoom -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Zoom.Zoom -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Zoom.Zoom -e --silent --force
+      - name: Telegram Desktop #🟢
+        purpose: Fast and secure desktop app for messaging
+        check: winget list --id Telegram.TelegramDesktop -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Telegram.TelegramDesktop -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Telegram.TelegramDesktop -e --silent --force
+      - name: Microsoft Teams #🟢
+        purpose: The hub for team collaboration in Microsoft 365
+        check: winget list --id Microsoft.Teams -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Microsoft.Teams -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: Get-AppxPackage *MSTeams* | Remove-AppxPackage #Teams ins installed by default on Windows 11 via ms store
 
-    #CATEGORY
-    - category: Gaming
+    - name: Gaming
       icon: "&#xE7FC;"
-      column: 1
+      subitems:
     
-    - name: Steam #🟡 uninstall requires user interaction
-      purpose: Digital distribution platform for video games
-      check: winget list --id Valve.Steam -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Valve.Steam -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Valve.Steam -e --silent --force
-    - name: Epic Games Launcher #🟢
-      purpose: Digital distribution platform and launcher for Epic Games titles
-      check: winget list --id EpicGames.EpicGamesLauncher -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id EpicGames.EpicGamesLauncher -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id EpicGames.EpicGamesLauncher -e --silent --force
-    - name: GOG Galaxy #🟢
-      purpose: Launcher that allows to unite all your games and friends in one place
-      check: winget list --id GOG.Galaxy -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id GOG.Galaxy -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id GOG.Galaxy -e --silent --force
-    - name: Ubisoft Connect #🟢
-      purpose: Digital distribution and services platform by Ubisoft
-      check: winget list --id Ubisoft.Connect -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Ubisoft.Connect -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Ubisoft.Connect -e --silent --force
-    - name: EA App #🟢
-      purpose: Digital distribution platform for Electronic Arts games
-      check: winget list --id ElectronicArts.EADesktop -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id ElectronicArts.EADesktop -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id ElectronicArts.EADesktop -e --silent --force
+      - name: Steam #🟡 uninstall requires user interaction
+        purpose: Digital distribution platform for video games
+        check: winget list --id Valve.Steam -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Valve.Steam -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Valve.Steam -e --silent --force
+      - name: Epic Games Launcher #🟢
+        purpose: Digital distribution platform and launcher for Epic Games titles
+        check: winget list --id EpicGames.EpicGamesLauncher -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id EpicGames.EpicGamesLauncher -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id EpicGames.EpicGamesLauncher -e --silent --force
+      - name: GOG Galaxy #🟢
+        purpose: Launcher that allows to unite all your games and friends in one place
+        check: winget list --id GOG.Galaxy -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id GOG.Galaxy -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id GOG.Galaxy -e --silent --force
+      - name: Ubisoft Connect #🟢
+        purpose: Digital distribution and services platform by Ubisoft
+        check: winget list --id Ubisoft.Connect -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Ubisoft.Connect -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Ubisoft.Connect -e --silent --force
+      - name: EA App #🟢
+        purpose: Digital distribution platform for Electronic Arts games
+        check: winget list --id ElectronicArts.EADesktop -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id ElectronicArts.EADesktop -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id ElectronicArts.EADesktop -e --silent --force
+
+    - name: Media
+      icon: "&#xE768;"
+      subitems:
+    
+      - name: VLC Media Player #🟡 uninstall requires user interaction
+        purpose: Free and open-source cross-platform multimedia player
+        check: winget list --id VideoLAN.VLC -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id VideoLAN.VLC -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id VideoLAN.VLC -e --silent --force
+      - name: Tidal #🟢
+        purpose: HQ music streaming service
+        check: winget list --id TIDALMusicAS.TIDAL -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id TIDALMusicAS.TIDAL -e --accept-source-agreements --accept-package-agreements --source winget --silent --force
+        false: winget uninstall --id TIDALMusicAS.TIDAL -e --silent --force
+      - name: FxSound #🟢
+        purpose: Free and open-source system-wide audio equalizer
+        check: winget list --id FxSound.FxSound -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id FxSound.FxSound  -e --accept-source-agreements --accept-package-agreements --source winget --silent --force
+        false: winget uninstall --id FxSound.FxSound -e --silent --force
+      - name: Audacity #🟢
+        purpose: Free, open-source, cross-platform audio software
+        check: winget list --id Audacity.Audacity -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Audacity.Audacity -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Audacity.Audacity -e --silent --force
+
+    - name: Design & Editing
+      icon: "&#xE91B;"
+      subitems:
+    
+      - name: Blender #🟢
+        purpose: Free and open-source 3D creation suite
+        check: winget list --id BlenderFoundation.Blender -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id BlenderFoundation.Blender -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id BlenderFoundation.Blender -e --silent --force
+      - name: Inkscape #🟢
+        purpose: Free and open-source vector graphics editor
+        check: winget list --id Inkscape.Inkscape -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Inkscape.Inkscape -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Inkscape.Inkscape -e --silent --force
+      - name: Paint.NET #🟢
+        purpose: Free image and photo editing software for Windows
+        check: winget list --id dotPDN.PaintDotNet -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id dotPDN.PaintDotNet -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id dotPDN.PaintDotNet -e --silent --force
+      - name: Figma #🟢
+        purpose: Collaborative interface design tool for teams
+        check: winget list --id Figma.Figma -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Figma.Figma -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Figma.Figma -e --silent --force
+      - name: ShareX #🟢
+        purpose: Advanced screenshot, screen recorder, and productivity tool
+        check: winget list --id ShareX.ShareX -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id ShareX.ShareX -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id ShareX.ShareX -e --silent --force
+    
+    - name: Utilities
+      icon: "&#xEA86;"
+      subitems:
+
+      - name: Microsoft PowerToys #🟢
+        purpose: A set of utilities for power users to tune their Windows experience
+        check: winget list --id Microsoft.PowerToys -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Microsoft.PowerToys -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Microsoft.PowerToys -e --silent --force
+      - name: CPU-Z #🟢
+        purpose: Detailed real-time stats for CPU, Mainboard, and RAM
+        check: winget list --id CPUID.CPU-Z -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id CPUID.CPU-Z -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id CPUID.CPU-Z -e --silent --force
+      - name: GPU-Z #🟢
+        purpose: Comprehensive real-time specs and clock speeds for your GPU
+        check: winget list --id TechPowerUp.GPU-Z -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id TechPowerUp.GPU-Z -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id TechPowerUp.GPU-Z -e --silent --force
+      - name: 7-Zip #🟢
+        purpose: Free and open-source file archiver with a high compression ratio
+        check: winget list --id 7zip.7zip -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id 7zip.7zip -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id 7zip.7zip -e --silent --force
+      - name: Everything #🟢
+        purpose: Lightning-fast file search utility for Windows
+        check: winget list --id voidtools.Everything -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id voidtools.Everything -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id voidtools.Everything -e --silent --force
+
+    - name: Productivity
+      icon: "&#xE821;"
+      subitems:
+    
+      - name: LibreOffice #🟢
+        purpose: Free and open-source office productivity software suite
+        check: winget list --id TheDocumentFoundation.LibreOffice -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id TheDocumentFoundation.LibreOffice -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id TheDocumentFoundation.LibreOffice -e --silent --force
+      - name: Notion #🟢
+        purpose: All-in-one workspace for notes, tasks, wikis, and databases
+        check: winget list --id Notion.Notion -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Notion.Notion -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Notion.Notion -e --silent --force
+      - name: Obsidian #🟢
+        purpose: A powerful knowledge base that works on top of local Markdown files
+        check: winget list --id Obsidian.Obsidian -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Obsidian.Obsidian -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Obsidian.Obsidian -e --silent --force
+      - name: Mozilla Thunderbird #🟢
+        purpose: Free email application that's easy to set up and customize
+        check: winget list --id Mozilla.Thunderbird -e | Out-Null; $LASTEXITCODE -eq 0
+        true: winget install --id Mozilla.Thunderbird -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
+        false: winget uninstall --id Mozilla.Thunderbird -e --silent --force
 
     #CATEGORY
-    - category: Media
-      icon: "&#xE768;"
+    - category: Startup Apps
+      icon: "&#xEBE8;"
       column: 1
-    
-    - name: VLC Media Player #🟡 uninstall requires user interaction
-      purpose: Free and open-source cross-platform multimedia player
-      check: winget list --id VideoLAN.VLC -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id VideoLAN.VLC -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id VideoLAN.VLC -e --silent --force
-    - name: Tidal #🟢
-      purpose: HQ music streaming service
-      check: winget list --id TIDALMusicAS.TIDAL -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id TIDALMusicAS.TIDAL -e --accept-package-agreements --source winget --silent --force
-      false: winget uninstall --id TIDALMusicAS.TIDAL -e --silent --force
-    - name: FxSound #🟢
-      purpose: Free and open-source system-wide audio equalizer
-      check: winget list --id FxSound.FxSound -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id FxSound.FxSound  -e --accept-package-agreements --source winget --silent --force
-      false: winget uninstall --id FxSound.FxSound -e --silent --force
-    - name: Audacity #🟢
-      purpose: Free, open-source, cross-platform audio software
-      check: winget list --id Audacity.Audacity -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Audacity.Audacity -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Audacity.Audacity -e --silent --force
-      
+
     #CATEGORY
     - category: Debloat - Remove Microsoft Components
       icon: "&#xE74D;"
@@ -1053,98 +1148,10 @@ features:
       purpose: Removes the legacy Fax and Scan application
       button: Remove-WindowsCapability -Online -Name "Print.Fax.Scan~~~~0.0.1.0"
       button_text: Remove
-    - name: Remote Desktop Client
-      purpose: Removes the built-in Remote Desktop Connection client
+    - name: Steps Recorder
+      purpose: Removes the legacy Steps Recorder tool
       button: Remove-WindowsCapability -Online -Name "App.StepsRecorder~~~~0.0.1.0"
       button_text: Remove
-
-    #CATEGORY
-    - category: Design & Editing
-      icon: "&#xE91B;"
-      column: 1
-    
-    - name: Blender #🟢
-      purpose: Free and open-source 3D creation suite
-      check: winget list --id BlenderFoundation.Blender -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id BlenderFoundation.Blender -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id BlenderFoundation.Blender -e --silent --force
-    - name: Inkscape #🟢
-      purpose: Free and open-source vector graphics editor
-      check: winget list --id Inkscape.Inkscape -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Inkscape.Inkscape -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Inkscape.Inkscape -e --silent --force
-    - name: Paint.NET #🟢
-      purpose: Free image and photo editing software for Windows
-      check: winget list --id dotPDN.PaintDotNet -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id dotPDN.PaintDotNet -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id dotPDN.PaintDotNet -e --silent --force
-    - name: Figma #🟢
-      purpose: Collaborative interface design tool for teams
-      check: winget list --id Figma.Figma -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Figma.Figma -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Figma.Figma -e --silent --force
-    - name: ShareX #🟢
-      purpose: Advanced screenshot, screen recorder, and productivity tool
-      check: winget list --id ShareX.ShareX -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id ShareX.ShareX -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id ShareX.ShareX -e --silent --force
-    
-    #CATEGORY
-    - category: Utilities
-      icon: "&#xEA86;"
-      column: 1
-
-    - name: Microsoft PowerToys #🟢
-      purpose: A set of utilities for power users to tune their Windows experience
-      check: winget list --id Microsoft.PowerToys -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Microsoft.PowerToys -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Microsoft.PowerToys -e --silent --force
-    - name: CPU-Z #🟢
-      purpose: Detailed real-time stats for CPU, Mainboard, and RAM
-      check: winget list --id CPUID.CPU-Z -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id CPUID.CPU-Z -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id CPUID.CPU-Z -e --silent --force
-    - name: GPU-Z #🟢
-      purpose: Comprehensive real-time specs and clock speeds for your GPU
-      check: winget list --id TechPowerUp.GPU-Z -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id TechPowerUp.GPU-Z -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id TechPowerUp.GPU-Z -e --silent --force
-    - name: 7-Zip #🟢
-      purpose: Free and open-source file archiver with a high compression ratio
-      check: winget list --id 7zip.7zip -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id 7zip.7zip -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id 7zip.7zip -e --silent --force
-    - name: Everything #🟢
-      purpose: Lightning-fast file search utility for Windows
-      check: winget list --id voidtools.Everything -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id voidtools.Everything -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id voidtools.Everything -e --silent --force
-
-    #CATEGORY
-    - category: Productivity
-      icon: "&#xE821;"
-      column: 1
-    
-    - name: LibreOffice #🟢
-      purpose: Free and open-source office productivity software suite
-      check: winget list --id TheDocumentFoundation.LibreOffice -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id TheDocumentFoundation.LibreOffice -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id TheDocumentFoundation.LibreOffice -e --silent --force
-    - name: Notion #🟢
-      purpose: All-in-one workspace for notes, tasks, wikis, and databases
-      check: winget list --id Notion.Notion -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Notion.Notion -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Notion.Notion -e --silent --force
-    - name: Obsidian #🟢
-      purpose: A powerful knowledge base that works on top of local Markdown files
-      check: winget list --id Obsidian.Obsidian -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Obsidian.Obsidian -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Obsidian.Obsidian -e --silent --force
-    - name: Mozilla Thunderbird #🟢
-      purpose: Free email application that's easy to set up and customize
-      check: winget list --id Mozilla.Thunderbird -e | Out-Null; $LASTEXITCODE -eq 0
-      true: winget install --id Mozilla.Thunderbird -e --source winget --accept-package-agreements --silent --force
-      false: winget uninstall --id Mozilla.Thunderbird -e --silent --force
 
 #FEATURE
 - feature: Admin Tools
@@ -1313,5 +1320,5 @@ features:
 
 #FEATURE
 - feature: System
-  icon: "&#xE80F;"
+  icon: "&#xE9D9;"
   type: system

@@ -46,23 +46,33 @@ public partial class ItemViewModel : ViewModelBase
     [ObservableProperty]
     private bool _hasSubItems;
 
-    public bool ShowToggle => (!string.IsNullOrEmpty(_item.TrueCommand) || !string.IsNullOrEmpty(_item.FalseCommand)) || HasSubItems;
+    [ObservableProperty]
+    private string? _icon;
+
+    public bool ShowToggle => HasCommands || (HasSubItems && _isSubItem);
+    
+    private bool HasCommands => !string.IsNullOrEmpty(_item.TrueCommand) || !string.IsNullOrEmpty(_item.FalseCommand);
+
     public bool ShowRunButton => !string.IsNullOrEmpty(_item.ButtonCommand);
     public bool ShowDeleteButton => IsUserTweak;
     public bool IsInstaller => _lane == CoreService.PowerShellLane.Installer;
 
     public event Action<ItemViewModel>? OnDeleted;
 
+    private readonly bool _isSubItem;
+
     public ItemViewModel(
         Item item,
         CoreService coreService,
         ConfigService configService,
-        bool isInstaller = false
+        bool isInstaller = false,
+        bool isSubItem = false
     )
     {
         _item = item;
         _coreService = coreService;
         _configService = configService;
+        _isSubItem = isSubItem;
         _lane = isInstaller
             ? CoreService.PowerShellLane.Installer
             : CoreService.PowerShellLane.General;
@@ -72,6 +82,7 @@ public partial class ItemViewModel : ViewModelBase
         _isHeader = item.IsCategory;
         _categoryName = item.Category ?? string.Empty;
         _isUserTweak = item.IsUserTweak;
+        _icon = item.Icon;
         _buttonText = !string.IsNullOrEmpty(item.ButtonText) ? item.ButtonText : "Run";
 
         if (item.SubItems?.Any() == true)
@@ -79,7 +90,7 @@ public partial class ItemViewModel : ViewModelBase
             HasSubItems = true;
             foreach (var subItem in item.SubItems)
             {
-                var subVm = new ItemViewModel(subItem, _coreService, _configService, isInstaller);
+                var subVm = new ItemViewModel(subItem, _coreService, _configService, isInstaller, true);
                 subVm.PropertyChanged += SubItem_PropertyChanged;
                 SubItems.Add(subVm);
             }
