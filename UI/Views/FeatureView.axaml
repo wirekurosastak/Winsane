@@ -84,12 +84,10 @@
         
         <!-- Add Tweak Template -->
         <DataTemplate x:Key="AddTweakTemplate" x:DataType="vm:AddTweakViewModel">
-            <ui:SettingsExpander Header="Add Custom Tweak"
+            <ui:SettingsExpander Header="{Binding Category}"
                                  IsExpanded="True"
-                                 ItemsSource="{Binding CombinedItems}">
-                <ui:SettingsExpander.IconSource>
-                     <ui:FontIconSource Glyph="&#xE710;" FontFamily="Segoe Fluent Icons"/>
-                </ui:SettingsExpander.IconSource>
+                                 ItemsSource="{Binding CombinedItems}"
+                                 IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
                 
                 <ui:SettingsExpander.ItemTemplate>
                     <DataTemplate>

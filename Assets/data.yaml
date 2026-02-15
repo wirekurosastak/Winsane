@@ -9,7 +9,6 @@ features:
 - feature: General
   icon: "&#xE713;"
   type: standard
-  user_tweaks_section: User
   items:
   
     #CATEGORY
@@ -22,7 +21,7 @@ features:
       check: (Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.LicenseStatus -eq 1 }) -ne $null
       button: irm https://get.activated.win | iex
       button_text: Activate
-      
+
     - name: Boot Optimization ⭐ #🟢 (25H2)
       purpose: Sets boot timeout to minimum for faster startup
       check: $b = bcdedit | Out-String; if ($b -match 'timeout\s+(\d+)') { $matches[1] -eq '3' } else { $false }
@@ -419,13 +418,18 @@ features:
           button: Remove-Item "$env:APPDATA\Opera Software\Opera GX Stable\Sessions\*" -Force -ErrorAction SilentlyContinue
           button_text: Clean
 
-#Feature
+    #CATEGORY
+    - category: Add Custom Tweak
+      icon: "&#xE710;"
+      column: 2
+
+#FEATURE
 - feature: Security & Privacy
   icon: "&#xEA18;"
   type: standard
   items:
 
-#CATEGORY
+    #CATEGORY
     - category: Security
       icon: "&#xE83D;"
       column: 0
@@ -512,7 +516,7 @@ features:
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Force -ErrorAction SilentlyContinue
 
-#Feature
+#FEATURE
 - feature: Personalization
   icon: "&#xE771;"
   type: standard

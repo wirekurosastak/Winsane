@@ -10,8 +10,7 @@ public class Feature
     public string? Icon { get; set; }
     public string? Type { get; set; }
 
-    [YamlMember(Alias = "user_tweaks_section")]
-    public string? UserTweaksSection { get; set; }
+
 
     public List<Item> Items { get; set; } = new();
 
