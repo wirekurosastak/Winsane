@@ -38,6 +38,4 @@ public class Item
     [JsonIgnore]
     public bool IsCategory => !string.IsNullOrEmpty(Category);
 
-    [YamlMember(Alias = "is_user_tweak")]
-    public bool IsUserTweak { get; set; }
 }

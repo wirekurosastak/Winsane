@@ -1326,3 +1326,102 @@ features:
 - feature: System
   icon: "&#xE9D9;"
   type: system
+  items:
+
+    #CATEGORY
+    - category: Power Control
+      icon: "&#xE7E8;"
+      column: 0
+
+    #CATEGORY
+    - category: Motherboard
+      icon: "&#xE713;"
+      column: 1
+
+    - name: N/A
+      purpose: BIOS Version
+
+    #CATEGORY
+    - category: Processor (CPU)
+      icon: "&#xE977;"
+      column: 1
+
+    - name: N/A
+      purpose: Name
+
+    - name: N/A
+      purpose: Topology
+
+    - name: N/A
+      purpose: Usage
+
+    #CATEGORY
+    - category: Memory (RAM)
+      icon: "&#xEEA0;"
+      column: 1
+
+    - name: N/A
+      purpose: Speed
+
+    - name: N/A
+      purpose: Usage
+
+    #CATEGORY
+    - category: Graphics (GPU)
+      icon: "&#xE8B9;"
+      column: 1
+
+    - name: N/A
+      purpose: Speed
+
+    - name: N/A
+      purpose: VRAM Usage
+
+    - name: N/A
+      purpose: 3D Load
+
+    #CATEGORY
+    - category: Operating System
+      icon: "&#xE770;"
+      column: 2
+
+    - name: N/A
+      purpose: Edition & Architecture
+
+    - name: N/A
+      purpose: Version & Build
+
+    - name: N/A
+      purpose: Last Boot & Uptime
+
+    - name: N/A
+      purpose: Host & User
+  
+  #CATEGORY
+    - category: Security
+      icon: "&#xE83D;"
+      column: 2
+
+    - name: N/A
+      purpose: Secure Boot
+
+    - name: N/A
+      purpose: TPM
+
+    - name: N/A
+      purpose: Hyper-V
+
+    - name: N/A
+      purpose: Antivirus
+
+    - name: N/A
+      purpose: UAC
+
+    - name: N/A
+      purpose: Developer Mode
+
+    - name: N/A
+      purpose: BitLocker
+
+    
+    

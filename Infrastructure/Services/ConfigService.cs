@@ -1,4 +1,4 @@
-using System.Text.Json;
+
 using Winsane.Core.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -9,19 +9,18 @@ public class ConfigService
 {
     private static readonly string WinsaneFolder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Winsane");
-    private const string PrefsFileName = "user_tweaks.json";
+    private const string PrefsFileName = "user_tweaks.yaml";
     private const string RemoteConfigUrl =
         "https://raw.githubusercontent.com/wirekurosastak/Winsane/refs/heads/main/Assets/data.yaml";
-
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        WriteIndented = true,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
-    };
 
     private readonly IDeserializer _yamlDeserializer = new DeserializerBuilder()
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
         .IgnoreUnmatchedProperties()
+        .Build();
+
+    private readonly ISerializer _yamlSerializer = new SerializerBuilder()
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitDefaults)
         .Build();
 
     private readonly HttpClient _httpClient;
@@ -49,9 +48,9 @@ public class ConfigService
             Theme = config.Theme,
             UserTweaks = config.Features
                 .SelectMany(f => f.UserTweaks)
-                .Where(i => i.IsUserTweak).ToList(),
+                .ToList(),
         };
-        await File.WriteAllTextAsync(PrefsFilePath, JsonSerializer.Serialize(prefs, JsonOpts));
+        await File.WriteAllTextAsync(PrefsFilePath, _yamlSerializer.Serialize(prefs));
     }
 
     private async Task<AppConfig> FetchBaseConfigAsync()
@@ -76,7 +75,7 @@ public class ConfigService
         if (!File.Exists(PrefsFilePath)) return;
         try
         {
-            var prefs = JsonSerializer.Deserialize<UserPrefs>(await File.ReadAllTextAsync(PrefsFilePath));
+            var prefs = _yamlDeserializer.Deserialize<UserPrefs>(await File.ReadAllTextAsync(PrefsFilePath));
             if (prefs == null) return;
 
             if (prefs.Theme != null) config.Theme = prefs.Theme;
@@ -87,7 +86,6 @@ public class ConfigService
 
             foreach (var tweak in prefs.UserTweaks.Where(t => !target.UserTweaks.Any(i => i.Name == t.Name)))
             {
-                tweak.IsUserTweak = true;
                 target.UserTweaks.Add(tweak);
             }
         }
@@ -108,7 +106,7 @@ public class ConfigService
         {
             Name = name, Purpose = purpose,
             TrueCommand = trueCmd, FalseCommand = falseCmd,
-            CheckCommand = checkCmd, IsUserTweak = true,
+            CheckCommand = checkCmd,
         };
         target.UserTweaks.Add(newItem);
         await SaveConfigAsync(config);
@@ -118,7 +116,7 @@ public class ConfigService
     public async Task DeleteUserTweakAsync(AppConfig config, string name)
     {
         var target = FindUserTweakFeature(config);
-        var item = target?.UserTweaks.FirstOrDefault(i => i.Name == name && i.IsUserTweak);
+        var item = target?.UserTweaks.FirstOrDefault(i => i.Name == name);
         if (item == null) return;
         target!.UserTweaks.Remove(item);
         await SaveConfigAsync(config);

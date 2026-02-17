@@ -38,7 +38,7 @@ public partial class ItemViewModel : ViewModelBase
 
     public ItemViewModel(
         Item item, CoreService coreService, ConfigService configService,
-        bool isInstaller = false, bool isSubItem = false)
+        bool isInstaller = false, bool isSubItem = false, bool isUserTweak = false)
     {
         _item = item;
         _coreService = coreService;
@@ -49,7 +49,7 @@ public partial class ItemViewModel : ViewModelBase
         _purpose = item.Purpose;
         _isHeader = item.IsCategory;
         _categoryName = item.Category ?? string.Empty;
-        _isUserTweak = item.IsUserTweak;
+        _isUserTweak = isUserTweak;
         _icon = item.Icon;
         _buttonText = !string.IsNullOrEmpty(item.ButtonText) ? item.ButtonText : "Run";
 

@@ -57,10 +57,9 @@ public partial class FeatureViewModel : ViewModelBase
                 if (item.Category == "Add Custom Tweak" && config != null)
                 {
                     var existingUserTweaks = feature.UserTweaks
-                        .Where(x => x.IsUserTweak)
                         .Select(x =>
                         {
-                            var vm = new ItemViewModel(x, _coreService, _configService, false);
+                            var vm = new ItemViewModel(x, _coreService, _configService, false, false, true);
                             initTasks.Add(vm.InitializeAsync());
                             return vm;
                         }).ToList();
