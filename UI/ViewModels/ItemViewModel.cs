@@ -24,7 +24,7 @@ public partial class ItemViewModel : ViewModelBase
     [ObservableProperty] private string _buttonText = "Run";
     [ObservableProperty] private bool _isUserTweak;
     [ObservableProperty] private string _statusText = string.Empty;
-    [ObservableProperty] private ObservableCollection<ItemViewModel> _subItems = new();
+    [ObservableProperty] private ObservableCollection<ItemViewModel> _subItems = [];
     [ObservableProperty] private bool _hasSubItems;
     [ObservableProperty] private string? _icon;
 
@@ -91,7 +91,7 @@ public partial class ItemViewModel : ViewModelBase
     {
         if (_isInitialized) return;
         _isInitialized = true;
-        var tasks = new List<Task> { CheckStateAsync() };
+        List<Task> tasks = [CheckStateAsync()];
         if (HasSubItems) tasks.AddRange(SubItems.Select(x => x.InitializeAsync()));
         await Task.WhenAll(tasks);
     }

@@ -259,7 +259,7 @@ public sealed class SystemInfoService : IDisposable
             var categoryEngine = new PerformanceCounterCategory("GPU Engine");
             var instanceNamesEngine = categoryEngine.GetInstanceNames();
 
-            _gpu3DCounters = new List<PerformanceCounter>();
+            _gpu3DCounters = [];
             foreach (var instance in instanceNamesEngine)
             {
                 if (!instance.Contains("engtype_3D"))

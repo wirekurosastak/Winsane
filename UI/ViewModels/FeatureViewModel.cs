@@ -12,9 +12,9 @@ public partial class FeatureViewModel : ViewModelBase
 
     [ObservableProperty] private string _name;
     [ObservableProperty] private string _icon;
-    [ObservableProperty] private ObservableCollection<object> _leftColumnItems = new();
-    [ObservableProperty] private ObservableCollection<object> _middleColumnItems = new();
-    [ObservableProperty] private ObservableCollection<object> _rightColumnItems = new();
+    [ObservableProperty] private ObservableCollection<object> _leftColumnItems = [];
+    [ObservableProperty] private ObservableCollection<object> _middleColumnItems = [];
+    [ObservableProperty] private ObservableCollection<object> _rightColumnItems = [];
     [ObservableProperty] private bool _isSystem;
     [ObservableProperty] private SystemViewModel? _system;
 
@@ -39,8 +39,8 @@ public partial class FeatureViewModel : ViewModelBase
 
     private void InitializeItems(Feature feature, AppConfig? config)
     {
-        var rawItems = new List<object>();
-        var initTasks = new List<Task>();
+        List<object> rawItems = [];
+        List<Task> initTasks = [];
         if (feature.Items == null) { DistributeItems(rawItems); return; }
 
         bool isAppFeature = feature.Name.Equals("Apps", StringComparison.OrdinalIgnoreCase);
@@ -69,7 +69,7 @@ public partial class FeatureViewModel : ViewModelBase
                     continue;
                 }
 
-                var group = new ItemGroupViewModel(item.Category, item.Icon, item.Column);
+                var group = new ItemGroupViewModel(item.Category ?? string.Empty, item.Icon, item.Column);
                 bool isDebloat = item.Category?.Contains("Debloat", StringComparison.OrdinalIgnoreCase) == true;
                 bool groupInstallerLane = isAppFeature && !isDebloat;
                 bool isStartupApps = item.Category?.Equals("Startup Apps", StringComparison.OrdinalIgnoreCase) == true;
@@ -99,8 +99,8 @@ public partial class FeatureViewModel : ViewModelBase
 
     private void DistributeItems(List<object> items)
     {
-        var columns = new List<object>[] { new(), new(), new() };
-        var unassigned = new List<object>();
+        List<object>[] columns = [[], [], []];
+        List<object> unassigned = [];
 
         foreach (var item in items)
         {
@@ -130,7 +130,7 @@ public partial class FeatureViewModel : ViewModelBase
         try
         {
             var entries = await new StartupService(_coreService).GetStartupEntriesAsync();
-            var tasks = new List<Task>();
+            List<Task> tasks = [];
             foreach (var entry in entries)
             {
                 var vm = new ItemViewModel(entry, _coreService, _configService, false);

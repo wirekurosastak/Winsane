@@ -11,10 +11,10 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly ConfigService _configService;
     private readonly CoreService _coreService;
-    private List<SearchResultItem> _allSearchableItems = new();
+    private List<SearchResultItem> _allSearchableItems = [];
 
-    [ObservableProperty] private ObservableCollection<FeatureViewModel> _features = new();
-    [ObservableProperty] private ObservableCollection<SearchResultItem> _searchResults = new();
+    [ObservableProperty] private ObservableCollection<FeatureViewModel> _features = [];
+    [ObservableProperty] private ObservableCollection<SearchResultItem> _searchResults = [];
     [ObservableProperty] private string _searchText = "";
     [ObservableProperty] private SearchResultItem? _selectedSearchResult;
     [ObservableProperty] private bool _isSearchPopupOpen;
@@ -104,7 +104,7 @@ public partial class MainWindowViewModel : ViewModelBase
             .Where(x => x.Title.Contains(value, StringComparison.OrdinalIgnoreCase) ||
                         x.Subtitle.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Take(10).ToList();
-        SearchResults = new ObservableCollection<SearchResultItem>(results);
+        SearchResults = [.. results];
         IsSearchPopupOpen = results.Any();
     }
 
@@ -118,9 +118,10 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             foreach (var f in Features)
             {
-                var allItems = new[] { f.LeftColumnItems, f.MiddleColumnItems, f.RightColumnItems }
+                ObservableCollection<object>[] cols = [f.LeftColumnItems, f.MiddleColumnItems, f.RightColumnItems];
+                var allItems = cols
                     .SelectMany(col => col)
-                    .SelectMany(i => i is ItemGroupViewModel g ? g.Items.Cast<object>() : new[] { i });
+                    .SelectMany(i => i is ItemGroupViewModel g ? g.Items.Cast<object>() : [(object)i]);
 
                 if (allItems.Contains(item)) { SelectedFeature = f; break; }
             }

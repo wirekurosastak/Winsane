@@ -12,7 +12,7 @@ public class StartupService
 
     public async Task<List<Item>> GetStartupEntriesAsync()
     {
-        var items = new List<Item>();
+        List<Item> items = [];
 
         string script = @"
 $results = @()
