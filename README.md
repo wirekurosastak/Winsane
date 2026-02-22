@@ -4,7 +4,7 @@
 
 **The Next-Generation, Data-Driven Windows 11 Optimization & Security Hardening Tool**
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512bd4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512bd4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/UI-Avalonia-aa00ff?style=flat-square)](https://avaloniaui.net/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011-0078d4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue?style=flat-square)](LICENSE)
@@ -13,7 +13,7 @@
 
 ---
 
-**Winsane** is a professional system utility built with **.NET 8** and **Avalonia UI**. It features a unique **Data-Driven architecture** where system logic is decoupled from the UI via YAML instruction sets, ensuring a modular and extensible environment.
+**Winsane** is a professional system utility built with **.NET 10** and **Avalonia UI**. It features a unique **Data-Driven architecture** where system logic is decoupled from the UI via YAML instruction sets, ensuring a modular and extensible environment.
 
 ## ✨ Key Features
 
@@ -41,7 +41,7 @@ The name **Winsane**, its logo, and all associated branding are trademarks of th
 
 ## 🛠 Tech Stack
 
-* **Framework:** .NET 8 (C# 12)
+* **Framework:** .NET 10 (C# 14)
 * **UI Framework:** Avalonia UI & FluentAvalonia
 * **Engine:** YAML-based instruction sets with PowerShell integration
 
