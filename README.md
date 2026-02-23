@@ -45,5 +45,16 @@ The name **Winsane**, its logo, and all associated branding are trademarks of th
 * **UI Framework:** Avalonia UI & FluentAvalonia
 * **Engine:** YAML-based instruction sets with PowerShell integration
 
+## 🚀 Building & Running
+
+To build the project as a self-contained, single-file executable, run the following command in the project root:
+
+```bash
+dotnet publish
+```
+
+The compiled release executable can be found at:
+`bin\Release\net10.0-windows\win-x64\publish\Winsane.exe`
+
 ---
 *Developed by wirekurosastak - Computer Science Student at Eszterházy Károly University*
