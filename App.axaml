@@ -100,5 +100,11 @@
         <Style Selector="Button.accent:pressed /template/ ContentPresenter">
             <Setter Property="Foreground" Value="White" />
         </Style>
+        
+        <!-- Compact nested SettingsExpanderItem -->
+        <Style Selector="ui|SettingsExpander ui|SettingsExpander ui|SettingsExpanderItem">
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="16,4,16,4" />
+        </Style>
     </Application.Styles>
 </Application>

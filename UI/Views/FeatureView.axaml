@@ -41,7 +41,7 @@
                 <ui:SettingsExpander IsVisible="{Binding HasSubItems}"
                                      ItemsSource="{Binding SubItems}"
                                      ItemTemplate="{DynamicResource GroupItemTemplate}"
-                                     IsExpanded="False"
+                                     IsExpanded="True"
                                      IconSource="{Binding Icon, Converter={StaticResource IconSourceConverter}}">
                     <ui:SettingsExpander.Header>
                         <Grid ColumnDefinitions="*,Auto">

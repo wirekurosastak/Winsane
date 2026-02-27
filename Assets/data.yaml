@@ -22,25 +22,25 @@ features:
       button: irm https://get.activated.win | iex
       button_text: Activate
 
-    - name: Boot Optimization ⭐ #🟢 (25H2)
+    - name: Boot Optimization #🟢 (25H2)
       purpose: Sets boot timeout to minimum for faster startup
       check: $b = bcdedit | Out-String; if ($b -match 'timeout\s+(\d+)') { $matches[1] -eq '3' } else { $false }
       true: Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 3" -Verb RunAs
       false: Start-Process -FilePath "bcdedit.exe" -ArgumentList "/timeout 30" -Verb RunAs
         
-    - name: Ultimate Performance ⭐ #🟢 (25H2)
+    - name: Ultimate Performance #🟢 (25H2)
       purpose: Enables the Ultimate Performance power plan
       check: (powercfg /getactivescheme) -match 'e9a42b02-d5df-448d-aa00-03f14749eb01'
       true: $g="e9a42b02-d5df-448d-aa00-03f14749eb01"; if(!(powercfg /list | Select-String $g)) { powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 $g }; powercfg -setactive $g
       false: powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e; powercfg -delete e9a42b02-d5df-448d-aa00-03f14749eb01
       
-    - name: Disable Superfetch ⭐ #🟢 (25H2)
+    - name: Disable Superfetch #🟢 (25H2)
       purpose: Disables the SysMain service
       check: (Get-Service -Name SysMain -ErrorAction SilentlyContinue).StartType -eq 'Disabled'
       true: Set-Service -Name SysMain -StartupType Disabled; Stop-Service -Name SysMain -Force
       false: Set-Service -Name SysMain -StartupType Automatic; Start-Service -Name SysMain
         
-    - name: Disable Search Indexing ⭐ #🟢 (25H2)
+    - name: Disable Search Indexing #🟢 (25H2)
       purpose: Disables the search indexing service
       check: (Get-Service -Name WSearch -ErrorAction SilentlyContinue).StartType -eq 'Disabled'
       true: Set-Service -Name WSearch -StartupType Disabled; Stop-Service -Name WSearch -Force
@@ -58,19 +58,19 @@ features:
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 1 -Force
       
-    - name: Disable Last Access Timestamp ⭐ #🟡 untested
+    - name: Disable Last Access Timestamp #🟡 untested
       purpose: Disable NTFS 'Last Access' timestamps to boost disk speed.
       check: (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -ErrorAction SilentlyContinue).NtfsDisableLastAccessUpdate -eq 1
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "NtfsDisableLastAccessUpdate" -Type DWord -Value 0 -Force
       
-    - name: Disable Edge Background Mode ⭐ #🟡 untested
+    - name: Disable Edge Background Mode #🟡 untested
       purpose: Prevents Microsoft Edge from running background processes when closed
       check: (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -ErrorAction SilentlyContinue).BackgroundModeEnabled -eq 0
       true: New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -Type DWord -Value 0 -Force
       false: Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name 'BackgroundModeEnabled' -Force -ErrorAction SilentlyContinue
       
-    - name: Disable Edge Startup Boost ⭐ #🟡 untested
+    - name: Disable Edge Startup Boost #🟡 untested
       purpose: Stops Edge from pre-loading processes at boot
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -ErrorAction SilentlyContinue).StartupBoostEnabled -eq 0
       true: New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "StartupBoostEnabled" -Type DWord -Value 0 -Force
@@ -81,31 +81,31 @@ features:
       icon: "&#xE7FC;"
       column: 1
     
-    - name: Enable Game Mode ⭐ #🟡 untested
+    - name: Enable Game Mode #🟡 untested
       purpose: Prioritizes CPU/GPU resources for the active game window
       check: (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -ErrorAction SilentlyContinue).AutoGameModeEnabled -eq 1
       true: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 0 -Type DWORD -Force
 
-    - name: Disable GameDVR ⭐ #🟡 untested
+    - name: Disable GameDVR #🟡 untested
       purpose: Stops Windows from constantly recording gameplay in the background
       check: (Get-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -ErrorAction SilentlyContinue).GameDVR_Enabled -eq 0
       true: Set-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -Value 0 -Type DWORD -Force
       false: Set-ItemProperty -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled' -Value 1 -Type DWORD -Force
         
-    - name: Disable Mouse Acceleration ⭐ #🟢 (25H2)
+    - name: Disable Mouse Acceleration #🟢 (25H2)
       purpose: Disables 'Enhance Pointer Precision' for 1:1 raw input
       check: (Get-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -ErrorAction SilentlyContinue).MouseSpeed -eq "0"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value "0" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value "0" -Force
       false: Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "1" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value "6" -Force; Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value "10" -Force
         
-    - name: Disable Network Throttling ⭐ #🟡 untested
+    - name: Disable Network Throttling #🟡 untested
       purpose: Disables network throttling
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -ErrorAction SilentlyContinue).NetworkThrottlingIndex -eq 4294967295
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295 -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 10 -Force
 
-    - name: Disable Sticky Keys ⭐ #🟢 (25H2)
+    - name: Disable Sticky Keys #🟢 (25H2)
       purpose: Prevents the prompt when pressing Shift 5 times
       check: (Get-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -ErrorAction SilentlyContinue).Flags -eq "506"
       true: Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506" -Force
@@ -116,7 +116,7 @@ features:
       icon: "&#xEA99;"
       column: 2
 
-    - name: Automatic Cleaning ⭐
+    - name: Automatic Cleaning
       purpose: Clean selected items on startup (Files/Browsers)
       check: Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Winsane Cleaner.vbs"
       true: |
@@ -452,7 +452,7 @@ features:
       true: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0; Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
       false: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1; Disable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Disable VBS (Core Isolation) ⭐ #🟡 untested
+    - name: Disable VBS (Core Isolation) #🟡 untested
       purpose: Disables Virtualization-Based Security and Memory Integrity for maximum gaming FPS
       check: $vbs = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity; $hvci = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled; ($vbs -eq 0) -and ($hvci -eq 0)
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0 -Force; New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" -Name "Enabled" -Type DWord -Value 0 -Force
@@ -481,19 +481,19 @@ features:
       icon: "&#xED1A;"
       column: 1
 
-    - name: Disable Telemetry ⭐ #🟡 untested
+    - name: Disable Telemetry #🟡 untested
       purpose: Reduces background data collection
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue).AllowTelemetry -eq 0
       true: if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection")) { New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null }; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0 -Force; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue; Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Force -ErrorAction SilentlyContinue
         
-    - name: Disable Location Tracking ⭐ #🟡 untested
+    - name: Disable Location Tracking #🟡 untested
       purpose: Prevents apps and the OS from tracking global location
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -ErrorAction SilentlyContinue).Value -eq "Deny"
       true: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Deny" -Force
       false: Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Allow" -Force
         
-    - name: Disable Advertising ID ⭐ #🟡 untested
+    - name: Disable Advertising ID #🟡 untested
       purpose: Prevents apps from using your advertising ID
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled -eq 0
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0 -Force
@@ -510,7 +510,7 @@ features:
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Force -ErrorAction SilentlyContinue
         
-    - name: Disable Automatic Maintenance ⭐ #🟡 untested
+    - name: Disable Automatic Maintenance #🟡 untested
       purpose: Disables automatic maintenance tasks
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -ErrorAction SilentlyContinue).MaintenanceDisabled -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -Type DWord -Value 1 -Force
@@ -527,13 +527,13 @@ features:
       icon: "&#xEC50;"
       column: 0
       
-    - name: Open File Explorer to This PC ⭐ #🟢 (25H2)
+    - name: Open File Explorer to This PC #🟢 (25H2)
       purpose: Sets Explorer to open 'This PC' instead of 'Home'.
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -ErrorAction SilentlyContinue).LaunchTo -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 2 -Force
       
-    - name: Expand to Current Folder ⭐ #🟢 (25H2)
+    - name: Expand to Current Folder #🟢 (25H2)
       purpose: Automatically expands the left sidebar to show your current folder
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -ErrorAction SilentlyContinue).NavPaneExpandToCurrentFolder -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "NavPaneExpandToCurrentFolder" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
@@ -545,30 +545,31 @@ features:
       true: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 1 -Force
       false: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWord -Value 0 -Force
         
-    - name: Show Hidden Files ⭐ #🟢 (25H2)
+    - name: Show Hidden Files #🟢 (25H2)
       purpose: Forces Explorer to show hidden files and folders
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -ErrorAction SilentlyContinue).Hidden -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2 -Force; Stop-Process -Name explorer -Force
 
-    - name: Show File Extensions ⭐ #🟢 (25H2)
-      purpose: Forces Explorer to show file extensions
-      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -ErrorAction SilentlyContinue).HideFileExt -eq 0
-      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
-      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
-      
     - name: Show Protected OS Files #🟡 untested
       purpose: Reveals hidden system files (SuperHidden) in File Explorer
       check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -ErrorAction SilentlyContinue).ShowSuperHidden -eq 1
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSuperHidden" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
 
+    - name: Show File Extensions #🟢 (25H2)
+      purpose: Forces Explorer to show file extensions
+      check: (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -ErrorAction SilentlyContinue).HideFileExt -eq 0
+      true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
+      false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 1 -Force; Stop-Process -Name explorer -Force
+
+
     #CATEGORY
     - category: UI
       icon: "&#xECA5;"
       column: 0
 
-    - name: Classic Right-Click ⭐ #🟢 (25H2)
+    - name: Classic Right-Click #🟢 (25H2)
       purpose: Restores the full context menu by removing 'Show more options'
       check: Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
       true: New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force | Out-Null; Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(default)" -Value "" -Force
@@ -615,7 +616,7 @@ features:
       true: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
       false: Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1 -Force
 
-    - name: Disable Widgets ⭐ #🟢 (25H2)
+    - name: Disable Widgets #🟢 (25H2)
       purpose: Removes the Widgets button from the taskbar (Universal)
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -ErrorAction SilentlyContinue).AllowNewsAndInterests -eq 0
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type DWord -Value 0 -Force; Stop-Process -Name explorer -Force
@@ -626,12 +627,12 @@ features:
       icon: "&#xF0E2;"
       column: 1
 
-    - name: Disable Consumer Features ⭐ #🟡 untested
+    - name: Disable Consumer Features #🟡 untested
       purpose: Disables 'Suggested' apps and ads in the Start Menu
       check: (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue).DisableWindowsConsumerFeatures -eq 1
       true: New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
       false: Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
-    - name: Disable Bing Search Results ⭐ #🟡 untested
+    - name: Disable Bing Search Results #🟡 untested
       purpose: Prevents web results and trending searches in the Start Menu
       check: (Get-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -ErrorAction SilentlyContinue).DisableSearchBoxSuggestions -eq 1
       true: if (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer")) { New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Force | Out-Null }; Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Type DWord -Value 1 -Force
@@ -720,12 +721,12 @@ features:
         true: winget install --id TheBrowserCompany.Arc -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id TheBrowserCompany.Arc -e --silent --force
       - name: Thorium #🟡 uninstall requires user interaction
-        purpose: Performance-optimized Chromium fork (Often benchmarked as fastest)
+        purpose: Performance-optimized Chromium fork
         check: winget list --id Alex313031.Thorium -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id Alex313031.Thorium -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Alex313031.Thorium -e --silent --force
       - name: Zen #🔴 didnt install
-        purpose: Firefox-based with modern Arc-like UI (Vertical tabs, Split view)
+        purpose: Firefox-based with modern Arc-like UI
         check: winget list --id Zen-Team.Zen-Browser -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id Zen-Team.Zen-Browser -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Zen-Team.Zen-Browser -e --silent --force
@@ -740,7 +741,7 @@ features:
         true: winget install --id Microsoft.VisualStudioCode -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Microsoft.VisualStudioCode -e --silent --force
       - name: Git #🟢
-        purpose: Distributed version control system for tracking changes in source code
+        purpose: Distributed version control system
         check: winget list --id Git.Git -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id Git.Git -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Git.Git -e --silent --force
@@ -790,7 +791,7 @@ features:
         true: winget install --id Axosoft.GitKraken -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Axosoft.GitKraken -e --silent --force
       - name: VS 2022 Community #🟡 uninstall requires user interaction
-        purpose: Free, full-featured IDE for students and open-source developers
+        purpose: Free, full-featured IDE
         check: winget list --id Microsoft.VisualStudio.2022.Community -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id Microsoft.VisualStudio.2022.Community -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Microsoft.VisualStudio.2022.Community -e --silent --force
@@ -840,7 +841,7 @@ features:
         true: winget install --id EpicGames.EpicGamesLauncher -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id EpicGames.EpicGamesLauncher -e --silent --force
       - name: GOG Galaxy #🟢
-        purpose: Launcher that allows to unite all your games and friends in one place
+        purpose: Launcher that unites all your games and friends in one place
         check: winget list --id GOG.Galaxy -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id GOG.Galaxy -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id GOG.Galaxy -e --silent --force
@@ -930,12 +931,12 @@ features:
         true: winget install --id TechPowerUp.GPU-Z -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id TechPowerUp.GPU-Z -e --silent --force
       - name: 7-Zip #🟢
-        purpose: Free and open-source file archiver with a high compression ratio
+        purpose: Free and open-source file archiver
         check: winget list --id 7zip.7zip -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id 7zip.7zip -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id 7zip.7zip -e --silent --force
       - name: Everything #🟢
-        purpose: Lightning-fast file search utility for Windows
+        purpose: Lightning-fast file search utility
         check: winget list --id voidtools.Everything -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id voidtools.Everything -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id voidtools.Everything -e --silent --force
@@ -955,7 +956,7 @@ features:
         true: winget install --id Notion.Notion -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Notion.Notion -e --silent --force
       - name: Obsidian #🟢
-        purpose: A powerful knowledge base that works on top of local Markdown files
+        purpose: A knowledge base that works on top of local Markdown files
         check: winget list --id Obsidian.Obsidian -e | Out-Null; $LASTEXITCODE -eq 0
         true: winget install --id Obsidian.Obsidian -e --source winget --accept-source-agreements --accept-package-agreements --silent --force
         false: winget uninstall --id Obsidian.Obsidian -e --silent --force
